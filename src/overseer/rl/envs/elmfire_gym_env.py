@@ -3,11 +3,13 @@ import numpy as np
 from typing import Dict, Any, Tuple
 
 from overseer.config import OverseerConfig
-from overseer.elmfire import SimulationManager
-from overseer.data import DataManager
-from overseer.rl.rewards import RewardManager
-from overseer.rl.spaces import ActionSpace, ObservationSpace
-from overseer.rl.utils import StateEncoder, ActionDecoder
+from overseer.elmfire.simulation_manager import SimulationManager
+from overseer.elmfire.data_manager import DataManager
+from overseer.rl.rewards.reward_manager import RewardManager
+from overseer.rl.spaces.action_space import ActionSpace
+from overseer.rl.spaces.observation_space import ObservationSpace
+from overseer.rl.utils.state_encoder import StateEncoder
+from overseer.rl.utils.action_decoder import ActionDecoder
 
 class ElmfireGymEnv(gym.Env):
     """

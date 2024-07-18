@@ -1,5 +1,5 @@
 import numpy as np
-from overseer.foundation.autoencoder import ConvolutionalAutoencoder
+from overseer.config import OverseerConfig
 
 class StateEncoder:
     """

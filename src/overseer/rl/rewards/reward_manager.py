@@ -1,4 +1,15 @@
+from typing import Dict, Any
+import numpy as np
+from overseer.config import OverseerConfig
+from overseer.elmfire.data_manager import DataManager
+from overseer.utils.logging import OverseerLogger
+from .reward_strategies import RewardStrategy, SimpleAreaRewardStrategy, ResourceAwareRewardStrategy
+
+
+
 class RewardManager:
+
+
     """
     Manages the calculation of rewards for the RL environment.
 

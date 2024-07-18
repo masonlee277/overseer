@@ -1,4 +1,5 @@
-import gymnasium as gym
+import gym
+from overseer.config import OverseerConfig
 
 class ActionSpace:
     """
