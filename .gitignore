@@ -100,3 +100,6 @@ elmfire_outputs/
 # Overseer specific
 overseer_outputs/
 overseer_logs/
+
+# ELMFIRE specific
+elmfire/

@@ -1,0 +1,52 @@
+# Default ELMFIRE Configuration
+
+# Simulation Parameters
+simulation:
+  start_time: "2023-01-01T00:00:00"
+  end_time: "2023-01-02T00:00:00"
+  time_step: 3600 # in seconds
+
+# Spatial Parameters
+spatial:
+  resolution: 30 # in meters
+  extent:
+    xmin: 0
+    ymin: 0
+    xmax: 10000
+    ymax: 10000
+
+# Weather Parameters
+weather:
+  wind_speed: 10 # in m/s
+  wind_direction: 0 # in degrees
+  temperature: 25 # in Celsius
+  relative_humidity: 30 # in percent
+
+# Fuel Parameters
+fuel:
+  fuel_model: "FBFM40"
+  moisture_1hr: 6 # in percent
+  moisture_10hr: 7 # in percent
+  moisture_100hr: 8 # in percent
+  moisture_live_herb: 60 # in percent
+  moisture_live_woody: 90 # in percent
+
+# Ignition Parameters
+ignition:
+  type: "point"
+  coordinates:
+    - [5000, 5000] # [x, y] in meters
+
+# Output Parameters
+output:
+  frequency: 3600 # in seconds
+  variables:
+    - "fire_arrival_time"
+    - "flame_length"
+    - "rate_of_spread"
+
+# ELMFIRE Specific Parameters
+elmfire:
+  executable_path: "/path/to/elmfire"
+  input_directory: "/path/to/input/data"
+  output_directory: "/path/to/output/data"
