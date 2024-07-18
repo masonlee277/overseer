@@ -1,63 +1,114 @@
-# Overseer: ELMFIRE Simulation and Reinforcement Learning Framework
+# Overseer: Advanced ELMFIRE Simulation & RL Framework
 
-## Overview
+#![Overseer Logo](path/to/logo.png)
 
-Overseer is a Python framework designed to enhance and extend the capabilities of the ELMFIRE (Eulerian Level Set Model of FIRE spread) simulator. It integrates reinforcement learning techniques for optimizing wildfire suppression strategies and provides tools for running simulations, analyzing results, and visualizing outcomes.
+## 🔥 Overview
 
-## Main Components
+Overseer is a cutting-edge Python framework that supercharges the ELMFIRE (Eulerian Level Set Model of FIRE spread) simulator with advanced reinforcement learning capabilities. It's designed to revolutionize wildfire suppression strategies through intelligent simulation, deep analysis, and stunning visualizations.
 
-1. **Configuration (overseer.config)**
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://overseer-docs.readthedocs.io/)
 
-   - OverseerConfig: Manages global configuration for the entire system.
+## 🌟 Key Features
 
-2. **Data Management (overseer.data)**
+- 🧠 Reinforcement Learning Integration
+- 🌍 Advanced Geospatial Analysis
+- 🔄 Dynamic ELMFIRE Simulation Management
+- 📊 Real-time Data Visualization
+- 🛠 Flexible Configuration System
 
-   - DataManager: Handles data operations, storage, and retrieval for simulations and RL training.
+## 🏗 Architecture
 
-3. **ELMFIRE Integration (overseer.elmfire)**
+Overseer follows a modular, component-based architecture, leveraging key design patterns for maximum flexibility and extensibility.
 
-   - SimulationManager: Manages ELMFIRE simulations, including running simulations and processing outputs.
-   - ConfigurationManager: Handles ELMFIRE-specific configurations.
+### Core Components
 
-4. **Reinforcement Learning (overseer.rl)**
+1. **Configuration (Singleton Pattern)**
 
-   - ElmfireGymEnv (in envs/): Implements a Gym-compatible environment for RL agents to interact with ELMFIRE simulations.
-   - RewardManager (in rewards/): Calculates rewards for RL agents based on simulation outcomes.
-   - ActionSpace and ObservationSpace (in spaces/): Define the action and observation spaces for the RL environment.
-   - StateEncoder and ActionDecoder (in utils/): Handle conversion between ELMFIRE states/actions and RL-compatible formats.
+   ```python
+   from overseer.config.config import OverseerConfig
 
-5. **Utilities (overseer.utils)**
-   - OverseerLogger: Provides logging capabilities across the entire system.
+   config = OverseerConfig('path/to/config.yaml')
+   log_level = config.get('log_level', 'INFO')
+   ```
 
-## Key Interactions
+2. **Data Management (Facade Pattern)**
 
-- The ElmfireGymEnv uses the SimulationManager to run ELMFIRE simulations based on RL agent actions.
-- The DataManager is used by various components to save and load simulation states, RL metrics, and other data.
-- The RewardManager calculates rewards based on simulation outcomes, which are then used by the ElmfireGymEnv.
-- The ConfigurationManager is used by the SimulationManager to set up and modify ELMFIRE simulations.
+   ```python
+   from overseer.data.data_manager import DataManager
 
-## Usage
+   data_manager = DataManager(config)
+   data_manager.save_state(current_state)
+   ```
 
-Here's a basic example of how to use Overseer:
+3. **ELMFIRE Integration (Strategy Pattern)**
+
+   ```python
+   from overseer.elmfire.simulation_manager import SimulationManager
+
+   sim_manager = SimulationManager(config)
+   next_state = sim_manager.run_simulation(current_state, action)
+   ```
+
+4. **Reinforcement Learning (Observer Pattern)**
+
+   ```python
+   from overseer.rl.envs.elmfire_gym_env import ElmfireGymEnv
+
+   env = ElmfireGymEnv(config)
+   obs, reward, done, info = env.step(action)
+   ```
+
+5. **Geospatial Analysis (Decorator Pattern)**
+
+   ```python
+   from overseer.data.geospatial_manager import GeoSpatialManager
+
+   geo_manager = GeoSpatialManager(config)
+   risk_areas = geo_manager.identify_high_risk_areas(fire_intensity, elevation, fuel_type)
+   ```
+
+## 🔧 Installation
+
+Clone the repository:
+
+````bash
+git clone https://github.com/your-repo/overseer.git
+
+## 🚀 Quick Start
 
 ```python
 from overseer import OverseerConfig, ElmfireGymEnv, SimulationManager, DataManager
 
-# Initialize configuration
-config = OverseerConfig('path/to/config.yaml')
-
-# Initialize managers
+# Initialize the system
+config = OverseerConfig('config/overseer_config.yaml')
 data_manager = DataManager(config)
 sim_manager = SimulationManager(config)
+env = ElmfireGymEnv(config)
 
-# Create the RL environment
-env = ElmfireGymEnv(config, sim_manager, data_manager)
-
-# Use the environment with your RL algorithm
-observation = env.reset()
-for _ in range 1000:
-    action = your_rl_agent.choose_action(observation)
-    observation, reward, done, info = env.step(action)
+# Run a simulation with RL
+obs = env.reset()
+for step in range(1000):
+    action = rl_agent.get_action(obs)
+    obs, reward, done, info = env.step(action)
     if done:
-        observation = env.reset()
-```
+        break
+
+# Analyze results
+results = data_manager.get_episode_data(env.current_episode)
+GeoSpatialManager.visualize_fire_progression(results['fire_intensity_history'])
+
+
+## Analyze Results
+
+```python
+from overseer.data.data_manager import DataManager
+from overseer.data.geospatial_manager import GeoSpatialManager
+
+# Retrieve episode data
+results = data_manager.get_episode_data(env.current_episode)
+
+# Visualize fire progression
+GeoSpatialManager.visualize_fire_progression(results['fire_intensity_history'])
+````
