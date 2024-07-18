@@ -1,9 +1,8 @@
-import os
-from pathlib import Path
-from typing import Dict, Optional, Any
 import logging
+from pathlib import Path
+from typing import Dict, Any
 from datetime import datetime
-import shutil
+from overseer.config.config import OverseerConfig
 
 class OverseerLogger:
     """
@@ -22,24 +21,13 @@ class OverseerLogger:
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self) -> None:
+    def __init__(self):
         if self._initialized:
             return
         self._initialized = True
+        self.config = OverseerConfig()
         self.loggers: Dict[str, logging.Logger] = {}
-        self.log_dir: Path = Path('logs')
-        self.max_log_files: int = 5
-
-    def initialize(self, log_dir: Optional[str] = None, max_log_files: int = 5) -> None:
-        """
-        Initialize the logging system.
-
-        Args:
-            log_dir (Optional[str]): Directory to store log files. Defaults to 'logs'.
-            max_log_files (int): Maximum number of log files to keep per component. Defaults to 5.
-        """
-        self.log_dir = Path(log_dir) if log_dir else Path('logs')
-        self.max_log_files = max_log_files
+        self.log_dir: Path = self.config.log_dir
         self._create_log_directory()
 
     def _create_log_directory(self) -> None:
@@ -68,44 +56,16 @@ class OverseerLogger:
             name (str): Name of the component.
         """
         logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(self.config.log_level)
 
-        self._rotate_logs(name)
+        file_handler = logging.FileHandler(self.log_dir / f"{name}_logs.log")
+        file_handler.setLevel(self.config.log_level)
 
-        file_handler = logging.FileHandler(self.log_dir / f"{name}.log")
-        file_handler.setLevel(logging.DEBUG)
-
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(self.config.log_format)
         file_handler.setFormatter(formatter)
 
         logger.addHandler(file_handler)
         self.loggers[name] = logger
-
-    def _rotate_logs(self, name: str) -> None:
-        """
-        Rotate log files for a component.
-
-        Args:
-            name (str): Name of the component.
-        """
-        log_file = self.log_dir / f"{name}.log"
-        if log_file.exists():
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            new_name = self.log_dir / f"{name}_{timestamp}.log"
-            shutil.move(str(log_file), str(new_name))
-
-        self._cleanup_old_logs(name)
-
-    def _cleanup_old_logs(self, name: str) -> None:
-        """
-        Remove old log files exceeding the maximum number allowed.
-
-        Args:
-            name (str): Name of the component.
-        """
-        log_files = sorted(self.log_dir.glob(f"{name}_*.log"), key=os.path.getmtime, reverse=True)
-        for old_file in log_files[self.max_log_files - 1:]:
-            old_file.unlink()
 
     def log(self, name: str, level: str, message: str, **kwargs: Any) -> None:
         """
@@ -125,13 +85,6 @@ class OverseerLogger:
 
         log_method(message)
 
-    def start_new_run(self) -> None:
-        """
-        Start a new run by rotating all log files.
-        """
-        for name in self.loggers:
-            self._rotate_logs(name)
-
     def get_recent_logs(self, name: str, lines: int = 100) -> str:
         """
         Retrieve the most recent log entries for a component.
@@ -143,7 +96,7 @@ class OverseerLogger:
         Returns:
             str: The most recent log entries.
         """
-        log_file = self.log_dir / f"{name}.log"
+        log_file = self.log_dir / f"{name}_logs.log"
         if not log_file.exists():
             return f"No log file found for {name}"
 
@@ -152,5 +105,4 @@ class OverseerLogger:
 
 # Usage example:
 # logger = OverseerLogger()
-# logger.initialize(log_dir='my_logs', max_log_files=10)
 # logger.log('SimulationManager', 'info', 'Starting simulation', sim_id=123)

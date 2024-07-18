@@ -1,3 +1,5 @@
+# src/overseer/data/data_manager.py
+
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
@@ -8,18 +10,21 @@ import json
 import rasterio
 from ..config.overseer_config import OverseerConfig
 from ..utils.logging import OverseerLogger
+from ..geospatial.geospatial_manager import GeoSpatialManager
 
 class DataManager:
     """
-    Manages data operations for ELMFIRE simulations and the RL environment.
+    Manages all data operations for ELMFIRE simulations and the RL environment,
+    including geospatial data handling.
 
     This class is responsible for:
     1. Saving and loading simulation states
-    2. Managing geospatial data (saving and loading GeoTIFF files)
+    2. Managing geospatial data (saving, loading, and processing GeoTIFF files)
     3. Handling RL metrics
     4. Preprocessing data for the RL environment
     5. Managing intermediate states
     6. Aggregating and analyzing simulation results
+    7. Coordinating geospatial operations through GeoSpatialManager
 
     It does NOT:
     1. Run simulations (handled by SimulationManager)
@@ -31,6 +36,7 @@ class DataManager:
     - SimulationManager: Provides data storage and retrieval for simulation states
     - ElmfireGymEnv: Offers data preprocessing for the RL environment
     - ConfigurationManager: May load/save configuration-related data
+    - GeoSpatialManager: Handles specific geospatial operations
 
     Attributes:
         config (OverseerConfig): The OverseerConfig instance.
@@ -38,6 +44,7 @@ class DataManager:
         data_dir (Path): Root directory for all data storage.
         current_episode (int): The current episode number.
         current_step (int): The current step number within the episode.
+        geospatial_manager (GeoSpatialManager): Manager for geospatial operations.
     """
 
     def __init__(self, config: OverseerConfig):
@@ -52,6 +59,7 @@ class DataManager:
         self.data_dir = Path(config.get('data_directory'))
         self.current_episode = 0
         self.current_step = 0
+        self.geospatial_manager = GeoSpatialManager(config)
 
     def save_simulation_state(self, state: Dict[str, Any]) -> None:
         """
@@ -113,14 +121,8 @@ class DataManager:
             filename (str): Name of the file to save.
         """
         filepath = self.data_dir / 'simulations' / 'processed' / filename
-        
-        try:
-            with rasterio.open(filepath, 'w', **metadata) as dst:
-                dst.write(data)
-            self.logger.info(f"Saved geospatial data to {filepath}")
-        except Exception as e:
-            self.logger.error(f"Failed to save geospatial data: {str(e)}")
-            raise
+        self.geospatial_manager.save_tiff(str(filepath), data, metadata)
+        self.logger.info(f"Saved geospatial data to {filepath}")
 
     def load_geospatial_data(self, filename: str) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
@@ -133,16 +135,9 @@ class DataManager:
             Tuple[np.ndarray, Dict[str, Any]]: The loaded data and its metadata.
         """
         filepath = self.data_dir / 'simulations' / 'processed' / filename
-        
-        try:
-            with rasterio.open(filepath) as src:
-                data = src.read()
-                metadata = src.meta
-            self.logger.info(f"Loaded geospatial data from {filepath}")
-            return data, metadata
-        except Exception as e:
-            self.logger.error(f"Failed to load geospatial data: {str(e)}")
-            raise
+        data, metadata = self.geospatial_manager.load_tiff(str(filepath))
+        self.logger.info(f"Loaded geospatial data from {filepath}")
+        return data, metadata
 
     def save_rl_metrics(self, metrics: Dict[str, float]) -> None:
         """
@@ -188,6 +183,8 @@ class DataManager:
         """
         Preprocess the simulation state for use in the RL environment.
 
+        This method now includes geospatial preprocessing using GeoSpatialManager.
+
         Args:
             state (Dict[str, Any]): The raw simulation state.
 
@@ -196,9 +193,15 @@ class DataManager:
         """
         try:
             numeric_data = []
-            for value in state.values():
+            for key, value in state.items():
                 if isinstance(value, (int, float, np.ndarray)):
                     numeric_data.extend(np.array(value).flatten())
+                elif key == 'fire_intensity':
+                    # Example of using GeoSpatialManager for preprocessing
+                    burned_area = self.geospatial_manager.calculate_burned_area(value, threshold=0.5)
+                    fire_perimeter = self.geospatial_manager.calculate_fire_perimeter(value, threshold=0.5)
+                    numeric_data.extend([burned_area, np.sum(fire_perimeter)])
+            
             preprocessed_state = np.array(numeric_data)
             self.logger.info("Preprocessed simulation state for RL")
             return preprocessed_state
@@ -260,6 +263,8 @@ class DataManager:
         """
         Aggregate results from all steps of a simulation episode.
 
+        This method now includes geospatial aggregation using GeoSpatialManager.
+
         Args:
             episode (int): The episode number to aggregate results for.
 
@@ -283,6 +288,13 @@ class DataManager:
                 'final_state': results[-1] if results else None,
                 'trajectory': results
             }
+
+            # Perform geospatial aggregation
+            if results:
+                fire_intensities = [state['fire_intensity'] for state in results]
+                aggregated_results['cumulative_burn_map'] = self.geospatial_manager.compute_cumulative_burn_map(fire_intensities)
+                aggregated_results['final_fire_perimeter'] = self.geospatial_manager.calculate_fire_perimeter(results[-1]['fire_intensity'], threshold=0.5)
+
             self.logger.info(f"Aggregated results for episode {episode}")
             return aggregated_results
         except Exception as e:
@@ -334,3 +346,118 @@ class DataManager:
             self.logger.info(f"Cleaned up old data, keeping the most recent {max_episodes} episodes")
         except Exception as e:
             self.logger.error(f"Failed to clean up old data: {str(e)}")
+
+    # Additional geospatial methods delegating to GeoSpatialManager
+
+    def calculate_burned_area(self, fire_intensity: np.ndarray, threshold: float) -> float:
+        """
+        Calculate the total burned area based on fire intensity.
+
+        Args:
+            fire_intensity (np.ndarray): The fire intensity array.
+            threshold (float): The threshold for considering an area burned.
+
+        Returns:
+            float: The total burned area in hectares.
+        """
+        return self.geospatial_manager.calculate_burned_area(fire_intensity, threshold)
+
+    def calculate_fire_perimeter(self, fire_intensity: np.ndarray, threshold: float) -> np.ndarray:
+        """
+        Calculate the fire perimeter based on fire intensity.
+
+        Args:
+            fire_intensity (np.ndarray): The fire intensity array.
+            threshold (float): The threshold for considering an area part of the fire.
+
+        Returns:
+            np.ndarray: A boolean array representing the fire perimeter.
+        """
+        return self.geospatial_manager.calculate_fire_perimeter(fire_intensity, threshold)
+
+    def compute_fire_spread_direction(self, fire_intensity: np.ndarray) -> np.ndarray:
+        """
+        Compute the predominant fire spread direction.
+
+        Args:
+            fire_intensity (np.ndarray): The fire intensity array.
+
+        Returns:
+            np.ndarray: An array representing the fire spread direction.
+        """
+        return self.geospatial_manager.compute_fire_spread_direction(fire_intensity)
+
+    def calculate_terrain_effects(self, elevation: np.ndarray, fire_intensity: np.ndarray) -> np.ndarray:
+        """
+        Calculate the effects of terrain on fire spread.
+
+        Args:
+            elevation (np.ndarray): The elevation data.
+            fire_intensity (np.ndarray): The fire intensity array.
+
+        Returns:
+            np.ndarray: An array representing the terrain effects on fire spread.
+        """
+        return self.geospatial_manager.calculate_terrain_effects(elevation, fire_intensity)
+
+    def identify_high_risk_areas(self, fire_intensity: np.ndarray, elevation: np.ndarray, fuel_type: np.ndarray) -> np.ndarray:
+        """
+        Identify areas at high risk for fire spread.
+
+        Args:
+            fire_intensity (np.ndarray): The fire intensity array.
+            elevation (np.ndarray): The elevation data.
+            fuel_type (np.ndarray): The fuel type data.
+
+        Returns:
+            np.ndarray: A boolean array indicating high-risk areas.
+        """
+        return self.geospatial_manager.identify_high_risk_areas(fire_intensity, elevation, fuel_type)
+
+    def calculate_fire_containment(self, fire_perimeter: np.ndarray, containment_lines: np.ndarray) -> float:
+        """
+        Calculate the percentage of fire containment.
+
+        Args:
+            fire_perimeter (np.ndarray): The fire perimeter array.
+            containment_lines (np.ndarray): The containment lines array.
+
+        Returns:
+            float: The percentage of fire containment.
+        """
+        return self.geospatial_manager.calculate_fire_containment(fire_perimeter, containment_lines)
+
+    def preprocess_data_for_rl(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Preprocess the simulation state for use in the RL environment.
+
+        This method now includes geospatial preprocessing using GeoSpatialManager.
+
+        Args:
+            state (Dict[str, Any]): The raw simulation state.
+
+        Returns:
+            Dict[str, Any]: The preprocessed state suitable for the RL environment.
+        """
+        try:
+            processed_state = state.copy()
+            
+            # Use GeoSpatialManager for geospatial calculations
+            fire_intensity = state['fire_intensity']
+            processed_state['burned_area'] = self.calculate_burned_area(fire_intensity, threshold=0.5)
+            processed_state['fire_perimeter'] = self.calculate_fire_perimeter(fire_intensity, threshold=0.5)
+            processed_state['fire_spread_direction'] = self.compute_fire_spread_direction(fire_intensity)
+            
+            if 'elevation' in state:
+                processed_state['terrain_effects'] = self.calculate_terrain_effects(state['elevation'], fire_intensity)
+            
+            if 'fuel_type' in state:
+                processed_state['high_risk_areas'] = self.identify_high_risk_areas(fire_intensity, state['elevation'], state['fuel_type'])
+            
+            # Add more preprocessing steps as needed
+            
+            self.logger.info("Preprocessed simulation state for RL")
+            return processed_state
+        except Exception as e:
+            self.logger.error(f"Failed to preprocess state for RL: {str(e)}")
+            raise

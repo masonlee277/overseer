@@ -4,39 +4,6 @@
 
 Overseer is a Python framework designed to enhance and extend the capabilities of the ELMFIRE (Eulerian Level Set Model of FIRE spread) simulator. It integrates reinforcement learning techniques for optimizing wildfire suppression strategies and provides tools for running simulations, analyzing results, and visualizing outcomes.
 
-## Project Structure
-
-overseer/
-├── src/
-│ └── overseer/
-│ ├── config/
-│ │ ├── init.py
-│ │ └── config.py
-│ ├── data/
-│ │ ├── init.py
-│ │ └── data_manager.py
-│ ├── elmfire/
-│ │ ├── init.py
-│ │ ├── simulation_manager.py
-│ │ └── config_manager.py
-│ ├── rl/
-│ │ ├── agents/
-│ │ ├── envs/
-│ │ ├── rewards/
-│ │ ├── spaces/
-│ │ ├── utils/
-│ │ └── init.py
-│ ├── utils/
-│ │ ├── init.py
-│ │ └── logging.py
-│ └── init.py
-├── tests/
-├── docs/
-├── examples/
-├── requirements.txt
-├── setup.py
-└── README.md
-
 ## Main Components
 
 1. **Configuration (overseer.config)**
