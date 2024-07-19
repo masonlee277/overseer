@@ -1,4 +1,27 @@
-# Default ELMFIRE Configuration
+# Overseer Configuration
+
+# General Settings
+project_name: "Overseer ELMFIRE Simulation"
+version: "1.0.0"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/overseer.log"
+
+# Data Management
+data_management:
+  storage_type: "file" # Options: file, database
+  data_directory: "data/"
+  state_history_limit: 1000 # Number of states to keep in memory
+
+# ELMFIRE Configuration
+elmfire:
+  config_path: "config/elmfire_config.yaml"
+  executable_path: "/path/to/elmfire"
+  input_directory: "input/"
+  output_directory: "output/"
 
 # Simulation Parameters
 simulation:
@@ -14,6 +37,7 @@ spatial:
     ymin: 0
     xmax: 10000
     ymax: 10000
+  coordinate_reference_system: "EPSG:4326"
 
 # Weather Parameters
 weather:
@@ -37,16 +61,80 @@ ignition:
   coordinates:
     - [5000, 5000] # [x, y] in meters
 
-# Output Parameters
-output:
-  frequency: 3600 # in seconds
-  variables:
-    - "fire_arrival_time"
-    - "flame_length"
-    - "rate_of_spread"
+# Reinforcement Learning
+reinforcement_learning:
+  reward_strategy: "complex" # Options: simple, resource_aware, complex
+  episode_length: 24 # in hours
+  max_episodes: 1000
+  action_space:
+    type: "discrete"
+    n_actions: 5
+  observation_space:
+    type: "box"
+    low: [0, 0, 0, 0, 0]
+    high: [100, 100, 360, 50, 100]
 
-# ELMFIRE Specific Parameters
-elmfire:
-  executable_path: "/path/to/elmfire"
-  input_directory: "/path/to/input/data"
-  output_directory: "/path/to/output/data"
+# Reward Strategies
+reward_strategies:
+  simple:
+    area_weight: -1.0
+  resource_aware:
+    area_weight: -1.0
+    resource_weight: -0.1
+    growth_rate_weight: -10.0
+  complex:
+    short_term_weight: -1.0
+    medium_term_weight: -0.5
+    long_term_weight: -0.2
+    resource_efficiency_weight: 0.3
+    containment_progress_weight: 0.5
+
+# State Management
+state_management:
+  save_frequency: 10 # Save state every N steps
+  metrics_to_track:
+    - "burned_area"
+    - "fire_intensity"
+    - "resources_deployed"
+    - "wind_speed"
+    - "wind_direction"
+
+# GeoSpatial Analysis
+geospatial:
+  fire_intensity_threshold: 100 # Threshold for considering an area burned
+  high_risk_threshold: 0.7 # Threshold for identifying high-risk areas
+  spot_fire_probability_threshold: 0.5
+
+# Visualization
+visualization:
+  update_interval: 3600 # in seconds
+  plot_types:
+    - "fire_progression"
+    - "resource_allocation"
+    - "risk_map"
+
+# Resource Management
+resources:
+  types:
+    - name: "firefighter"
+      max_count: 100
+      effectiveness: 0.8
+    - name: "firetruck"
+      max_count: 20
+      effectiveness: 1.2
+    - name: "aircraft"
+      max_count: 5
+      effectiveness: 2.0
+
+# Performance Metrics
+performance_metrics:
+  - "total_burned_area"
+  - "average_containment_time"
+  - "resource_efficiency"
+  - "cost_effectiveness"
+
+# System Requirements
+system:
+  min_memory: "8GB"
+  recommended_cpu_cores: 4
+  gpu_acceleration: false

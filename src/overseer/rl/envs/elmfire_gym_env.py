@@ -72,29 +72,45 @@ class ElmfireGymEnv(gym.Env):
         Take a step in the environment given an action.
         """
         self.logger.info(f"Taking step with action: {action}")
+        
+        # Decode the action
         decoded_action = self.action_decoder.decode(action)
-        next_state = self.sim_manager.apply_action(decoded_action)
         
-        self.current_step += 1
-        self.state_manager.update_state(next_state)
+        # Apply the action and run the simulation
+        simulation_results = self.sim_manager.apply_action(decoded_action)
         
-        encoded_next_state = self.state_encoder.encode(self.state_manager.get_current_state())
+        # Process the simulation results and update the state
+        self.data_manager.process_simulation_results(simulation_results)
+        current_state = self.data_manager.get_current_state()
+        self.state_manager.update_state(current_state)
         
+        # Encode the state for the RL agent
+        encoded_next_state = self.state_encoder.encode(current_state)
+        
+        # Calculate the reward
         reward = self.reward_manager.calculate_reward(self.state_manager)
         
-        done = self._check_termination(self.state_manager.get_current_state())
-        truncated = self._check_truncation(self.state_manager.get_current_state())
-        info = self._get_info(self.state_manager.get_current_state())
+        # Check for episode termination or truncation
+        done = self._check_termination(current_state)
+        truncated = self._check_truncation(current_state)
         
+        # Get additional info
+        info = self._get_info(current_state)
+        
+        # Update RL metrics
         rl_metrics = {
             "reward": reward,
             "done": done,
             "truncated": truncated,
         }
-        self.state_manager.current_state.update_state({"rl_metrics": rl_metrics})
+        self.data_manager.update_rl_metrics(self.current_episode, self.current_step, rl_metrics)
+        
+        # Increment step counter
+        self.current_step += 1
         
         self.logger.info(f"Step complete. Reward: {reward}, Done: {done}, Truncated: {truncated}")
         return encoded_next_state, reward, done, truncated, info
+
     
     def _check_termination(self, state: Dict[str, Any]) -> bool:
         """Check if the episode should terminate."""
