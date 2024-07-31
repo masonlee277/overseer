@@ -1,6 +1,10 @@
 # src/overseer/data/data_manager.py
 
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
@@ -8,9 +12,10 @@ import pandas as pd
 import h5py
 import json
 import rasterio
-from ..config.overseer_config import OverseerConfig
-from ..utils.logging import OverseerLogger
-from ..geospatial.geospatial_manager import GeoSpatialManager
+from overseer.utils.logging import OverseerLogger
+from overseer.config.config import OverseerConfig
+
+from overseer.data.geospatial_manager import GeoSpatialManager
 
 class DataManager:
     """

@@ -12,7 +12,7 @@ class StateEncoder:
         dim_reduction_model (ConvolutionalAutoencoder): The dimensionality reduction model.
     """
     
-    def __init__(self, dim_reduction_model: ConvolutionalAutoencoder):
+    def __init__(self, dim_reduction_model):
         """
         Initialize the StateEncoder.
         

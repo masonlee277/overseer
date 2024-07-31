@@ -1,6 +1,11 @@
 # src/overseer/core/state_manager.py
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from typing import Dict, Any, Optional, List
+import numpy as np
+
 from overseer.config.config import OverseerConfig
 from overseer.utils.logging import OverseerLogger
 from overseer.data.data_manager import DataManager

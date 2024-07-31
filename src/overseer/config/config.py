@@ -26,7 +26,7 @@ class OverseerConfig:
         if self._initialized:
             return
         self._initialized = True
-        self.config_path: Path = Path(config_path) if config_path else Path('config/overseer_config.yaml')
+        self.config_path: Path = Path(config_path) if config_path else Path('config/elmfire_config.yaml')
         self.config: Dict[str, Any] = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -44,7 +44,11 @@ class OverseerConfig:
     def get(self, key: str, default: Any = None) -> Any:
         """Get a configuration value."""
         return self.config.get(key, default)
-
+    
+    def get_config(self) -> Dict[str, Any]:
+        """Get the entire configuration dictionary."""
+        return self.config
+    
     def set(self, key: str, value: Any):
         """Set a configuration value."""
         self.config[key] = value

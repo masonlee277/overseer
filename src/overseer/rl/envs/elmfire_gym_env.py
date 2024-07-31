@@ -132,4 +132,4 @@ class ElmfireGymEnv(gym.Env):
     
     def close(self):
         self.logger.info("Closing ElmfireGymEnv and cleaning up resources")
-        self.data_manager.
+        self.data_manager

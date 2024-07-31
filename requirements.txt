@@ -1,0 +1,39 @@
+# requirements.txt
+
+# Core dependencies
+numpy
+pandas
+geopandas
+rasterio
+gymnasium
+
+# Data handling and analysis
+scipy
+shapely
+pyproj
+
+# Machine Learning
+scikit-learn
+torch
+
+# Visualization
+matplotlib
+seaborn
+
+
+# Utility libraries
+tqdm
+pyyaml
+
+
+
+# Testing
+pytest
+
+# Logging and configuration
+python-dotenv
+
+# Jupyter notebooks (if used for development or analysis)
+jupyter
+ipython
+

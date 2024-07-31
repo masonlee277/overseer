@@ -229,3 +229,17 @@ class GeoSpatialManager:
                 layer_name = key[:-5]  # Remove '_path' suffix
                 layers[layer_name] = self.load_tiff(path)[0]
         return layers
+    
+    def update_raster_with_fireline(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
+        """
+        Update a raster file by setting values to zero along the fireline coordinates.
+
+        Args:
+            filepath (str): Path to the raster file.
+            fireline_coords (List[Tuple[int, int]]): List of (x, y) coordinates representing the fireline.
+        """
+        data, metadata = self.load_tiff(filepath)
+        for x, y in fireline_coords:
+            data[y, x] = 0  # Set the value to zero along the fireline
+        self.save_tiff(filepath, data, metadata)
+        self.logger.info(f"Updated raster file with fireline: {filepath}")

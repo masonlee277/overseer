@@ -4,15 +4,33 @@
 project_name: "ELMFIRE Simulation"
 version: "2024.0326"
 
-# Directories
+
+# ELMFIRE Directory absolute
+# Path from overseer to elmfire directory
+elmfire_relative_path: "../elmfire"
+
+
+
+# Directories (relative to base_directory of ELMFIRE)
 directories:
-  base_directory: "/path/to/elmfire"
-  install_directory: "/path/to/elmfire/install"
-  scratch_base: "/path/to/scratch"
-  fuels_and_topography: "/path/to/fuels_and_topography"
-  weather: "/path/to/weather"
-  outputs: "/path/to/outputs"
-  scratch: "/path/to/scratch"
+  base_directory: "."
+  install_directory: "./install"
+  scratch_base: "./scratch"
+  fuels_and_topography: "./inputs"
+  weather: "./inputs"
+  outputs: "./outputs"
+  scratch: "./scratch"
+
+# Input/Output
+io:
+  data_in_path: "C:/Users/mason/Desktop/misc/overseer/elmfire/tutorials/05-UMD-spotting/elmfire.data.in"
+
+# Input Generation Parameters
+center_lon: -120.281
+center_lat: 37.440
+fuel_source: 'landfire'
+fuel_version: '2.2.0'
+
 
 # Environment Variables
 environment:
@@ -24,10 +42,6 @@ simulation:
   dt: 3600 # in seconds
   tstop: 86400 # in seconds
   cell_size: 30 # in meters
-
-# Input/Output
-io:
-  data_in_path: "/path/to/elmfire.data.in"
 
 # Spatial Parameters
 spatial:

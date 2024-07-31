@@ -132,7 +132,13 @@ class ActionSpace:
         self.config = config
         self.geospatial_manager = geospatial_manager
         self.grid_size = config.get('spatial.extent.xmax') // config.get('spatial.resolution')
-        self.max_fireline_length = config.get('rl.max_fireline_length', 10)
+        self.max_fireline_length = config.get('reinforcement_learning.action_space.max_fireline_length', 10)
+        self.max_fireline_distance = config.get('reinforcement_learning.action_space.max_fireline_distance', 10)
+        self.max_construction_slope = config.get('reinforcement_learning.action_space.max_construction_slope', 30)
+        self.constructable_veg_types = config.get('reinforcement_learning.action_space.constructable_vegetation_types', [1, 2, 3])
+        self.min_effective_length = config.get('reinforcement_learning.constraints.min_effective_fireline_length', 3)
+        self.max_firelines_per_timestep = config.get('reinforcement_learning.constraints.max_firelines_per_timestep', 5)
+        self.resource_limit_factor = config.get('reinforcement_learning.constraints.resource_limit_factor', 0.8)
         self.space = self.create()
 
     def create(self):
@@ -216,22 +222,23 @@ class ActionSpace:
             return False
 
         # Check proximity to fire
-        max_distance = self.config.get('rl.max_fireline_distance', 10)
-        if np.all(fire_distance[fireline_coords[:, 1], fireline_coords[:, 0]] > max_distance):
+        if np.all(fire_distance[fireline_coords[:, 1], fireline_coords[:, 0]] > self.max_fireline_distance):
             return False
 
         # Check terrain slope
-        max_slope = self.config.get('rl.max_construction_slope', 30)  # in degrees
-        if np.any(slope[fireline_coords[:, 1], fireline_coords[:, 0]] > np.tan(np.radians(max_slope))):
+        if np.any(slope[fireline_coords[:, 1], fireline_coords[:, 0]] > np.tan(np.radians(self.max_construction_slope))):
             return False
 
         # Check vegetation type
-        constructable_veg_types = self.config.get('rl.constructable_vegetation_types', [1, 2, 3])
-        if not np.all(np.isin(vegetation[fireline_coords[:, 1], fireline_coords[:, 0]], constructable_veg_types)):
+        if not np.all(np.isin(vegetation[fireline_coords[:, 1], fireline_coords[:, 0]], self.constructable_veg_types)):
             return False
 
         # Check for intersections with existing firelines
         if np.any(existing_firelines[fireline_coords[:, 1], fireline_coords[:, 0]] > 0):
+            return False
+
+        # Check minimum effective length
+        if length < self.min_effective_length:
             return False
 
         return True
