@@ -189,6 +189,7 @@ class SlurmEnvironment(ComputeEnvironment):
 {command}
 """
 
+
 class ComputeManager:
     def __init__(self, config: OverseerConfig):
         self.config = config

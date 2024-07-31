@@ -215,3 +215,17 @@ class GeoSpatialManager:
         viewshed = np.zeros_like(elevation, dtype=bool)
         for point in observer_points:
             view
+    
+    def calculate_distance_to_fire(self, fire_intensity: np.ndarray) -> np.ndarray:
+        """Calculate the distance to the nearest fire for each cell."""
+        from scipy.ndimage import distance_transform_edt
+        return distance_transform_edt(fire_intensity == 0)
+
+    def load_state_layers(self, state: Dict[str, str]) -> Dict[str, np.ndarray]:
+        """Load multiple layers from the state dictionary."""
+        layers = {}
+        for key, path in state.items():
+            if key.endswith('_path'):
+                layer_name = key[:-5]  # Remove '_path' suffix
+                layers[layer_name] = self.load_tiff(path)[0]
+        return layers
