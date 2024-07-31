@@ -1,4 +1,5 @@
 from typing import Dict, Any, Union
+import os
 import yaml
 from pathlib import Path
 
@@ -26,14 +27,23 @@ class OverseerConfig:
         if self._initialized:
             return
         self._initialized = True
-        self.config_path: Path = Path(config_path) if config_path else Path('config/elmfire_config.yaml')
+        
+        if config_path:
+            self.config_path = Path(config_path)
+        else:
+            # Set the default path relative to this file's location
+            current_dir = Path(os.path.dirname(os.path.abspath(__file__)))
+            self.config_path = current_dir / 'elmfire_config.yaml'
+        
         self.config: Dict[str, Any] = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
         """Load the configuration from the YAML file."""
         try:
             with open(self.config_path, 'r') as file:
-                return yaml.safe_load(file)
+                config = yaml.safe_load(file)
+            print(f"Successfully loaded configuration from {self.config_path}")
+            return config
         except yaml.YAMLError as e:
             print(f"Error parsing YAML file: {e}")
             raise

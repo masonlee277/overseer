@@ -4,7 +4,8 @@ import rasterio
 import numpy as np
 import geopandas as gpd
 from rasterio import features
-from shapely.geometry import shape, Polygon
+from shapely.geometry import shape, Polygon, Point
+
 from scipy import ndimage
 from typing import Dict, Any, Tuple, List, Optional
 from overseer.config.config import OverseerConfig
@@ -243,3 +244,103 @@ class GeoSpatialManager:
             data[y, x] = 0  # Set the value to zero along the fireline
         self.save_tiff(filepath, data, metadata)
         self.logger.info(f"Updated raster file with fireline: {filepath}")
+
+
+
+def create_fake_data():
+    # Create fake elevation data (DEM)
+    dem = np.random.rand(100, 100) * 1000  # 100x100 grid with elevations 0-1000m
+    
+    # Create fake aspect data (ASP)
+    asp = np.random.rand(100, 100) * 360  # 0-360 degrees
+    
+    # Create fake canopy bulk density data (CBD)
+    cbd = np.random.rand(100, 100) * 0.5  # 0-0.5 kg/m^3
+    
+    # Create fake canopy base height data (CBH)
+    cbh = np.random.rand(100, 100) * 10  # 0-10 meters
+    
+    # Create fake canopy cover data (CC)
+    cc = np.random.rand(100, 100) * 100  # 0-100 percent
+    
+    # Create fake canopy height data (CH)
+    ch = np.random.rand(100, 100) * 30  # 0-30 meters
+    
+    # Create fake fuel model data (FBFM)
+    fbfm = np.random.randint(1, 41, (100, 100))  # 40 standard fuel models
+    
+    # Create fake slope data (SLP)
+    slp = np.random.rand(100, 100) * 45  # 0-45 degrees
+    
+    # Create fake wind speed data (WS)
+    ws = np.random.rand(100, 100) * 20  # 0-20 m/s
+    
+    # Create fake wind direction data (WD)
+    wd = np.random.rand(100, 100) * 360  # 0-360 degrees
+    
+    # Create fake fuel moisture data (M1, M10, M100)
+    m1 = np.random.rand(100, 100) * 30  # 0-30 percent
+    m10 = np.random.rand(100, 100) * 30  # 0-30 percent
+    m100 = np.random.rand(100, 100) * 30  # 0-30 percent
+    
+    # Create fake road network
+    roads = gpd.GeoDataFrame(
+        geometry=[LineString([(np.random.rand()*100, np.random.rand()*100) for _ in range(2)]) for _ in range(10)],
+        crs="EPSG:32610"
+    )
+    
+    # Create fake population centers
+    population_centers = gpd.GeoDataFrame(
+        geometry=[Point(np.random.rand()*100, np.random.rand()*100) for _ in range(5)],
+        crs="EPSG:32610"
+    )
+    
+    return {
+        'dem': dem, 'asp': asp, 'cbd': cbd, 'cbh': cbh, 'cc': cc, 'ch': ch,
+        'fbfm': fbfm, 'slp': slp, 'ws': ws, 'wd': wd, 'm1': m1, 'm10': m10, 'm100': m100,
+        'roads': roads, 'population_centers': population_centers
+    }
+
+def main():
+    config = OverseerConfig()  # Assuming this loads configuration from somewhere
+    gsm = GeoSpatialManager(config)
+    
+    print("Creating fake data...")
+    data = create_fake_data()
+    
+    print("\nTesting GeoSpatialManager methods:")
+    
+    print("\n1. Calculating burned area:")
+    burned_area = gsm.calculate_burned_area(data['fbfm'], threshold=10)
+    print(f"Burned area: {burned_area:.2f} hectares")
+    
+    print("\n2. Calculating fire perimeter:")
+    fire_perimeter = gsm.calculate_fire_perimeter(data['fbfm'], threshold=10)
+    print(f"Fire perimeter shape: {fire_perimeter.shape}")
+    
+    print("\n3. Computing fire spread direction:")
+    spread_direction = gsm.compute_fire_spread_direction(data['fbfm'])
+    print(f"Fire spread direction shape: {spread_direction.shape}")
+    
+    print("\n4. Calculating terrain effects:")
+    terrain_effects = gsm.calculate_terrain_effects(data['dem'], data['fbfm'])
+    print(f"Terrain effects shape: {terrain_effects.shape}")
+    
+    print("\n5. Computing cumulative burn map:")
+    cumulative_burn = gsm.compute_cumulative_burn_map([data['fbfm'], data['fbfm'] * 1.1])
+    print(f"Cumulative burn map shape: {cumulative_burn.shape}")
+    
+    print("\n6. Calculating fire shape complexity:")
+    complexity = gsm.calculate_fire_shape_complexity(fire_perimeter)
+    print(f"Fire shape complexity: {complexity:.2f}")
+    
+    print("\n7. Identifying high risk areas:")
+    high_risk = gsm.identify_high_risk_areas(data['fbfm'], data['dem'], data['fbfm'])
+    print(f"High risk areas shape: {high_risk.shape}")
+    
+    print("\n8. Calculating fire containment:")
+    containment = gsm.calculate_fire_containment(fire_perimeter, np.random.rand(100, 100) > 0.9)
+    print(f"Fire containment: {containment:.2f}%")
+    
+if __name__ == "__main__":
+    main()

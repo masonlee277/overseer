@@ -4,12 +4,9 @@
 project_name: "ELMFIRE Simulation"
 version: "2024.0326"
 
-
 # ELMFIRE Directory absolute
 # Path from overseer to elmfire directory
 elmfire_relative_path: "../elmfire"
-
-
 
 # Directories (relative to base_directory of ELMFIRE)
 directories:
@@ -28,13 +25,15 @@ io:
 # Input Generation Parameters
 center_lon: -120.281
 center_lat: 37.440
-fuel_source: 'landfire'
-fuel_version: '2.2.0'
-
+fuel_source: "landfire"
+fuel_version: "2.2.0"
 
 # Environment Variables
 environment:
-  cloudfire_server: "https://cloudfire.example.com"
+  cloudfire_server: "172.92.17.198"
+  elmfire_scratch_base: "C:/Users/mason/Desktop/misc/overseer/elmfire/scratch"
+  elmfire_base_dir: "C:/Users/mason/Desktop/misc/overseer/elmfire"
+  elmfire_install_dir: "C:/Users/mason/Desktop/misc/overseer/elmfire/build/linux/bin" ## Be careful is on windows to change
 
 # Simulation Parameters
 simulation:
