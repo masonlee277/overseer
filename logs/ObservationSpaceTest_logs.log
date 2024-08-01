@@ -1,0 +1,31 @@
+2024-08-01 10:26:51,674 - ObservationSpaceTest - INFO - Observation space created: Box(-inf, inf, (64,), float32)
+2024-08-01 10:26:51,679 - ObservationSpaceTest - INFO - Sampled observation: [-0.6016248   0.16316105 -1.4780024  -0.7358114   0.6535143   0.773617
+ -0.4599058  -1.6212403   0.6288507   0.68381363  0.34489882  0.4056864
+  0.9524992  -1.1451166  -1.4298025  -1.6571292   0.7029571  -0.15117514
+ -0.9425781   0.03763065  1.3442727   0.07146854 -0.6472352  -0.2553097
+ -1.1206388   0.76742756 -1.7903949  -1.004464   -1.418533    1.8353091
+ -0.9058472   2.1959782  -2.227325    0.2944614   1.480326   -1.0999675
+ -0.3118584  -1.8296366  -3.0137215  -0.5976126   0.5981146   1.0684488
+ -1.6829259  -0.8088768   0.44447854  1.3135761  -1.6174613  -0.43199092
+ -0.30701125 -0.8186629  -0.01832056  0.6436864  -1.5318239  -0.14066593
+  1.3468591  -0.0669181  -1.4664564   0.5048315   0.8542913  -0.8620818
+  1.4554328  -1.3202953  -0.78391427 -0.27355063]
+2024-08-01 10:26:51,679 - ObservationSpaceTest - INFO - Sample in space: True
+2024-08-01 10:26:51,682 - ObservationSpaceTest - INFO - Observation space bounds: Low: [-inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf], High: [inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf]
+2024-08-01 10:26:51,682 - ObservationSpaceTest - INFO - Observation space shape: (64,)
+2024-08-01 10:26:51,684 - ObservationSpaceTest - INFO - Encoded state: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+ 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+ 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+2024-08-01 10:26:51,685 - ObservationSpaceTest - INFO - Decoded state: {'decoded_state': array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])}

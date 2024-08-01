@@ -97,7 +97,6 @@ class ElmfireGymEnv(gym.Env):
             "truncated": truncated,
         }
         self.data_manager.update_rl_metrics(self.current_episode, self.current_step, rl_metrics)
-        
         self.current_step += 1
         
         self.logger.info(f"Step complete. Reward: {reward}, Done: {done}, Truncated: {truncated}")
