@@ -1,4 +1,6 @@
 # requirements.txt
+# python 3.10
+pyyaml
 
 # Core dependencies
 numpy
@@ -6,6 +8,10 @@ pandas
 geopandas
 rasterio
 gymnasium
+python-dateutil
+pytz
+wget 
+
 
 # Data handling and analysis
 scipy
@@ -20,12 +26,8 @@ torch
 matplotlib
 seaborn
 
-
 # Utility libraries
 tqdm
-pyyaml
-
-
 
 # Testing
 pytest
@@ -37,3 +39,7 @@ python-dotenv
 jupyter
 ipython
 
+# Additional packages
+google-api-python-client
+grpcio
+grpcio-tools

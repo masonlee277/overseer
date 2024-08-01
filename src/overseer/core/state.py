@@ -25,6 +25,16 @@ class State:
         self.data_manager = data_manager
         self.timestamp = raw_data.get('timestamp', 0.0)
         self.basic_stats = self._calculate_basic_stats()
+        
+        # Add file paths for geospatial data
+        # TODO: change where this occors 
+        self.geospatial_data_paths = {
+            'fire_intensity': raw_data.get('fire_intensity_path'),
+            'firelines': raw_data.get('firelines_path'),
+            'elevation': raw_data.get('elevation_path'),
+            'vegetation': raw_data.get('vegetation_path'),
+        }
+
 
     def _calculate_basic_stats(self) -> Dict[str, Any]:
         """Calculate and return basic statistics from the raw state data."""
@@ -41,6 +51,10 @@ class State:
         """Return the raw state data."""
         return self.raw_data
 
+    def get_geospatial_data_paths(self) -> Dict[str, str]:
+        """Return the file paths for geospatial data."""
+        return self.geospatial_data_paths
+    
     def get_basic_stats(self) -> Dict[str, Any]:
         """Return the pre-calculated basic statistics."""
         return self.basic_stats

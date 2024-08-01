@@ -1,4 +1,42 @@
 # src/overseer/rl/rewards/reward_strategies.py
+"""
+Reward Strategies for the ELMFIRE Reinforcement Learning Environment
+
+This module defines various reward calculation strategies for the ELMFIRE simulation environment.
+These strategies determine how the agent is rewarded or penalized based on its actions and the
+resulting state of the environment.
+
+Interaction between StateManager, State, and GeoSpatialManager:
+
+1. StateManager:
+   - Manages the current state and history of states in the simulation.
+   - Provides methods to retrieve states at specific timestamps.
+   - Acts as an interface between the reward strategies and the underlying data.
+
+2. State:
+   - Represents a single state in the ELMFIRE simulation.
+   - Contains raw data and pre-calculated basic statistics about the fire state.
+   - Provides methods to access specific state information.
+
+3. GeoSpatialManager:
+   - Handles geospatial calculations and analysis.
+   - Provides methods for complex spatial operations related to fire behavior and containment.
+
+Reward Calculation Process:
+1. The reward strategy receives a StateManager object.
+2. It retrieves the current state and relevant historical states using StateManager methods.
+3. Basic statistics are obtained directly from the State objects.
+4. For more complex calculations, the reward strategy may use GeoSpatialManager methods,
+   which are typically accessed through the DataManager (referenced in the State object).
+5. The reward strategy combines various factors (e.g., area change, resource efficiency,
+   containment progress) to calculate the final reward.
+
+This architecture allows for flexible and modular reward calculation, where different
+strategies can be easily implemented and swapped without changing the core simulation logic.
+It also enables the incorporation of complex geospatial analysis into the reward calculation,
+providing a more comprehensive evaluation of the agent's performance in wildfire management.
+"""
+
 
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -23,6 +61,8 @@ class RewardStrategy(ABC):
         pass
 
 
+#################################################
+#################################################
 class SimpleAreaRewardStrategy(RewardStrategy):
     def calculate_reward(self, state_manager: StateManager) -> float:
         current_state = state_manager.get_current_state()
@@ -129,3 +169,22 @@ class ComplexRewardStrategy(RewardStrategy):
         current_perimeter = current_state.get_basic_stats()['fire_perimeter_length']
         previous_perimeter = previous_state.get_basic_stats()['fire_perimeter_length']
         return (previous_perimeter - current_perimeter) / previous_perimeter
+    
+
+class MockRewardStrategy(RewardStrategy):
+    """A mock reward strategy for testing and validation purposes."""
+
+    def __init__(self, fixed_reward: float = 1.0):
+        self.fixed_reward = fixed_reward
+
+    def calculate_reward(self, state_manager: StateManager) -> float:
+        current_state = state_manager.get_current_state()
+        if current_state is None:
+            return 0.0
+        
+        # Simulate some calculation based on the current state
+        burned_area = current_state.get_basic_stats().get('burned_area', 0)
+        resources_used = current_state.get_basic_stats().get('total_resources_deployed', 0)
+        
+        # Return a combination of the fixed reward and state-based calculation
+        return self.fixed_reward - (burned_area * 0.01) + (resources_used * 0.1)

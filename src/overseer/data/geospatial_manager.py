@@ -1,15 +1,25 @@
 # src/overseer/geospatial/geospatial_manager.py
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 import rasterio
 import numpy as np
 import geopandas as gpd
 from rasterio import features
-from shapely.geometry import shape, Polygon, Point
+from shapely.geometry import shape, Polygon, Point, LineString 
 
 from scipy import ndimage
 from typing import Dict, Any, Tuple, List, Optional
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+
 from overseer.config.config import OverseerConfig
 from overseer.utils.logging import OverseerLogger
+from overseer.data.utils import create_fake_data, visualize_multiple
 
 class GeoSpatialManager:
     """
@@ -63,10 +73,10 @@ class GeoSpatialManager:
         area = burned_pixels * (self.resolution ** 2) / 10000  # Convert to hectares
         return area
 
-    def calculate_fire_perimeter(self, fire_intensity: np.ndarray, threshold: float) -> np.ndarray:
+    def calculate_fire_perimeter(self, fire_intensity: np.ndarray, threshold: float = 0) -> np.ndarray:
         """Calculate the fire perimeter based on fire intensity."""
         binary_fire = (fire_intensity > threshold).astype(np.uint8)
-        perimeter = ndimage.binary_erosion(binary_fire) ^ binary_fire
+        perimeter = ndimage.binary_dilation(binary_fire) ^ binary_fire
         return perimeter
 
     def compute_fire_spread_direction(self, fire_intensity: np.ndarray) -> np.ndarray:
@@ -246,101 +256,369 @@ class GeoSpatialManager:
         self.logger.info(f"Updated raster file with fireline: {filepath}")
 
 
+    def create_circular_fire(self, size: Tuple[int, int], center: Tuple[int, int], radius: int) -> np.ndarray:
+        """
+        Create a circular fire in the center of a grid.
 
-def create_fake_data():
-    # Create fake elevation data (DEM)
-    dem = np.random.rand(100, 100) * 1000  # 100x100 grid with elevations 0-1000m
+        Args:
+            size (Tuple[int, int]): Size of the grid (rows, cols).
+            center (Tuple[int, int]): Center of the fire (row, col).
+            radius (int): Radius of the fire.
+
+        Returns:
+            np.ndarray: Binary grid with fire (1) and no fire (0).
+        """
+        y, x = np.ogrid[:size[0], :size[1]]
+        dist_from_center = np.sqrt((x - center[1])**2 + (y - center[0])**2)
+        fire = (dist_from_center <= radius).astype(int)
+        return fire
+
+    def visualize_matrix(self, matrix: np.ndarray, title: str, cmap: str = 'viridis'):
+        """
+        Visualize a matrix using matplotlib.
+
+        Args:
+            matrix (np.ndarray): The matrix to visualize.
+            title (str): Title of the plot.
+            cmap (str): Colormap to use for visualization.
+        """
+        plt.figure(figsize=(10, 8))
+        plt.imshow(matrix, cmap=cmap)
+        plt.colorbar(label='Value')
+        plt.title(f"{title}\nShape: {matrix.shape}")
+        plt.xlabel('Column')
+        plt.ylabel('Row')
+        plt.show()
+
+    def visualize_fire(self, fire: np.ndarray, title: str):
+        """
+        Visualize a fire matrix using a custom colormap.
+
+        Args:
+            fire (np.ndarray): The fire matrix to visualize.
+            title (str): Title of the plot.
+        """
+        cmap = ListedColormap(['lightgreen', 'red'])
+        plt.figure(figsize=(10, 8))
+        plt.imshow(fire, cmap=cmap)
+        plt.title(f"{title}\nShape: {fire.shape}")
+        plt.xlabel('Column')
+        plt.ylabel('Row')
+        legend_elements = [plt.Rectangle((0, 0), 1, 1, fc='lightgreen', label='No Fire'),
+                           plt.Rectangle((0, 0), 1, 1, fc='red', label='Fire')]
+        plt.legend(handles=legend_elements, loc='upper right')
+        plt.show()
+
+    def expand_fire(self, fire: np.ndarray, expansion_factor: float = 0.1) -> np.ndarray:
+        """
+        Expand the fire by a certain factor.
+
+        Args:
+            fire (np.ndarray): The current fire matrix.
+            expansion_factor (float): Factor by which to expand the fire.
+
+        Returns:
+            np.ndarray: Expanded fire matrix.
+        """
+        from scipy import ndimage
+        expanded_fire = ndimage.binary_dilation(fire, iterations=int(fire.shape[0] * expansion_factor))
+        return expanded_fire.astype(int)
+
+    def apply_wind_effect(self, fire: np.ndarray, wind_direction: float, wind_speed: float) -> np.ndarray:
+        """
+        Apply wind effect to the fire spread.
+
+        Args:
+            fire (np.ndarray): The current fire matrix.
+            wind_direction (float): Wind direction in degrees (0-360).
+            wind_speed (float): Wind speed (0-1, where 1 is maximum effect).
+
+        Returns:
+            np.ndarray: Fire matrix after wind effect.
+        """
+        rows, cols = fire.shape
+        y, x = np.ogrid[:rows, :cols]
+        center = (rows // 2, cols // 2)
+        
+        # Convert wind direction to radians
+        wind_rad = np.radians(wind_direction)
+        
+        # Calculate the effect based on wind direction and speed
+        effect = wind_speed * ((x - center[1]) * np.cos(wind_rad) + (y - center[0]) * np.sin(wind_rad))
+        
+        # Normalize the effect
+        effect = (effect - effect.min()) / (effect.max() - effect.min())
+        
+        # Apply the effect to the fire
+        new_fire = fire.copy()
+        new_fire[effect > 0.5] = 1
+        
+        return new_fire
+
+    def generate_action_maskv1(self, fire_intensity: np.ndarray, existing_firelines: np.ndarray, min_distance: int = 1, max_distance: int = 10) -> np.ndarray:
+        """
+        Generate an action mask based on the current fire perimeter.
+
+        Args:
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+            existing_firelines (np.ndarray): Existing firelines matrix.
+            min_distance (int): Minimum distance from fire to construct firelines.
+            max_distance (int): Maximum distance from fire to construct firelines.
+
+        Returns:
+            np.ndarray: Boolean mask where True indicates a valid action.
+        """
+        # Create binary fire map
+        fire_binary = fire_intensity > 0
+
+        # Create inner boundary (minimum distance)
+        inner_boundary = ndimage.binary_dilation(fire_binary, iterations=min_distance)
+
+        # Create outer boundary (maximum distance)
+        outer_boundary = ndimage.binary_dilation(fire_binary, iterations=max_distance)
+
+        # Valid area is between inner and outer boundaries, excluding existing firelines
+        valid_area = outer_boundary & ~inner_boundary & (existing_firelines == 0)
+
+        return valid_area
     
-    # Create fake aspect data (ASP)
-    asp = np.random.rand(100, 100) * 360  # 0-360 degrees
+
+    def generate_action_mask_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
+                                        elevation_path: str = None, vegetation_path: str = None,
+                                        min_distance: int = 1, max_distance: int = 10,
+                                        max_slope: float = None, constructable_veg_types: List[int] = None,
+                                        min_effective_length: int = None) -> np.ndarray:
+        """
+        Generate an action mask based on the provided geospatial data file paths.
+
+        Args:
+            fire_intensity_path (str): Path to the fire intensity GeoTIFF.
+            existing_firelines_path (str): Path to the existing firelines GeoTIFF.
+            elevation_path (str, optional): Path to the elevation GeoTIFF.
+            vegetation_path (str, optional): Path to the vegetation GeoTIFF.
+            min_distance (int): Minimum distance from fire to construct firelines.
+            max_distance (int): Maximum distance from fire to construct firelines.
+            max_slope (float, optional): Maximum slope for fireline construction.
+            constructable_veg_types (List[int], optional): List of vegetation types suitable for fireline construction.
+            min_effective_length (int, optional): Minimum effective length for a fireline.
+
+        Returns:
+            np.ndarray: Boolean mask where True indicates a valid action.
+        """
+        fire_intensity = self.load_tiff(fire_intensity_path)[0] if fire_intensity_path else None
+        existing_firelines = self.load_tiff(existing_firelines_path)[0] if existing_firelines_path else None
+        elevation = self.load_tiff(elevation_path)[0] if elevation_path else None
+        vegetation = self.load_tiff(vegetation_path)[0] if vegetation_path else None
+
+        return self.generate_action_mask(fire_intensity, existing_firelines, elevation, vegetation,
+                                         min_distance, max_distance, max_slope, constructable_veg_types,
+                                         min_effective_length)
+
+
+    def generate_action_mask(self, fire_intensity: np.ndarray = None, existing_firelines: np.ndarray = None, 
+                             elevation: np.ndarray = None, vegetation: np.ndarray = None,
+                             min_distance: int = 1, max_distance: int = 10,
+                             max_slope: float = None, constructable_veg_types: List[int] = None,
+                             min_effective_length: int = None) -> np.ndarray:
+        """
+        Generate an action mask based on the provided geospatial data arrays.
+
+        Args:
+            fire_intensity (np.ndarray, optional): Fire intensity array.
+            existing_firelines (np.ndarray, optional): Existing firelines array.
+            elevation (np.ndarray, optional): Elevation array.
+            vegetation (np.ndarray, optional): Vegetation array.
+            min_distance (int): Minimum distance from fire to construct firelines.
+            max_distance (int): Maximum distance from fire to construct firelines.
+            max_slope (float, optional): Maximum slope for fireline construction.
+            constructable_veg_types (List[int], optional): List of vegetation types suitable for fireline construction.
+            min_effective_length (int, optional): Minimum effective length for a fireline.
+
+        Returns:
+            np.ndarray: Boolean mask where True indicates a valid action.
+        """
+        if fire_intensity is None:
+            raise ValueError("Fire intensity data is required to generate action mask.")
+
+        # Create binary fire map
+        fire_binary = fire_intensity > 0
+
+        # Create inner and outer boundaries
+        inner_boundary = ndimage.binary_dilation(fire_binary, iterations=min_distance)
+        outer_boundary = ndimage.binary_dilation(fire_binary, iterations=max_distance)
+
+        # Initial valid area
+        valid_area = outer_boundary & ~inner_boundary
+
+        if existing_firelines is not None:
+            valid_area &= (existing_firelines == 0)
+
+        # Apply additional constraints if data is provided
+        if elevation is not None and max_slope is not None:
+            slope, _ = self.calculate_slope_aspect(elevation)
+            valid_area &= (slope <= max_slope)
+
+        if vegetation is not None and constructable_veg_types is not None:
+            valid_area &= np.isin(vegetation, constructable_veg_types)
+
+        # Note: min_effective_length is not used here as it's a property of the fireline, not the individual cells
+
+        return valid_area
     
-    # Create fake canopy bulk density data (CBD)
-    cbd = np.random.rand(100, 100) * 0.5  # 0-0.5 kg/m^3
     
-    # Create fake canopy base height data (CBH)
-    cbh = np.random.rand(100, 100) * 10  # 0-10 meters
+    def visualize_action_mask(self, fire_intensity: np.ndarray, action_mask: np.ndarray, title: str):
+        """
+        Visualize the fire intensity and action mask.
+
+        Args:
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+            action_mask (np.ndarray): Generated action mask.
+            title (str): Title for the plot.
+        """
+        plt.figure(figsize=(12, 10))
+        plt.imshow(fire_intensity, cmap='YlOrRd', alpha=0.7)
+        plt.imshow(action_mask, cmap='Blues', alpha=0.3)
+        plt.title(title)
+        plt.colorbar(label='Fire Intensity')
+        plt.show()
+
+    def calculate_fire_gradient(self, fire_intensity: np.ndarray) -> np.ndarray:
+        """
+        Calculate the gradient of the fire intensity.
+
+        Args:
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+
+        Returns:
+            np.ndarray: Gradient of fire intensity.
+        """
+        return np.array(np.gradient(fire_intensity))
     
-    # Create fake canopy cover data (CC)
-    cc = np.random.rand(100, 100) * 100  # 0-100 percent
+    def sample_firelines(self, action_mask: np.ndarray, fire_intensity: np.ndarray, num_samples: int = 10, min_length: int = 5, max_length: int = 10) -> List[Tuple[int, int, float, int]]:
+        """
+        Sample potential firelines based on the action mask, favoring tangential directions to the fire.
+
+        Args:
+            action_mask (np.ndarray): Boolean mask of valid actions.
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+            num_samples (int): Number of firelines to sample.
+            min_length (int): Minimum length of firelines.
+            max_length (int): Maximum length of firelines.
+
+        Returns:
+            List[Tuple[int, int, float, int]]: List of sampled firelines (x, y, angle, length).
+        """
+        valid_positions = np.argwhere(action_mask)
+        firelines = []
+        fire_gradient = self.calculate_fire_gradient(fire_intensity)
+        
+        for _ in range(num_samples):
+            if len(valid_positions) == 0:
+                break
+            
+            valid_fireline = False
+            attempts = 0
+            max_attempts = 50  # Limit the number of attempts to find a valid fireline
+
+            while not valid_fireline and attempts < max_attempts:
+                idx = np.random.randint(len(valid_positions))
+                y, x = valid_positions[idx]
+                
+                # Calculate tangential direction
+                grad_y, grad_x = fire_gradient[:, y, x]
+                tangent_angle = np.arctan2(-grad_x, grad_y)  # Perpendicular to gradient
+                
+                # Add some randomness to the angle
+                angle = tangent_angle + np.random.normal(0, np.pi/6)  # Standard deviation of 30 degrees
+                length = np.random.randint(min_length, max_length + 1)
+                
+                if self._is_valid_fireline((x, y, angle, length), fire_intensity, action_mask):
+                    firelines.append((x, y, angle, length))
+                    valid_fireline = True
+                
+                attempts += 1
+
+            # Remove the selected position and its neighbors from valid positions
+            valid_positions = valid_positions[~np.all(valid_positions == [y, x], axis=1)]
+        
+        return firelines
     
-    # Create fake canopy height data (CH)
-    ch = np.random.rand(100, 100) * 30  # 0-30 meters
     
-    # Create fake fuel model data (FBFM)
-    fbfm = np.random.randint(1, 41, (100, 100))  # 40 standard fuel models
-    
-    # Create fake slope data (SLP)
-    slp = np.random.rand(100, 100) * 45  # 0-45 degrees
-    
-    # Create fake wind speed data (WS)
-    ws = np.random.rand(100, 100) * 20  # 0-20 m/s
-    
-    # Create fake wind direction data (WD)
-    wd = np.random.rand(100, 100) * 360  # 0-360 degrees
-    
-    # Create fake fuel moisture data (M1, M10, M100)
-    m1 = np.random.rand(100, 100) * 30  # 0-30 percent
-    m10 = np.random.rand(100, 100) * 30  # 0-30 percent
-    m100 = np.random.rand(100, 100) * 30  # 0-30 percent
-    
-    # Create fake road network
-    roads = gpd.GeoDataFrame(
-        geometry=[LineString([(np.random.rand()*100, np.random.rand()*100) for _ in range(2)]) for _ in range(10)],
-        crs="EPSG:32610"
-    )
-    
-    # Create fake population centers
-    population_centers = gpd.GeoDataFrame(
-        geometry=[Point(np.random.rand()*100, np.random.rand()*100) for _ in range(5)],
-        crs="EPSG:32610"
-    )
-    
-    return {
-        'dem': dem, 'asp': asp, 'cbd': cbd, 'cbh': cbh, 'cc': cc, 'ch': ch,
-        'fbfm': fbfm, 'slp': slp, 'ws': ws, 'wd': wd, 'm1': m1, 'm10': m10, 'm100': m100,
-        'roads': roads, 'population_centers': population_centers
-    }
+    def _is_valid_fireline(self, fireline: Tuple[int, int, float, int], fire_intensity: np.ndarray, action_mask: np.ndarray) -> bool:
+        """
+        Check if a fireline is valid (doesn't intersect with fire and stays within the action mask).
+
+        Args:
+            fireline (Tuple[int, int, float, int]): Fireline to check (x, y, angle, length).
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+            action_mask (np.ndarray): Boolean mask of valid actions.
+
+        Returns:
+            bool: True if the fireline is valid, False otherwise.
+        """
+        x, y, angle, length = fireline
+        dx = length * np.cos(angle)
+        dy = length * np.sin(angle)
+        
+        # Generate points along the fireline
+        num_points = int(length * 2)  # Ensure we have enough points to check
+        xs = np.linspace(x, x + dx, num_points).astype(int)
+        ys = np.linspace(y, y + dy, num_points).astype(int)
+        
+        # Check if all points are within the grid
+        if np.any(xs < 0) or np.any(xs >= fire_intensity.shape[1]) or np.any(ys < 0) or np.any(ys >= fire_intensity.shape[0]):
+            return False
+        
+        # Check if all points are within the action mask and not intersecting with fire
+        return np.all(action_mask[ys, xs]) and np.all(fire_intensity[ys, xs] == 0)
+
+    def visualize_firelines(self, fire_intensity: np.ndarray, action_mask: np.ndarray, sampled_firelines: List[Tuple[int, int, float, int]], title: str):
+        """
+        Visualize fire intensity, action mask, and sampled potential firelines.
+
+        Args:
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+            action_mask (np.ndarray): Boolean mask of valid actions.
+            sampled_firelines (List[Tuple[int, int, float, int]]): List of sampled firelines.
+            title (str): Title for the plot.
+        """
+        plt.figure(figsize=(12, 10))
+        plt.imshow(fire_intensity, cmap='YlOrRd', alpha=0.7)
+        plt.imshow(action_mask, cmap='Blues', alpha=0.3)
+        
+        for x, y, angle, length in sampled_firelines:
+            dx = length * np.cos(angle)
+            dy = length * np.sin(angle)
+            plt.plot([x, x + dx], [y, y + dy], 'g-', linewidth=2)
+        
+        plt.title(title)
+        plt.colorbar(label='Fire Intensity')
+        plt.show()
+
+ 
 
 def main():
-    config = OverseerConfig()  # Assuming this loads configuration from somewhere
+    config = OverseerConfig()
     gsm = GeoSpatialManager(config)
     
     print("Creating fake data...")
     data = create_fake_data()
     
-    print("\nTesting GeoSpatialManager methods:")
-    
-    print("\n1. Calculating burned area:")
-    burned_area = gsm.calculate_burned_area(data['fbfm'], threshold=10)
-    print(f"Burned area: {burned_area:.2f} hectares")
-    
-    print("\n2. Calculating fire perimeter:")
-    fire_perimeter = gsm.calculate_fire_perimeter(data['fbfm'], threshold=10)
-    print(f"Fire perimeter shape: {fire_perimeter.shape}")
-    
-    print("\n3. Computing fire spread direction:")
-    spread_direction = gsm.compute_fire_spread_direction(data['fbfm'])
-    print(f"Fire spread direction shape: {spread_direction.shape}")
-    
-    print("\n4. Calculating terrain effects:")
-    terrain_effects = gsm.calculate_terrain_effects(data['dem'], data['fbfm'])
-    print(f"Terrain effects shape: {terrain_effects.shape}")
-    
-    print("\n5. Computing cumulative burn map:")
-    cumulative_burn = gsm.compute_cumulative_burn_map([data['fbfm'], data['fbfm'] * 1.1])
-    print(f"Cumulative burn map shape: {cumulative_burn.shape}")
-    
-    print("\n6. Calculating fire shape complexity:")
-    complexity = gsm.calculate_fire_shape_complexity(fire_perimeter)
-    print(f"Fire shape complexity: {complexity:.2f}")
-    
-    print("\n7. Identifying high risk areas:")
-    high_risk = gsm.identify_high_risk_areas(data['fbfm'], data['dem'], data['fbfm'])
-    print(f"High risk areas shape: {high_risk.shape}")
-    
-    print("\n8. Calculating fire containment:")
-    containment = gsm.calculate_fire_containment(fire_perimeter, np.random.rand(100, 100) > 0.9)
-    print(f"Fire containment: {containment:.2f}%")
-    
+    fire_intensity = data['fire']
+    action_mask = gsm.generate_action_mask(fire_intensity, np.zeros_like(fire_intensity), min_distance=1, max_distance=10)
+    fire_gradient = gsm.calculate_fire_gradient(fire_intensity)
+    sampled_firelines = gsm.sample_firelines(action_mask, fire_intensity, min_length=5, max_length=10)
+
+    # Prepare matrices for visualization
+    matrices_to_visualize = {
+        "Initial Fire": fire_intensity,
+        "Action Mask": action_mask,
+        "Fire Gradient": fire_gradient,
+        "Sampled Firelines": sampled_firelines
+    }
+
+    # Visualize all matrices
+    visualize_multiple(matrices_to_visualize)
+
 if __name__ == "__main__":
     main()

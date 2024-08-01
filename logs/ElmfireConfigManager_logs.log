@@ -1,0 +1,37 @@
+2024-07-31 12:33:30,805 - ElmfireConfigManager - INFO - Loaded ELMFIRE configuration: {}
+2024-07-31 12:33:30,805 - ElmfireConfigManager - INFO - Preparing simulation...
+2024-07-31 12:33:30,806 - ElmfireConfigManager - ERROR - Error during simulation preparation: 'ElmfireConfigManager' object has no attribute 'elmfire_base_path'
+2024-07-31 12:34:52,609 - ElmfireConfigManager - INFO - Loaded ELMFIRE configuration: {}
+2024-07-31 12:34:52,609 - ElmfireConfigManager - INFO - Resolved ELMFIRE base path: C:\Users\mason\Desktop\misc\overseer\elmfire
+2024-07-31 12:34:52,609 - ElmfireConfigManager - INFO - ElmfireConfigManager initialized with base path: C:\Users\mason\Desktop\misc\overseer\elmfire
+2024-07-31 12:34:52,610 - ElmfireConfigManager - INFO - Preparing simulation...
+2024-07-31 12:34:52,610 - ElmfireConfigManager - INFO - Executing command: python C:\Users\mason\Desktop\misc\overseer\elmfire\cloudfire\fuel_wx_ign.py --do_wx=False --do_ignition=False --center_lon=-120.281 --center_lat=37.44 --fuel_source=landfire --fuel_version=2.2.0 --outdir=C:\Users\mason\Desktop\misc\overseer\elmfire\fuel --name=elmfire_simulation
+2024-07-31 12:35:13,074 - ElmfireConfigManager - ERROR - Failed to generate input data. Error: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+2024-07-31 12:35:13,074 - ElmfireConfigManager - ERROR - Command output: Using LANDFIRE 2.2.0
+Valid inputs received - calling CloudFire fuel weather ignition microservice
+
+2024-07-31 12:35:13,074 - ElmfireConfigManager - ERROR - Error during simulation preparation: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Loaded ELMFIRE configuration: {}
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Resolved ELMFIRE base path: C:\Users\mason\Desktop\misc\overseer\elmfire
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - ElmfireConfigManager initialized with base path: C:\Users\mason\Desktop\misc\overseer\elmfire
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Starting ElmfireConfigManager demonstration
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Preparing simulation...
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Preparing simulation...
+2024-07-31 12:39:29,300 - ElmfireConfigManager - INFO - Executing command: python C:\Users\mason\Desktop\misc\overseer\elmfire\cloudfire\fuel_wx_ign.py --do_wx=False --do_ignition=False --center_lon=-120.281 --center_lat=37.44 --fuel_source=landfire --fuel_version=2.2.0 --outdir=C:\Users\mason\Desktop\misc\overseer\elmfire\fuel --name=elmfire_simulation
+2024-07-31 12:39:49,528 - ElmfireConfigManager - ERROR - Failed to generate input data. Error: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+2024-07-31 12:39:49,528 - ElmfireConfigManager - ERROR - Command output: Using LANDFIRE 2.2.0
+Valid inputs received - calling CloudFire fuel weather ignition microservice
+
+2024-07-31 12:39:49,528 - ElmfireConfigManager - ERROR - Error during simulation preparation: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+2024-07-31 12:39:49,528 - ElmfireConfigManager - ERROR - An error occurred during the demonstration: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "c:\Users\mason\Desktop\misc\overseer\src\overseer\elmfire\config_manager.py", line 346, in main
+    config_manager.prepare_simulation()
+  File "c:\Users\mason\Desktop\misc\overseer\src\overseer\elmfire\config_manager.py", line 320, in prepare_simulation
+    self.generate_input_data()
+  File "c:\Users\mason\Desktop\misc\overseer\src\overseer\elmfire\config_manager.py", line 303, in generate_input_data
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
+  File "C:\Users\mason\AppData\Local\Programs\Python\Python310\lib\subprocess.py", line 524, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['python', 'C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\cloudfire\\fuel_wx_ign.py', '--do_wx=False', '--do_ignition=False', '--center_lon=-120.281', '--center_lat=37.44', '--fuel_source=landfire', '--fuel_version=2.2.0', '--outdir=C:\\Users\\mason\\Desktop\\misc\\overseer\\elmfire\\fuel', '--name=elmfire_simulation']' returned non-zero exit status 1.
+2024-07-31 12:39:49,530 - ElmfireConfigManager - INFO - ElmfireConfigManager demonstration completed

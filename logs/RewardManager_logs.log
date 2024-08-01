@@ -1,0 +1,10 @@
+2024-08-01 10:11:19,111 - RewardManager - WARNING - Unknown reward strategy 'mock'. Using SimpleAreaRewardStrategy.
+2024-08-01 10:11:44,661 - RewardManager - WARNING - Unknown reward strategy 'mock'. Using SimpleAreaRewardStrategy.
+2024-08-01 10:11:44,661 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
+2024-08-01 10:11:44,661 - RewardManager - INFO - Calculated reward: -3.686485486682363
+2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 0.5735042767675331
+2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 2.644871639165766
+2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 2.0208246165539343
+2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: -4.500665261256391
+2024-08-01 10:11:44,667 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
+2024-08-01 10:11:44,667 - RewardManager - ERROR - Error calculating reward: main.<locals>.faulty_calculate_reward() missing 1 required positional argument: 'state_manager'

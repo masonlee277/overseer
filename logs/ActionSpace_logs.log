@@ -1,0 +1,23 @@
+2024-08-01 09:17:06,731 - ActionSpace - INFO - Initializing ActionSpace
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Initializing ActionSpace
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Initializing ActionSpace parameters
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Grid size: 333, Resolution: 30
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Max fireline length: 10, Max distance: 10
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Max construction slope: 30
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Constructable vegetation types: [1, 2, 3]
+2024-08-01 09:20:14,666 - ActionSpace - INFO - Min effective length: 3
+2024-08-01 09:20:14,677 - ActionSpace - INFO - Max firelines per timestep: 5
+2024-08-01 09:20:14,677 - ActionSpace - INFO - Resource limit factor: 0.8
+2024-08-01 09:20:14,679 - ActionSpace - INFO - Action space created with shape: (4,)
+2024-08-01 09:20:14,686 - ActionSpace - INFO - Generating action mask
+2024-08-01 09:25:14,193 - ActionSpace - INFO - Initializing ActionSpace
+2024-08-01 09:25:14,193 - ActionSpace - INFO - Initializing ActionSpace parameters
+2024-08-01 09:25:14,193 - ActionSpace - INFO - Grid size: 333, Resolution: 30
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Max fireline length: 10, Max distance: 10
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Max construction slope: 30
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Constructable vegetation types: [1, 2, 3]
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Min effective length: 3
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Max firelines per timestep: 5
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Resource limit factor: 0.8
+2024-08-01 09:25:14,194 - ActionSpace - INFO - Action space created with shape: (4,)
+2024-08-01 09:25:14,199 - ActionSpace - INFO - Generating action mask

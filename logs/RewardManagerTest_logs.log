@@ -1,0 +1,15 @@
+2024-08-01 10:11:19,110 - RewardManagerTest - INFO - Starting RewardManager test
+2024-08-01 10:11:19,111 - RewardManagerTest - INFO - Initialized RewardManager with strategy: SimpleAreaRewardStrategy
+2024-08-01 10:11:44,660 - RewardManagerTest - INFO - Starting RewardManager test
+2024-08-01 10:11:44,661 - RewardManagerTest - INFO - Initialized RewardManager with strategy: SimpleAreaRewardStrategy
+2024-08-01 10:11:44,661 - RewardManagerTest - INFO - Testing strategy: MockRewardStrategy
+2024-08-01 10:11:44,661 - RewardManagerTest - INFO -   Timestamp: 0, Burned Area: 778.46, Resources Deployed: 20.98, Reward: -3.6865
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO -   Timestamp: 3600, Burned Area: 275.91, Resources Deployed: 13.33, Reward: 0.5735
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO -   Timestamp: 7200, Burned Area: 504.47, Resources Deployed: 56.90, Reward: 2.6449
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO -   Timestamp: 10800, Burned Area: 897.55, Resources Deployed: 89.96, Reward: 2.0208
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO -   Timestamp: 14400, Burned Area: 967.27, Resources Deployed: 31.72, Reward: -4.5007
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO - Finished testing MockRewardStrategy
+
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO - Testing error handling
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO - Reward calculated with faulty strategy: 0.0
+2024-08-01 10:11:44,667 - RewardManagerTest - INFO - RewardManager test completed

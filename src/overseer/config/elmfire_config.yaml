@@ -166,6 +166,10 @@ reinforcement_learning:
     max_fireline_distance: 10 # Maximum distance from fire to construct fireline
     max_construction_slope: 30 # Maximum slope for fireline construction (in degrees)
     constructable_vegetation_types: [1, 2, 3] # Vegetation types suitable for fireline construction
+  constraints:
+    min_effective_fireline_length: 3 # Minimum length for an effective fireline
+    max_firelines_per_timestep: 5 # Maximum number of firelines that can be constructed in one timestep
+    resource_limit_factor: 0.8 # Factor to limit total fireline length based on available resources
   state_space:
     include_fire_intensity: true
     include_firelines: true
@@ -173,10 +177,6 @@ reinforcement_learning:
     include_vegetation: true
     include_wind: true
     include_fuel_moisture: true
-  constraints:
-    min_effective_fireline_length: 3 # Minimum length for an effective fireline
-    max_firelines_per_timestep: 5 # Maximum number of firelines that can be constructed in one timestep
-    resource_limit_factor: 0.8 # Factor to limit total fireline length based on available resources
   reward_function:
     burned_area_weight: -1.0
     fireline_length_weight: -0.1
