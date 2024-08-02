@@ -146,3 +146,98 @@ class StateManager:
     def __repr__(self) -> str:
         """Return a string representation of the StateManager for debugging."""
         return self.__str__()
+    
+
+
+def main():
+    # Setup mock config and data manager
+    config = OverseerConfig()
+    
+    class MockDataManager:
+        def __init__(self):
+            self.states = {}
+        
+        def save_state(self, state_data):
+            self.states[state_data['timestamp']] = state_data
+        
+        def load_state_at_time(self, timestamp):
+            return self.states.get(timestamp)
+        
+        def calculate_burned_area(self, fire_intensity):
+            return np.sum(fire_intensity > 0)
+        
+        def calculate_fire_perimeter_length(self, fire_intensity):
+            return 15.2
+        
+        def calculate_fire_growth_rate(self, raw_data, time_window):
+            return 2.5
+        
+        def calculate_resource_efficiency(self, raw_data):
+            return 0.75
+        
+        def calculate_fire_containment_percentage(self, raw_data):
+            return 60.0
+        
+        def identify_high_risk_areas(self, fire_intensity, elevation, fuel_type):
+            return np.array([[True, False], [False, True]])
+
+    data_manager = MockDataManager()
+    state_manager = StateManager(config, data_manager)
+
+    # Test updating state
+    print("Testing state update:")
+    initial_state = {
+        'timestamp': 0.0,
+        'fire_intensity': np.array([[0, 0, 1], [0, 1, 2], [1, 2, 3]]),
+        'resources_deployed': {'firefighters': 20, 'trucks': 5},
+        'wind_speed': 10.0,
+        'wind_direction': 180.0,
+    }
+    state_manager.update_state(initial_state)
+    print(f"Current state after update: {state_manager.get_current_state()}")
+
+    # Test getting current state
+    print("\nTesting get_current_state:")
+    current_state = state_manager.get_current_state()
+    print(f"Current state: {current_state}")
+
+    # Test getting state at time
+    print("\nTesting get_state_at_time:")
+    state_at_time = state_manager.get_state_at_time(0.0)
+    print(f"State at time 0.0: {state_at_time}")
+
+    # Test getting fire growth rate
+    print("\nTesting get_fire_growth_rate:")
+    growth_rate = state_manager.get_fire_growth_rate(3600)
+    print(f"Fire growth rate: {growth_rate}")
+
+    # Test getting resource efficiency
+    print("\nTesting get_resource_efficiency:")
+    efficiency = state_manager.get_resource_efficiency()
+    print(f"Resource efficiency: {efficiency}")
+
+    # Test getting fire containment percentage
+    print("\nTesting get_fire_containment_percentage:")
+    containment = state_manager.get_fire_containment_percentage()
+    print(f"Fire containment percentage: {containment}")
+
+    # Test getting high risk areas
+    print("\nTesting get_high_risk_areas:")
+    high_risk_areas = state_manager.get_high_risk_areas()
+    print(f"High risk areas: {high_risk_areas}")
+
+    # Test resetting state manager
+    print("\nTesting reset:")
+    state_manager.reset()
+    print(f"State manager after reset: {state_manager}")
+
+    # Test getting state history
+    print("\nTesting get_state_history:")
+    state_manager.update_state(initial_state)
+    state_manager.update_state({**initial_state, 'timestamp': 3600.0})
+    history = state_manager.get_state_history()
+    print(f"State history length: {len(history)}")
+    print(f"State history: {history}")
+
+if __name__ == "__main__":
+    main()

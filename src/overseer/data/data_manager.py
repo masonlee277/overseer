@@ -11,10 +11,12 @@ import numpy as np
 import pandas as pd
 import h5py
 import json
-import rasterio
+
+
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
-
+from overseer.core.state_manager import StateManager
+from overseer.core.state import State
 from overseer.data.geospatial_manager import GeoSpatialManager
 
 class DataManager:
@@ -52,259 +54,203 @@ class DataManager:
         geospatial_manager (GeoSpatialManager): Manager for geospatial operations.
     """
 
-    def __init__(self, config: OverseerConfig):
-        """
-        Initialize the DataManager.
 
-        Args:
-            config (OverseerConfig): The OverseerConfig instance.
-        """
+    def __init__(self, config: OverseerConfig):
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
-        self.data_dir = Path(config.get('data_directory'))
+        self.data_dir = Path(self.config.get('data_dir', 'data'))
+        self.geospatial_manager = GeoSpatialManager(self.config)
+        self.state_manager = StateManager(self.config, self)
         self.current_episode = 0
         self.current_step = 0
-        self.geospatial_manager = GeoSpatialManager(config)
 
-    def save_simulation_state(self, state: Dict[str, Any]) -> None:
+    def __getattr__(self, name):
+        # Delegate to GeoSpatialManager for undefined attributes
+        return getattr(self.geospatial_manager, name)
+
+    def close(self):
         """
-        Save the current simulation state.
+        Close any open resources and perform cleanup operations.
+        This method should be called when the environment is closed.
+        """
+        self.logger.info("Closing DataManager and cleaning up resources")
+
+        
+        # Perform any final data saving or cleanup
+        self.cleanup_old_data(self.config.get('max_episodes_to_keep', 10))
+        
+        # Close the geospatial manager if it has a close method
+        if hasattr(self.geospatial_manager, 'close'):
+            self.geospatial_manager.close()
+        
+        self.logger.info("DataManager resources cleaned up and closed")
+
+    def get_episode_data(self, episode: int) -> List[Dict[str, Any]]:
+        """
+        Retrieve all data for a specific episode.
 
         Args:
-            state (Dict[str, Any]): The current state of the ELMFIRE simulation.
+            episode (int): The episode number to retrieve data for.
+
+        Returns:
+            List[Dict[str, Any]]: A list of state dictionaries for the specified episode.
         """
-        filename = f"episode_{self.current_episode}_step_{self.current_step}.h5"
-        filepath = self.data_dir / 'simulations' / 'raw' / filename
+        episode_data = []
+        episode_dir = self.data_dir / 'simulations' / 'raw'
+        for file in sorted(os.listdir(episode_dir)):
+            if file.startswith(f'episode_{episode}_'):
+                with open(episode_dir / file, 'r') as f:
+                    episode_data.append(json.load(f))
+        return episode_data
+
+    def get_rl_metrics(self, episode: int) -> Dict[str, float]:
+        """
+        Retrieve RL metrics for a specific episode.
+
+        Args:
+            episode (int): The episode number to retrieve metrics for.
+
+        Returns:
+            Dict[str, float]: A dictionary of RL metrics for the specified episode.
+        """
+        metrics_file = self.data_dir / 'rl_metrics' / f'episode_{episode}_metrics.json'
+        if metrics_file.exists():
+            with open(metrics_file, 'r') as f:
+                return json.load(f)
+        else:
+            self.logger.warning(f"No RL metrics found for episode {episode}")
+            return {}
+
+    def update_rl_metrics(self, episode: int, step: int, metrics: Dict[str, Any]) -> None:
+        """
+        Update RL metrics for a specific episode and step.
+
+        Args:
+            episode (int): The current episode number.
+            step (int): The current step number within the episode.
+            metrics (Dict[str, Any]): The metrics to update.
+        """
+        metrics_dir = self.data_dir / 'rl_metrics'
+        metrics_dir.mkdir(parents=True, exist_ok=True)
+        metrics_file = metrics_dir / f'episode_{episode}_metrics.json'
         
-        try:
-            with h5py.File(filepath, 'w') as hf:
-                for key, value in state.items():
-                    if isinstance(value, np.ndarray):
-                        hf.create_dataset(key, data=value)
-                    else:
-                        hf.create_dataset(key, data=json.dumps(value))
-            self.logger.info(f"Saved simulation state to {filepath}")
-        except Exception as e:
-            self.logger.error(f"Failed to save simulation state: {str(e)}")
-            raise
+        if metrics_file.exists():
+            with open(metrics_file, 'r') as f:
+                existing_metrics = json.load(f)
+        else:
+            existing_metrics = {}
+        
+        existing_metrics[f'step_{step}'] = metrics
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(existing_metrics, f)
+
+    def reset(self) -> None:
+        """
+        Reset the DataManager to its initial state.
+        This method should be called when the environment is reset.
+        """
+        self.logger.info("Resetting DataManager")
+        self.current_step = 0
+        self.state_manager.reset()
+        # Clear any temporary data or caches if necessary
+
+    # ... (existing code) ...
+    def save_simulation_state(self, state: Dict[str, Any]) -> None:
+        """Save the current simulation state."""
+        self.state_manager.update_state(state)
+        self._save_state_to_disk(state)
 
     def load_simulation_state(self, episode: int, step: int) -> Dict[str, Any]:
-        """
-        Load a simulation state from storage.
+        """Load a simulation state from disk."""
+        return self._load_state_from_disk(episode, step)
 
-        Args:
-            episode (int): The episode number.
-            step (int): The step number within the episode.
+    def get_current_state(self) -> Optional[State]:
+        """Get the current state."""
+        return self.state_manager.get_current_state()
 
-        Returns:
-            Dict[str, Any]: The loaded simulation state.
-        """
-        filename = f"episode_{episode}_step_{step}.h5"
-        filepath = self.data_dir / 'simulations' / 'raw' / filename
-        
+    def get_state_at_time(self, timestamp: float) -> Optional[State]:
+        """Get the state at a specific timestamp."""
+        return self.state_manager.get_state_at_time(timestamp)
+
+    def get_fire_growth_rate(self, time_window: float) -> float:
+        """Get the fire growth rate over a specified time window."""
+        return self.state_manager.get_fire_growth_rate(time_window)
+
+    def get_resource_efficiency(self) -> float:
+        """Calculate the resource efficiency for the current state."""
+        return self.state_manager.get_resource_efficiency()
+
+    def get_fire_containment_percentage(self) -> float:
+        """Calculate the fire containment percentage for the current state."""
+        return self.state_manager.get_fire_containment_percentage()
+
+    def get_high_risk_areas(self) -> Optional[np.ndarray]:
+        """Identify high-risk areas based on the current state."""
+        return self.state_manager.get_high_risk_areas()
+
+    def reset(self) -> None:
+        """Reset the state manager."""
+        self.state_manager.reset()
+
+    def get_state_history(self) -> List[State]:
+        """Get the history of states."""
+        return self.state_manager.get_state_history()
+
+    def preprocess_data_for_rl(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """Preprocess the simulation state for use in the RL environment."""
         try:
-            state = {}
-            with h5py.File(filepath, 'r') as hf:
-                for key in hf.keys():
-                    if isinstance(hf[key][()], np.ndarray):
-                        state[key] = hf[key][()]
-                    else:
-                        state[key] = json.loads(hf[key][()])
-            self.logger.info(f"Loaded simulation state from {filepath}")
-            return state
-        except Exception as e:
-            self.logger.error(f"Failed to load simulation state: {str(e)}")
-            raise
-
-    def save_geospatial_data(self, data: np.ndarray, metadata: Dict[str, Any], filename: str) -> None:
-        """
-        Save geospatial data as a GeoTIFF file.
-
-        Args:
-            data (np.ndarray): The geospatial data to save.
-            metadata (Dict[str, Any]): Metadata for the GeoTIFF file.
-            filename (str): Name of the file to save.
-        """
-        filepath = self.data_dir / 'simulations' / 'processed' / filename
-        self.geospatial_manager.save_tiff(str(filepath), data, metadata)
-        self.logger.info(f"Saved geospatial data to {filepath}")
-
-    def load_geospatial_data(self, filename: str) -> Tuple[np.ndarray, Dict[str, Any]]:
-        """
-        Load geospatial data from a GeoTIFF file.
-
-        Args:
-            filename (str): Name of the file to load.
-
-        Returns:
-            Tuple[np.ndarray, Dict[str, Any]]: The loaded data and its metadata.
-        """
-        filepath = self.data_dir / 'simulations' / 'processed' / filename
-        data, metadata = self.geospatial_manager.load_tiff(str(filepath))
-        self.logger.info(f"Loaded geospatial data from {filepath}")
-        return data, metadata
-
-    def save_rl_metrics(self, metrics: Dict[str, float]) -> None:
-        """
-        Save metrics from the RL training process.
-
-        Args:
-            metrics (Dict[str, float]): Dictionary of metric names and values.
-        """
-        filename = f"rl_metrics_episode_{self.current_episode}.json"
-        filepath = self.data_dir / 'metrics' / filename
-        
-        try:
-            with open(filepath, 'w') as f:
-                json.dump(metrics, f)
-            self.logger.info(f"Saved RL metrics to {filepath}")
-        except Exception as e:
-            self.logger.error(f"Failed to save RL metrics: {str(e)}")
-            raise
-
-    def load_rl_metrics(self, episode: int) -> Dict[str, float]:
-        """
-        Load metrics from a specific RL training episode.
-
-        Args:
-            episode (int): The episode number to load metrics for.
-
-        Returns:
-            Dict[str, float]: Dictionary of metric names and values.
-        """
-        filename = f"rl_metrics_episode_{episode}.json"
-        filepath = self.data_dir / 'metrics' / filename
-        
-        try:
-            with open(filepath, 'r') as f:
-                metrics = json.load(f)
-            self.logger.info(f"Loaded RL metrics from {filepath}")
-            return metrics
-        except Exception as e:
-            self.logger.error(f"Failed to load RL metrics: {str(e)}")
-            raise
-
-    def preprocess_state_for_rl(self, state: Dict[str, Any]) -> np.ndarray:
-        """
-        Preprocess the simulation state for use in the RL environment.
-
-        This method now includes geospatial preprocessing using GeoSpatialManager.
-
-        Args:
-            state (Dict[str, Any]): The raw simulation state.
-
-        Returns:
-            np.ndarray: The preprocessed state suitable for the RL environment.
-        """
-        try:
-            numeric_data = []
-            for key, value in state.items():
-                if isinstance(value, (int, float, np.ndarray)):
-                    numeric_data.extend(np.array(value).flatten())
-                elif key == 'fire_intensity':
-                    # Example of using GeoSpatialManager for preprocessing
-                    burned_area = self.geospatial_manager.calculate_burned_area(value, threshold=0.5)
-                    fire_perimeter = self.geospatial_manager.calculate_fire_perimeter(value, threshold=0.5)
-                    numeric_data.extend([burned_area, np.sum(fire_perimeter)])
+            processed_state = state.copy()
             
-            preprocessed_state = np.array(numeric_data)
+            fire_intensity = state['fire_intensity']
+            processed_state['burned_area'] = self.calculate_burned_area(fire_intensity, threshold=0.5)
+            processed_state['fire_perimeter'] = self.calculate_fire_perimeter(fire_intensity, threshold=0.5)
+            processed_state['fire_spread_direction'] = self.compute_fire_spread_direction(fire_intensity)
+            
+            if 'elevation' in state:
+                processed_state['terrain_effects'] = self.calculate_terrain_effects(state['elevation'], fire_intensity)
+            
+            if 'fuel_type' in state:
+                processed_state['high_risk_areas'] = self.identify_high_risk_areas(fire_intensity, state['elevation'], state['fuel_type'])
+            
             self.logger.info("Preprocessed simulation state for RL")
-            return preprocessed_state
+            return processed_state
         except Exception as e:
             self.logger.error(f"Failed to preprocess state for RL: {str(e)}")
             raise
 
-    def save_intermediate_state(self, state: Dict[str, Any]) -> None:
-        """
-        Save an intermediate state of the simulation.
+    def calculate_burned_area(self, fire_intensity: np.ndarray, threshold: float) -> float:
+        """Calculate the total burned area."""
+        return self.geospatial_manager.calculate_burned_area(fire_intensity, threshold)
 
-        Args:
-            state (Dict[str, Any]): The intermediate state to save.
-        """
-        filename = f"intermediate_state_episode_{self.current_episode}_step_{self.current_step}.h5"
-        filepath = self.data_dir / 'intermediate' / filename
-        
-        try:
-            with h5py.File(filepath, 'w') as hf:
-                for key, value in state.items():
-                    if isinstance(value, np.ndarray):
-                        hf.create_dataset(key, data=value)
-                    else:
-                        hf.create_dataset(key, data=json.dumps(value))
-            self.logger.info(f"Saved intermediate state to {filepath}")
-        except Exception as e:
-            self.logger.error(f"Failed to save intermediate state: {str(e)}")
-            raise
+    def calculate_fire_perimeter(self, fire_intensity: np.ndarray, threshold: float) -> np.ndarray:
+        """Calculate the fire perimeter."""
+        return self.geospatial_manager.calculate_fire_perimeter(fire_intensity, threshold)
 
-    def load_intermediate_state(self, episode: int, step: int) -> Dict[str, Any]:
-        """
-        Load an intermediate state of the simulation.
+    def compute_fire_spread_direction(self, fire_intensity: np.ndarray) -> np.ndarray:
+        """Compute the fire spread direction."""
+        return self.geospatial_manager.compute_fire_spread_direction(fire_intensity)
 
-        Args:
-            episode (int): The episode number.
-            step (int): The step number within the episode.
+    def calculate_terrain_effects(self, elevation: np.ndarray, fire_intensity: np.ndarray) -> np.ndarray:
+        """Calculate terrain effects on fire spread."""
+        return self.geospatial_manager.calculate_terrain_effects(elevation, fire_intensity)
 
-        Returns:
-            Dict[str, Any]: The loaded intermediate state.
-        """
-        filename = f"intermediate_state_episode_{episode}_step_{step}.h5"
-        filepath = self.data_dir / 'intermediate' / filename
-        
-        try:
-            state = {}
-            with h5py.File(filepath, 'r') as hf:
-                for key in hf.keys():
-                    if isinstance(hf[key][()], np.ndarray):
-                        state[key] = hf[key][()]
-                    else:
-                        state[key] = json.loads(hf[key][()])
-            self.logger.info(f"Loaded intermediate state from {filepath}")
-            return state
-        except Exception as e:
-            self.logger.error(f"Failed to load intermediate state: {str(e)}")
-            raise
+    def identify_high_risk_areas(self, fire_intensity: np.ndarray, elevation: np.ndarray, fuel_type: np.ndarray) -> np.ndarray:
+        """Identify areas at high risk for fire spread."""
+        return self.geospatial_manager.identify_high_risk_areas(fire_intensity, elevation, fuel_type)
 
-    def aggregate_simulation_results(self, episode: int) -> Dict[str, Any]:
-        """
-        Aggregate results from all steps of a simulation episode.
+    def _save_state_to_disk(self, state: Dict[str, Any]) -> None:
+        """Save the state to disk."""
+        file_path = self.data_dir / 'simulations' / 'raw' / f'episode_{self.current_episode}_step_{self.current_step}.json'
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, 'w') as f:
+            json.dump(state, f)
 
-        This method now includes geospatial aggregation using GeoSpatialManager.
-
-        Args:
-            episode (int): The episode number to aggregate results for.
-
-        Returns:
-            Dict[str, Any]: Aggregated simulation results.
-        """
-        try:
-            results = []
-            step = 0
-            while True:
-                try:
-                    state = self.load_simulation_state(episode, step)
-                    results.append(state)
-                    step += 1
-                except FileNotFoundError:
-                    break
-            
-            aggregated_results = {
-                'episode': episode,
-                'total_steps': step,
-                'final_state': results[-1] if results else None,
-                'trajectory': results
-            }
-
-            # Perform geospatial aggregation
-            if results:
-                fire_intensities = [state['fire_intensity'] for state in results]
-                aggregated_results['cumulative_burn_map'] = self.geospatial_manager.compute_cumulative_burn_map(fire_intensities)
-                aggregated_results['final_fire_perimeter'] = self.geospatial_manager.calculate_fire_perimeter(results[-1]['fire_intensity'], threshold=0.5)
-
-            self.logger.info(f"Aggregated results for episode {episode}")
-            return aggregated_results
-        except Exception as e:
-            self.logger.error(f"Failed to aggregate simulation results: {str(e)}")
-            raise
+    def _load_state_from_disk(self, episode: int, step: int) -> Dict[str, Any]:
+        """Load a state from disk."""
+        file_path = self.data_dir / 'simulations' / 'raw' / f'episode_{episode}_step_{step}.json'
+        with open(file_path, 'r') as f:
+            return json.load(f)
 
     def increment_step(self) -> None:
         """Increment the current step counter."""
@@ -316,12 +262,7 @@ class DataManager:
         self.current_step = 0
 
     def get_latest_episode_and_step(self) -> Tuple[int, int]:
-        """
-        Get the latest episode and step numbers from stored data.
-
-        Returns:
-            Tuple[int, int]: The latest episode and step numbers.
-        """
+        """Get the latest episode and step numbers from stored data."""
         try:
             episodes = [int(f.split('_')[1]) for f in os.listdir(self.data_dir / 'simulations' / 'raw') if f.startswith('episode_')]
             if not episodes:
@@ -333,6 +274,21 @@ class DataManager:
         except Exception as e:
             self.logger.error(f"Failed to get latest episode and step: {str(e)}")
             return 0, 0
+
+    def cleanup_old_data(self, max_episodes: int) -> None:
+        """Remove old simulation data to free up storage space."""
+        try:
+            episodes = sorted([int(f.split('_')[1]) for f in os.listdir(self.data_dir / 'simulations' / 'raw') if f.startswith('episode_')], reverse=True)
+            episodes_to_remove = episodes[max_episodes:]
+            for episode in episodes_to_remove:
+                for file in os.listdir(self.data_dir / 'simulations' / 'raw'):
+                    if file.startswith(f'episode_{episode}_'):
+                        os.remove(self.data_dir / 'simulations' / 'raw' / file)
+            self.logger.info(f"Cleaned up old data, keeping the most recent {max_episodes} episodes")
+        except Exception as e:
+            self.logger.error(f"Failed to clean up old data: {str(e)}")
+
+    # Add more methods as needed...
 
     def cleanup_old_data(self, max_episodes: int) -> None:
         """
