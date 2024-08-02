@@ -12,6 +12,7 @@ from overseer.rl.spaces.observation_space import ObservationSpace
 from overseer.rl.utils.state_encoder import StateEncoder
 from overseer.utils.logging import OverseerLogger
 from overseer.core.state import State
+from overseer.core.models import SimulationState, EpisodeStep
 
 class ElmfireGymEnv(gym.Env):
     """
@@ -27,12 +28,21 @@ class ElmfireGymEnv(gym.Env):
         """
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.logger.info("Initializing ElmfireGymEnv")
-        
         self.config = OverseerConfig(config_path)
-        self.data_manager = DataManager(self.config)
+
+        #####################################
         self.config_manager = ElmfireConfigManager(self.config)
+        self.data_manager = DataManager(self.config)
         
-        self.sim_manager = SimulationManager(self.config, self.config_manager, self.data_manager)
+        self.sim_manager = SimulationManager(
+            self.config, 
+            self.config_manager, 
+            self.data_manager
+        )
+        #####################################
+
+
+
         self.reward_manager = RewardManager(self.config)
         
         self.observation_space = ObservationSpace(self.config).space
@@ -60,6 +70,17 @@ class ElmfireGymEnv(gym.Env):
         self.current_episode += 1
         self.current_step = 0
         
+        # Create an EpisodeStep for the initial state
+        episode_step = EpisodeStep(
+            step=self.current_step,
+            state=initial_state,
+            action=None,  # No action taken yet
+            reward=0.0,
+            next_state=initial_state,
+            simulation_result=None,  # Will be filled after the first step
+            done=False
+        )
+        
         encoded_state = self.state_encoder.encode(self.data_manager.get_current_state().get_raw_data())
         
         self.logger.info("Environment reset complete")
@@ -68,20 +89,42 @@ class ElmfireGymEnv(gym.Env):
     def step(self, action: Any) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         self.logger.info(f"Taking step with action: {action}")
         
+        # Create an EpisodeStep for the current action
+        current_state = self.data_manager.get_current_state()
+        episode_step = EpisodeStep(
+            step=self.current_step,
+            state=current_state,
+            action=action,
+            reward=0.0,  # Reward will be calculated after applying the action
+            next_state=None,  # To be filled after applying the action
+            simulation_result=None,  # To be filled after applying the action
+            done=False
+        )
+        
+        # Apply the action and get simulation results
         simulation_results = self.sim_manager.apply_action(action)
         
+        # Update the episode step with the new state and simulation results
+        episode_step.next_state = self.data_manager.get_current_state()
+        episode_step.simulation_result = simulation_results
+        
+        # Save the simulation state
         self.data_manager.save_simulation_state(simulation_results)
-        current_state = self.data_manager.get_current_state()
         
-        encoded_next_state = self.state_encoder.encode(current_state.get_raw_data())
+        # Encode the next state
+        encoded_next_state = self.state_encoder.encode(episode_step.next_state.get_raw_data())
         
-        reward = self.reward_manager.calculate_reward(current_state)
+        # Calculate the reward
+        reward = self.reward_manager.calculate_reward(episode_step.next_state)
         
-        terminated = self._check_termination(current_state)
-        truncated = self._check_truncation(current_state)
+        # Check termination and truncation conditions
+        terminated = self._check_termination(episode_step.next_state)
+        truncated = self._check_truncation(episode_step.next_state)
         
-        info = self._get_info(current_state)
+        # Gather additional info
+        info = self._get_info(episode_step.next_state)
         
+        # Update RL metrics
         rl_metrics = {
             "reward": reward,
             "terminated": terminated,
@@ -92,6 +135,7 @@ class ElmfireGymEnv(gym.Env):
         
         self.logger.info(f"Step complete. Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}")
         return encoded_next_state, reward, terminated, truncated, info
+
 
     def _check_termination(self, state: State) -> bool:
         self.logger.debug("Checking termination condition")

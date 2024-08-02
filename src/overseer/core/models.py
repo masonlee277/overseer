@@ -48,6 +48,7 @@ class SimulationState:
     containment_percentage: float
     resources: Dict[str, int]
     weather: Dict[str, float]
+    
     # Add any other relevant state information
 
 @dataclass

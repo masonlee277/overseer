@@ -410,10 +410,17 @@ class GeoSpatialManager:
         elevation = self.load_tiff(elevation_path)[0] if elevation_path else None
         vegetation = self.load_tiff(vegetation_path)[0] if vegetation_path else None
 
-        return self.generate_action_mask(fire_intensity, existing_firelines, elevation, vegetation,
-                                         min_distance, max_distance, max_slope, constructable_veg_types,
-                                         min_effective_length)
-
+        return self.generate_action_mask(
+            fire_intensity=fire_intensity,
+            existing_firelines=existing_firelines,
+            elevation=elevation,
+            vegetation=vegetation,
+            min_distance=min_distance,
+            max_distance=max_distance,
+            max_slope=max_slope,
+            constructable_veg_types=constructable_veg_types,
+            min_effective_length=min_effective_length
+        )
 
     def generate_action_mask(self, fire_intensity: np.ndarray = None, existing_firelines: np.ndarray = None, 
                              elevation: np.ndarray = None, vegetation: np.ndarray = None,
@@ -465,7 +472,7 @@ class GeoSpatialManager:
 
         return valid_area
     
-    
+
     def visualize_action_mask(self, fire_intensity: np.ndarray, action_mask: np.ndarray, title: str):
         """
         Visualize the fire intensity and action mask.

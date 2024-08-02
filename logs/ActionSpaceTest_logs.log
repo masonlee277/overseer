@@ -92,3 +92,210 @@
 2024-08-01 09:25:14,199 - ActionSpaceTest - INFO -       Expected: False
 2024-08-01 09:25:14,199 - ActionSpaceTest - INFO -       Result: PASS
 2024-08-01 09:25:14,199 - ActionSpaceTest - INFO - Test 3: Action Mask Generation
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO - Starting comprehensive ActionSpace tests
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO - Test 1: Basic Functionality - Sampling and Validation
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO -   1.1. Sampled action: [299  34   1   1]
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,212 - ActionSpaceTest - INFO -   1.2. Sampled action: [325 238   3   2]
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -   1.3. Sampled action: [291 323   7   7]
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -   1.4. Sampled action: [267 183   4   5]
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,213 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -   1.5. Sampled action: [209 326   3   7]
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO - Test 2: Edge Cases
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -   2.1. Testing: Minimum valid action
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 1]
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -   2.2. Testing: Maximum valid action
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Action: [332, 332, 7, 10]
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Result: FAIL
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -   2.3. Testing: Invalid x (negative)
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Action: [-1, 0, 0, 1]
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,214 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.4. Testing: Invalid x (too large)
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Action: [333, 0, 0, 1]
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.5. Testing: Invalid y (negative)
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Action: [0, -1, 0, 1]
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.6. Testing: Invalid y (too large)
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Action: [0, 333, 0, 1]
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.7. Testing: Invalid direction
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Action: [0, 0, 8, 1]
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.8. Testing: Invalid length (zero)
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 0]
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -       Result: FAIL
+2024-08-02 09:32:10,215 - ActionSpaceTest - INFO -   2.9. Testing: Invalid length (too long)
+2024-08-02 09:32:10,216 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 11]
+2024-08-02 09:32:10,216 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:32:10,216 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:32:10,216 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:32:10,216 - ActionSpaceTest - INFO - Test 3: Action Mask Generation
+2024-08-02 09:37:20,568 - ActionSpaceTest - INFO - Starting comprehensive ActionSpace tests
+2024-08-02 09:37:20,569 - ActionSpaceTest - INFO - Test 1: Basic Functionality - Sampling and Validation
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -   1.1. Sampled action: [85 83  2  2]
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -   1.2. Sampled action: [31 57  6  6]
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -   1.3. Sampled action: [24 52  1  9]
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -   1.4. Sampled action: [33 60  6  3]
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,570 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   1.5. Sampled action: [99 61  1  4]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO - Test 2: Edge Cases
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   2.1. Testing: Minimum valid action
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 1]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   2.2. Testing: Maximum valid action
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Action: [99, 99, 7, 10]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   2.3. Testing: Invalid x (negative)
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Action: [-1, 0, 0, 1]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   2.4. Testing: Invalid x (too large)
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Action: [100, 0, 0, 1]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -   2.5. Testing: Invalid y (negative)
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Action: [0, -1, 0, 1]
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,571 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -   2.6. Testing: Invalid y (too large)
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Action: [0, 100, 0, 1]
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -   2.7. Testing: Invalid direction
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Action: [0, 0, 8, 1]
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -   2.8. Testing: Invalid length (zero)
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 0]
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -   2.9. Testing: Invalid length (too long)
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 11]
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:20,572 - ActionSpaceTest - INFO - Test 3: Action Mask Generation
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO - Starting comprehensive ActionSpace tests
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO - Test 1: Basic Functionality - Sampling and Validation
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO -   1.1. Sampled action: [85 21  3  8]
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,851 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   1.2. Sampled action: [87 83  5 10]
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   1.3. Sampled action: [10 90  4 10]
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   1.4. Sampled action: [26 88  5  7]
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   1.5. Sampled action: [17 43  0  3]
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO - Test 2: Edge Cases
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   2.1. Testing: Minimum valid action
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 1]
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,852 - ActionSpaceTest - INFO -   2.2. Testing: Maximum valid action
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [99, 99, 7, 10]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: True
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: True
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.3. Testing: Invalid x (negative)
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [-1, 0, 0, 1]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.4. Testing: Invalid x (too large)
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [100, 0, 0, 1]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.5. Testing: Invalid y (negative)
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [0, -1, 0, 1]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.6. Testing: Invalid y (too large)
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [0, 100, 0, 1]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.7. Testing: Invalid direction
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [0, 0, 8, 1]
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -   2.8. Testing: Invalid length (zero)
+2024-08-02 09:37:36,853 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 0]
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -   2.9. Testing: Invalid length (too long)
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Action: [0, 0, 0, 11]
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Is valid: False
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Expected: False
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO -       Result: PASS
+2024-08-02 09:37:36,854 - ActionSpaceTest - INFO - Test 3: Action Mask Generation

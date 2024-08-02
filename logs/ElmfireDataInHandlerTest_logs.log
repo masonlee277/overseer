@@ -1596,3 +1596,426 @@ SCRATCH = './scratch'
               'USE_SUPERSEDED_SPOTTING': '.FALSE.',
               'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
  'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
+2024-08-02 09:22:15,876 - ElmfireDataInHandlerTest - INFO - Loading configuration values:
+2024-08-02 09:22:15,876 - ElmfireDataInHandlerTest - INFO - Full YAML config: {'project_name': 'ELMFIRE Simulation', 'version': '2024.0326', 'elmfire_relative_path': '../elmfire', 'directories': {'base_directory': '.', 'install_directory': './install', 'scratch_base': './scratch', 'fuels_and_topography': './inputs', 'weather': './inputs', 'outputs': './outputs', 'scratch': './scratch'}, 'io': {'data_in_path': 'C:/Users/mason/Desktop/misc/overseer/elmfire/tutorials/05-UMD-spotting/elmfire.data.in'}, 'center_lon': -120.281, 'center_lat': 37.44, 'fuel_source': 'landfire', 'fuel_version': '2.2.0', 'environment': {'cloudfire_server': '172.92.17.198', 'elmfire_scratch_base': 'C:/Users/mason/Desktop/misc/overseer/elmfire/scratch', 'elmfire_base_dir': 'C:/Users/mason/Desktop/misc/overseer/elmfire', 'elmfire_install_dir': 'C:/Users/mason/Desktop/misc/overseer/elmfire/build/linux/bin'}, 'simulation': {'mode': 'SIMULATOR', 'dt': 3600, 'tstop': 86400, 'cell_size': 30}, 'spatial': {'coordinate_reference_system': 'EPSG:4326', 'resolution': 30, 'extent': {'xmin': 0, 'ymin': 0, 'xmax': 10000, 'ymax': 10000}}, 'weather': {'wind_speed': 10, 'wind_direction': 0, 'temperature': 25, 'relative_humidity': 30}, 'fuel': {'moisture_1hr': 6, 'moisture_10hr': 7, 'moisture_100hr': 8, 'moisture_live_herb': 60, 'moisture_live_woody': 90}, 'ignition': {'type': 'point', 'coordinates': [[5000, 5000]]}, 'geospatial': {'fire_intensity_threshold': 100, 'high_risk_threshold': 0.7, 'spot_fire_probability_threshold': 0.5}, 'resources': {'types': [{'name': 'firefighter', 'max_count': 100, 'effectiveness': 0.8}, {'name': 'firetruck', 'max_count': 20, 'effectiveness': 1.2}, {'name': 'aircraft', 'max_count': 5, 'effectiveness': 2.0}]}, 'performance_metrics': ['total_burned_area', 'average_containment_time', 'resource_efficiency', 'cost_effectiveness'], 'visualization': {'update_interval': 3600, 'plot_types': ['fire_progression', 'resource_allocation', 'risk_map']}, 'data_management': {'storage_type': 'file', 'data_directory': 'data/', 'state_history_limit': 1000}, 'logging': {'level': 'INFO', 'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s', 'file': 'logs/elmfire.log'}, 'validation': {'required_directories': ['base_directory', 'install_directory', 'scratch_base'], 'required_files': ['elmfire.data.in']}, 'advanced_geospatial': {'terrain_effect_enabled': True, 'spot_fire_prediction_enabled': True, 'fire_age_tracking_enabled': True, 'burn_severity_calculation_enabled': True, 'fire_return_interval_calculation_enabled': True, 'landscape_diversity_calculation_enabled': True, 'viewshed_generation_enabled': True}, 'time_control': {'simulation_dt': 3600, 'simulation_tstop': 86400}, 'output_control': {'save_intermediate_state_interval': 10, 'metrics_to_track': ['burned_area', 'fire_intensity', 'resources_deployed', 'wind_speed', 'wind_direction']}, 'system': {'min_memory': '8GB', 'recommended_cpu_cores': 4, 'gpu_acceleration': False}, 'reinforcement_learning': {'action_space': {'max_fireline_length': 10, 'max_fireline_distance': 10, 'max_construction_slope': 30, 'constructable_vegetation_types': [1, 2, 3]}, 'constraints': {'min_effective_fireline_length': 3, 'max_firelines_per_timestep': 5, 'resource_limit_factor': 0.8}, 'state_space': {'include_fire_intensity': True, 'include_firelines': True, 'include_elevation': True, 'include_vegetation': True, 'include_wind': True, 'include_fuel_moisture': True}, 'reward_function': {'burned_area_weight': -1.0, 'fireline_length_weight': -0.1, 'protected_asset_weight': 10.0, 'resource_efficiency_weight': 0.5}, 'training': {'learning_rate': 0.001, 'discount_factor': 0.99, 'epsilon_start': 1.0, 'epsilon_end': 0.01, 'epsilon_decay': 0.995, 'batch_size': 64, 'memory_size': 10000, 'target_update_frequency': 1000}, 'evaluation': {'evaluation_episodes': 100, 'evaluation_frequency': 10000}}}
+2024-08-02 09:22:15,877 - ElmfireDataInHandlerTest - INFO - ELMFIRE base path: C:\Users\mason\Desktop\misc\overseer\elmfire
+2024-08-02 09:22:15,877 - ElmfireDataInHandlerTest - INFO - Set data_in_path to: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,877 - ElmfireDataInHandlerTest - INFO - Loading elmfire.data.in from: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,890 - ElmfireDataInHandlerTest - INFO - Successfully loaded elmfire.data.in content
+2024-08-02 09:22:15,891 - ElmfireDataInHandlerTest - INFO - Printing contents of elmfire.data.in file:
+2024-08-02 09:22:15,895 - ElmfireDataInHandlerTest - INFO - &INPUTS
+  FUELS_AND_TOPOGRAPHY_DIRECTORY = './inputs'
+  ASP_FILENAME = 'asp'
+  CBD_FILENAME = 'cbd'
+  CBH_FILENAME = 'cbh'
+  CC_FILENAME = 'cc'
+  CH_FILENAME = 'ch'
+  DEM_FILENAME = 'dem'
+  FBFM_FILENAME = 'fbfm40'
+  SLP_FILENAME = 'slp'
+  ADJ_FILENAME = 'adj'
+  PHI_FILENAME = 'new_phi'
+  DT_METEOROLOGY = 3600.0
+  WEATHER_DIRECTORY = './inputs'
+  WS_FILENAME = 'ws'
+  WD_FILENAME = 'wd'
+  M1_FILENAME = 'm1'
+  M10_FILENAME = 'm10'
+  M100_FILENAME = 'm100'
+  LH_MOISTURE_CONTENT = 30.0
+  LW_MOISTURE_CONTENT = 60.0
+/
+
+&OUTPUTS
+  OUTPUTS_DIRECTORY = './outputs'
+  DTDUMP = 3600.
+  DUMP_FLIN = .TRUE.
+  DUMP_SPREAD_RATE = .TRUE.
+  DUMP_TIME_OF_ARRIVAL = .TRUE.
+  CONVERT_TO_GEOTIFF = .FALSE.
+  DUMP_SPOTTING_OUTPUTS = .TRUE.
+/
+
+&COMPUTATIONAL_DOMAIN
+  A_SRS = 'EPSG: 32610'
+  COMPUTATIONAL_DOMAIN_CELLSIZE = 60
+  COMPUTATIONAL_DOMAIN_XLLCORNER = -6000.00
+  COMPUTATIONAL_DOMAIN_YLLCORNER = -6000.00
+/
+
+&TIME_CONTROL
+  SIMULATION_DT = 30.0
+  SIMULATION_TSTOP = 43200.0
+/
+
+&SIMULATOR
+  NUM_IGNITIONS = 2
+/
+
+&SPOTTING
+  CRITICAL_SPOTTING_FIRELINE_INTENSITY(:) = 0.
+  EMBER_GR = 1.0
+  ENABLE_SPOTTING = .TRUE.
+  PIGN = 100.0
+  PIGN_MAX = 100.0
+  PIGN_MIN = 100.0
+  TAU_EMBERGEN = 10.0
+  USE_UMD_SPOTTING_MODEL = .TRUE.
+  P_EPS = 0.001
+  USE_PHYSICAL_SPOTTING_DURATION = .FALSE.
+  USE_PHYSICAL_EMBER_NUMBER = .FALSE.
+  EMBER_SAMPLING_FACTOR = 50.0
+  GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX = 100.0
+  GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN = 100.0
+  USE_SUPERSEDED_SPOTTING = .FALSE.
+/
+
+&MISCELLANEOUS
+  PATH_TO_GDAL = '/usr/bin'
+  SCRATCH = './scratch'
+/
+
+
+2024-08-02 09:22:15,896 - ElmfireDataInHandlerTest - INFO - Printing internal data structure:
+2024-08-02 09:22:15,901 - ElmfireDataInHandlerTest - INFO - {'COMPUTATIONAL_DOMAIN': {'A_SRS': "'EPSG: 32610'",
+                          'COMPUTATIONAL_DOMAIN_CELLSIZE': '60',
+                          'COMPUTATIONAL_DOMAIN_XLLCORNER': '-6000.00',
+                          'COMPUTATIONAL_DOMAIN_YLLCORNER': '-6000.00'},
+ 'INPUTS': {'ADJ_FILENAME': "'adj'",
+            'ASP_FILENAME': "'asp'",
+            'CBD_FILENAME': "'cbd'",
+            'CBH_FILENAME': "'cbh'",
+            'CC_FILENAME': "'cc'",
+            'CH_FILENAME': "'ch'",
+            'DEM_FILENAME': "'dem'",
+            'DT_METEOROLOGY': '3600.0',
+            'FBFM_FILENAME': "'fbfm40'",
+            'FUELS_AND_TOPOGRAPHY_DIRECTORY': "'./inputs'",
+            'LH_MOISTURE_CONTENT': '30.0',
+            'LW_MOISTURE_CONTENT': '60.0',
+            'M100_FILENAME': "'m100'",
+            'M10_FILENAME': "'m10'",
+            'M1_FILENAME': "'m1'",
+            'PHI_FILENAME': "'new_phi'",
+            'SLP_FILENAME': "'slp'",
+            'WD_FILENAME': "'wd'",
+            'WEATHER_DIRECTORY': "'./inputs'",
+            'WS_FILENAME': "'ws'"},
+ 'MISCELLANEOUS': {'PATH_TO_GDAL': "'/usr/bin'", 'SCRATCH': "'./scratch'"},
+ 'OUTPUTS': {'CONVERT_TO_GEOTIFF': '.FALSE.',
+             'DTDUMP': '3600.',
+             'DUMP_FLIN': '.TRUE.',
+             'DUMP_SPOTTING_OUTPUTS': '.TRUE.',
+             'DUMP_SPREAD_RATE': '.TRUE.',
+             'DUMP_TIME_OF_ARRIVAL': '.TRUE.',
+             'OUTPUTS_DIRECTORY': "'./outputs'"},
+ 'SIMULATOR': {'NUM_IGNITIONS': '2'},
+ 'SPOTTING': {'CRITICAL_SPOTTING_FIRELINE_INTENSITY(:)': '0.',
+              'EMBER_GR': '1.0',
+              'EMBER_SAMPLING_FACTOR': '50.0',
+              'ENABLE_SPOTTING': '.TRUE.',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX': '100.0',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN': '100.0',
+              'PIGN': '100.0',
+              'PIGN_MAX': '100.0',
+              'PIGN_MIN': '100.0',
+              'P_EPS': '0.001',
+              'TAU_EMBERGEN': '10.0',
+              'USE_PHYSICAL_EMBER_NUMBER': '.FALSE.',
+              'USE_PHYSICAL_SPOTTING_DURATION': '.FALSE.',
+              'USE_SUPERSEDED_SPOTTING': '.FALSE.',
+              'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
+ 'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
+2024-08-02 09:22:15,901 - ElmfireDataInHandlerTest - INFO - Set parameter in elmfire.data.in: [INPUTS] FUELS_AND_TOPOGRAPHY_DIRECTORY = '/new/path/to/fuels'
+2024-08-02 09:22:15,901 - ElmfireDataInHandlerTest - INFO - Set parameter in elmfire.data.in: [OUTPUTS] DUMP_SPREAD_RATE = .TRUE.
+2024-08-02 09:22:15,901 - ElmfireDataInHandlerTest - INFO - Set parameter in elmfire.data.in: [TIME_CONTROL] SIMULATION_TSTOP = 43200.0
+2024-08-02 09:22:15,902 - ElmfireDataInHandlerTest - INFO - Printing internal data structure:
+2024-08-02 09:22:15,908 - ElmfireDataInHandlerTest - INFO - {'COMPUTATIONAL_DOMAIN': {'A_SRS': "'EPSG: 32610'",
+                          'COMPUTATIONAL_DOMAIN_CELLSIZE': '60',
+                          'COMPUTATIONAL_DOMAIN_XLLCORNER': '-6000.00',
+                          'COMPUTATIONAL_DOMAIN_YLLCORNER': '-6000.00'},
+ 'INPUTS': {'ADJ_FILENAME': "'adj'",
+            'ASP_FILENAME': "'asp'",
+            'CBD_FILENAME': "'cbd'",
+            'CBH_FILENAME': "'cbh'",
+            'CC_FILENAME': "'cc'",
+            'CH_FILENAME': "'ch'",
+            'DEM_FILENAME': "'dem'",
+            'DT_METEOROLOGY': '3600.0',
+            'FBFM_FILENAME': "'fbfm40'",
+            'FUELS_AND_TOPOGRAPHY_DIRECTORY': "'/new/path/to/fuels'",
+            'LH_MOISTURE_CONTENT': '30.0',
+            'LW_MOISTURE_CONTENT': '60.0',
+            'M100_FILENAME': "'m100'",
+            'M10_FILENAME': "'m10'",
+            'M1_FILENAME': "'m1'",
+            'PHI_FILENAME': "'new_phi'",
+            'SLP_FILENAME': "'slp'",
+            'WD_FILENAME': "'wd'",
+            'WEATHER_DIRECTORY': "'./inputs'",
+            'WS_FILENAME': "'ws'"},
+ 'MISCELLANEOUS': {'PATH_TO_GDAL': "'/usr/bin'", 'SCRATCH': "'./scratch'"},
+ 'OUTPUTS': {'CONVERT_TO_GEOTIFF': '.FALSE.',
+             'DTDUMP': '3600.',
+             'DUMP_FLIN': '.TRUE.',
+             'DUMP_SPOTTING_OUTPUTS': '.TRUE.',
+             'DUMP_SPREAD_RATE': '.TRUE.',
+             'DUMP_TIME_OF_ARRIVAL': '.TRUE.',
+             'OUTPUTS_DIRECTORY': "'./outputs'"},
+ 'SIMULATOR': {'NUM_IGNITIONS': '2'},
+ 'SPOTTING': {'CRITICAL_SPOTTING_FIRELINE_INTENSITY(:)': '0.',
+              'EMBER_GR': '1.0',
+              'EMBER_SAMPLING_FACTOR': '50.0',
+              'ENABLE_SPOTTING': '.TRUE.',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX': '100.0',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN': '100.0',
+              'PIGN': '100.0',
+              'PIGN_MAX': '100.0',
+              'PIGN_MIN': '100.0',
+              'P_EPS': '0.001',
+              'TAU_EMBERGEN': '10.0',
+              'USE_PHYSICAL_EMBER_NUMBER': '.FALSE.',
+              'USE_PHYSICAL_SPOTTING_DURATION': '.FALSE.',
+              'USE_SUPERSEDED_SPOTTING': '.FALSE.',
+              'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
+ 'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
+2024-08-02 09:22:15,908 - ElmfireDataInHandlerTest - INFO - Saving elmfire.data.in to: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,908 - ElmfireDataInHandlerTest - INFO - elmfire.data.in saved successfully
+2024-08-02 09:22:15,909 - ElmfireDataInHandlerTest - INFO - Loading elmfire.data.in from: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,917 - ElmfireDataInHandlerTest - INFO - Successfully loaded elmfire.data.in content
+2024-08-02 09:22:15,918 - ElmfireDataInHandlerTest - INFO - Printing internal data structure:
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - {'COMPUTATIONAL_DOMAIN': {'A_SRS': "'EPSG: 32610'",
+                          'COMPUTATIONAL_DOMAIN_CELLSIZE': '60',
+                          'COMPUTATIONAL_DOMAIN_XLLCORNER': '-6000.00',
+                          'COMPUTATIONAL_DOMAIN_YLLCORNER': '-6000.00'},
+ 'INPUTS': {'ADJ_FILENAME': "'adj'",
+            'ASP_FILENAME': "'asp'",
+            'CBD_FILENAME': "'cbd'",
+            'CBH_FILENAME': "'cbh'",
+            'CC_FILENAME': "'cc'",
+            'CH_FILENAME': "'ch'",
+            'DEM_FILENAME': "'dem'",
+            'DT_METEOROLOGY': '3600.0',
+            'FBFM_FILENAME': "'fbfm40'",
+            'FUELS_AND_TOPOGRAPHY_DIRECTORY': "'/new/path/to/fuels'",
+            'LH_MOISTURE_CONTENT': '30.0',
+            'LW_MOISTURE_CONTENT': '60.0',
+            'M100_FILENAME': "'m100'",
+            'M10_FILENAME': "'m10'",
+            'M1_FILENAME': "'m1'",
+            'PHI_FILENAME': "'new_phi'",
+            'SLP_FILENAME': "'slp'",
+            'WD_FILENAME': "'wd'",
+            'WEATHER_DIRECTORY': "'./inputs'",
+            'WS_FILENAME': "'ws'"},
+ 'MISCELLANEOUS': {'PATH_TO_GDAL': "'/usr/bin'", 'SCRATCH': "'./scratch'"},
+ 'OUTPUTS': {'CONVERT_TO_GEOTIFF': '.FALSE.',
+             'DTDUMP': '3600.',
+             'DUMP_FLIN': '.TRUE.',
+             'DUMP_SPOTTING_OUTPUTS': '.TRUE.',
+             'DUMP_SPREAD_RATE': '.TRUE.',
+             'DUMP_TIME_OF_ARRIVAL': '.TRUE.',
+             'OUTPUTS_DIRECTORY': "'./outputs'"},
+ 'SIMULATOR': {'NUM_IGNITIONS': '2'},
+ 'SPOTTING': {'CRITICAL_SPOTTING_FIRELINE_INTENSITY(:)': '0.',
+              'EMBER_GR': '1.0',
+              'EMBER_SAMPLING_FACTOR': '50.0',
+              'ENABLE_SPOTTING': '.TRUE.',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX': '100.0',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN': '100.0',
+              'PIGN': '100.0',
+              'PIGN_MAX': '100.0',
+              'PIGN_MIN': '100.0',
+              'P_EPS': '0.001',
+              'TAU_EMBERGEN': '10.0',
+              'USE_PHYSICAL_EMBER_NUMBER': '.FALSE.',
+              'USE_PHYSICAL_SPOTTING_DURATION': '.FALSE.',
+              'USE_SUPERSEDED_SPOTTING': '.FALSE.',
+              'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
+ 'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set parameter in elmfire.data.in: [COMPUTATIONAL_DOMAIN] COMPUTATIONAL_DOMAIN_CELLSIZE = 60
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set parameter in elmfire.data.in: [SIMULATOR] NUM_IGNITIONS = 2
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Updating elmfire.data.in content from YAML configuration
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set directory in elmfire.data.in: [INPUTS] FUELS_AND_TOPOGRAPHY_DIRECTORY = ./inputs
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set directory in elmfire.data.in: [INPUTS] WEATHER_DIRECTORY = ./inputs
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set directory in elmfire.data.in: [OUTPUTS] OUTPUTS_DIRECTORY = ./outputs
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Set directory in elmfire.data.in: [MISCELLANEOUS] SCRATCH = ./scratch
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Updated elmfire.data.in content from YAML configuration
+2024-08-02 09:22:15,924 - ElmfireDataInHandlerTest - INFO - Printing internal data structure:
+2024-08-02 09:22:15,931 - ElmfireDataInHandlerTest - INFO - {'COMPUTATIONAL_DOMAIN': {'A_SRS': "'EPSG: 32610'",
+                          'COMPUTATIONAL_DOMAIN_CELLSIZE': '60',
+                          'COMPUTATIONAL_DOMAIN_XLLCORNER': '-6000.00',
+                          'COMPUTATIONAL_DOMAIN_YLLCORNER': '-6000.00'},
+ 'INPUTS': {'ADJ_FILENAME': "'adj'",
+            'ASP_FILENAME': "'asp'",
+            'CBD_FILENAME': "'cbd'",
+            'CBH_FILENAME': "'cbh'",
+            'CC_FILENAME': "'cc'",
+            'CH_FILENAME': "'ch'",
+            'DEM_FILENAME': "'dem'",
+            'DT_METEOROLOGY': '3600.0',
+            'FBFM_FILENAME': "'fbfm40'",
+            'FUELS_AND_TOPOGRAPHY_DIRECTORY': "'./inputs'",
+            'LH_MOISTURE_CONTENT': '30.0',
+            'LW_MOISTURE_CONTENT': '60.0',
+            'M100_FILENAME': "'m100'",
+            'M10_FILENAME': "'m10'",
+            'M1_FILENAME': "'m1'",
+            'PHI_FILENAME': "'new_phi'",
+            'SLP_FILENAME': "'slp'",
+            'WD_FILENAME': "'wd'",
+            'WEATHER_DIRECTORY': "'./inputs'",
+            'WS_FILENAME': "'ws'"},
+ 'MISCELLANEOUS': {'PATH_TO_GDAL': "'/usr/bin'", 'SCRATCH': "'./scratch'"},
+ 'OUTPUTS': {'CONVERT_TO_GEOTIFF': '.FALSE.',
+             'DTDUMP': '3600.',
+             'DUMP_FLIN': '.TRUE.',
+             'DUMP_SPOTTING_OUTPUTS': '.TRUE.',
+             'DUMP_SPREAD_RATE': '.TRUE.',
+             'DUMP_TIME_OF_ARRIVAL': '.TRUE.',
+             'OUTPUTS_DIRECTORY': "'./outputs'"},
+ 'SIMULATOR': {'NUM_IGNITIONS': '2'},
+ 'SPOTTING': {'CRITICAL_SPOTTING_FIRELINE_INTENSITY(:)': '0.',
+              'EMBER_GR': '1.0',
+              'EMBER_SAMPLING_FACTOR': '50.0',
+              'ENABLE_SPOTTING': '.TRUE.',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX': '100.0',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN': '100.0',
+              'PIGN': '100.0',
+              'PIGN_MAX': '100.0',
+              'PIGN_MIN': '100.0',
+              'P_EPS': '0.001',
+              'TAU_EMBERGEN': '10.0',
+              'USE_PHYSICAL_EMBER_NUMBER': '.FALSE.',
+              'USE_PHYSICAL_SPOTTING_DURATION': '.FALSE.',
+              'USE_SUPERSEDED_SPOTTING': '.FALSE.',
+              'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
+ 'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
+2024-08-02 09:22:15,932 - ElmfireDataInHandlerTest - INFO - Saving elmfire.data.in to: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,932 - ElmfireDataInHandlerTest - INFO - elmfire.data.in saved successfully
+2024-08-02 09:22:15,932 - ElmfireDataInHandlerTest - INFO - Loading elmfire.data.in from: C:\Users\mason\Desktop\misc\overseer\elmfire\tutorials\05-UMD-spotting\elmfire.data.in
+2024-08-02 09:22:15,934 - ElmfireDataInHandlerTest - INFO - Successfully loaded elmfire.data.in content
+2024-08-02 09:22:15,934 - ElmfireDataInHandlerTest - INFO - Printing contents of elmfire.data.in file:
+2024-08-02 09:22:15,938 - ElmfireDataInHandlerTest - INFO - &INPUTS
+  FUELS_AND_TOPOGRAPHY_DIRECTORY = './inputs'
+  ASP_FILENAME = 'asp'
+  CBD_FILENAME = 'cbd'
+  CBH_FILENAME = 'cbh'
+  CC_FILENAME = 'cc'
+  CH_FILENAME = 'ch'
+  DEM_FILENAME = 'dem'
+  FBFM_FILENAME = 'fbfm40'
+  SLP_FILENAME = 'slp'
+  ADJ_FILENAME = 'adj'
+  PHI_FILENAME = 'new_phi'
+  DT_METEOROLOGY = 3600.0
+  WEATHER_DIRECTORY = './inputs'
+  WS_FILENAME = 'ws'
+  WD_FILENAME = 'wd'
+  M1_FILENAME = 'm1'
+  M10_FILENAME = 'm10'
+  M100_FILENAME = 'm100'
+  LH_MOISTURE_CONTENT = 30.0
+  LW_MOISTURE_CONTENT = 60.0
+/
+
+&OUTPUTS
+  OUTPUTS_DIRECTORY = './outputs'
+  DTDUMP = 3600.
+  DUMP_FLIN = .TRUE.
+  DUMP_SPREAD_RATE = .TRUE.
+  DUMP_TIME_OF_ARRIVAL = .TRUE.
+  CONVERT_TO_GEOTIFF = .FALSE.
+  DUMP_SPOTTING_OUTPUTS = .TRUE.
+/
+
+&COMPUTATIONAL_DOMAIN
+  A_SRS = 'EPSG: 32610'
+  COMPUTATIONAL_DOMAIN_CELLSIZE = 60
+  COMPUTATIONAL_DOMAIN_XLLCORNER = -6000.00
+  COMPUTATIONAL_DOMAIN_YLLCORNER = -6000.00
+/
+
+&TIME_CONTROL
+  SIMULATION_DT = 30.0
+  SIMULATION_TSTOP = 43200.0
+/
+
+&SIMULATOR
+  NUM_IGNITIONS = 2
+/
+
+&SPOTTING
+  CRITICAL_SPOTTING_FIRELINE_INTENSITY(:) = 0.
+  EMBER_GR = 1.0
+  ENABLE_SPOTTING = .TRUE.
+  PIGN = 100.0
+  PIGN_MAX = 100.0
+  PIGN_MIN = 100.0
+  TAU_EMBERGEN = 10.0
+  USE_UMD_SPOTTING_MODEL = .TRUE.
+  P_EPS = 0.001
+  USE_PHYSICAL_SPOTTING_DURATION = .FALSE.
+  USE_PHYSICAL_EMBER_NUMBER = .FALSE.
+  EMBER_SAMPLING_FACTOR = 50.0
+  GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX = 100.0
+  GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN = 100.0
+  USE_SUPERSEDED_SPOTTING = .FALSE.
+/
+
+&MISCELLANEOUS
+  PATH_TO_GDAL = '/usr/bin'
+  SCRATCH = './scratch'
+/
+
+
+2024-08-02 09:22:15,939 - ElmfireDataInHandlerTest - INFO - Printing internal data structure:
+2024-08-02 09:22:15,944 - ElmfireDataInHandlerTest - INFO - {'COMPUTATIONAL_DOMAIN': {'A_SRS': "'EPSG: 32610'",
+                          'COMPUTATIONAL_DOMAIN_CELLSIZE': '60',
+                          'COMPUTATIONAL_DOMAIN_XLLCORNER': '-6000.00',
+                          'COMPUTATIONAL_DOMAIN_YLLCORNER': '-6000.00'},
+ 'INPUTS': {'ADJ_FILENAME': "'adj'",
+            'ASP_FILENAME': "'asp'",
+            'CBD_FILENAME': "'cbd'",
+            'CBH_FILENAME': "'cbh'",
+            'CC_FILENAME': "'cc'",
+            'CH_FILENAME': "'ch'",
+            'DEM_FILENAME': "'dem'",
+            'DT_METEOROLOGY': '3600.0',
+            'FBFM_FILENAME': "'fbfm40'",
+            'FUELS_AND_TOPOGRAPHY_DIRECTORY': "'./inputs'",
+            'LH_MOISTURE_CONTENT': '30.0',
+            'LW_MOISTURE_CONTENT': '60.0',
+            'M100_FILENAME': "'m100'",
+            'M10_FILENAME': "'m10'",
+            'M1_FILENAME': "'m1'",
+            'PHI_FILENAME': "'new_phi'",
+            'SLP_FILENAME': "'slp'",
+            'WD_FILENAME': "'wd'",
+            'WEATHER_DIRECTORY': "'./inputs'",
+            'WS_FILENAME': "'ws'"},
+ 'MISCELLANEOUS': {'PATH_TO_GDAL': "'/usr/bin'", 'SCRATCH': "'./scratch'"},
+ 'OUTPUTS': {'CONVERT_TO_GEOTIFF': '.FALSE.',
+             'DTDUMP': '3600.',
+             'DUMP_FLIN': '.TRUE.',
+             'DUMP_SPOTTING_OUTPUTS': '.TRUE.',
+             'DUMP_SPREAD_RATE': '.TRUE.',
+             'DUMP_TIME_OF_ARRIVAL': '.TRUE.',
+             'OUTPUTS_DIRECTORY': "'./outputs'"},
+ 'SIMULATOR': {'NUM_IGNITIONS': '2'},
+ 'SPOTTING': {'CRITICAL_SPOTTING_FIRELINE_INTENSITY(:)': '0.',
+              'EMBER_GR': '1.0',
+              'EMBER_SAMPLING_FACTOR': '50.0',
+              'ENABLE_SPOTTING': '.TRUE.',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MAX': '100.0',
+              'GLOBAL_SURFACE_FIRE_SPOTTING_PERCENT_MIN': '100.0',
+              'PIGN': '100.0',
+              'PIGN_MAX': '100.0',
+              'PIGN_MIN': '100.0',
+              'P_EPS': '0.001',
+              'TAU_EMBERGEN': '10.0',
+              'USE_PHYSICAL_EMBER_NUMBER': '.FALSE.',
+              'USE_PHYSICAL_SPOTTING_DURATION': '.FALSE.',
+              'USE_SUPERSEDED_SPOTTING': '.FALSE.',
+              'USE_UMD_SPOTTING_MODEL': '.TRUE.'},
+ 'TIME_CONTROL': {'SIMULATION_DT': '30.0', 'SIMULATION_TSTOP': '43200.0'}}
