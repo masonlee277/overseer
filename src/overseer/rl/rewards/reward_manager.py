@@ -1,11 +1,15 @@
 import os
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 from typing import Dict, Any
 import random
 
 from overseer.config.config import OverseerConfig
 from overseer.utils.logging import OverseerLogger
-from overseer.rl.rewards.reward_strategies import RewardStrategy, SimpleAreaRewardStrategy, ResourceAwareRewardStrategy, MockRewardStrategy
+from overseer.rl.rewards.reward_strategies import RewardStrategy, SimpleAreaRewardStrategy, ComplexRewardStrategy, MockRewardStrategy
 from overseer.data.data_manager import DataManager
 from overseer.core.models import SimulationState
 
@@ -39,12 +43,15 @@ class RewardManager:
         self.reward_strategy = self._init_reward_strategy()
 
     def _init_reward_strategy(self) -> RewardStrategy:
-        """Initialize the reward strategy based on configuration."""
         strategy_name = self.config.get('reward_strategy', 'simple')
         if strategy_name == 'simple':
             return SimpleAreaRewardStrategy()
         elif strategy_name == 'resource_aware':
             return ResourceAwareRewardStrategy()
+        elif strategy_name == 'complex':
+            return ComplexRewardStrategy()
+        elif strategy_name == 'mock':
+            return MockRewardStrategy()
         else:
             self.logger.warning(f"Unknown reward strategy '{strategy_name}'. Using SimpleAreaRewardStrategy.")
             return SimpleAreaRewardStrategy()

@@ -126,8 +126,10 @@ import matplotlib.pyplot as plt
 
 from overseer.config.config import OverseerConfig
 from overseer.data.data_manager import DataManager
-from overseer.core.models import Action, SimulationState
+from overseer.core.models import Action, SimulationState, EpisodeStep
 from overseer.utils.logging import OverseerLogger
+from overseer.core.models import Action
+
 
 class ActionSpace(Space):
     """
@@ -150,13 +152,19 @@ class ActionSpace(Space):
         self.constructable_veg_types = self.config.get('constructable_veg_types', [1, 2, 3])
 
     def sample(self) -> np.ndarray:
-        """Sample a random action from the action space."""
+        """Sample a random action from the action space and return raw action space."""
         x = np.random.randint(0, self.grid_size)
         y = np.random.randint(0, self.grid_size)
         direction = np.random.randint(0, 8)
         length = np.random.randint(1, self.max_fireline_length + 1)
         return np.array([x, y, direction, length], dtype=np.int32)
 
+    def sample_action(self) -> Action:
+        """Sample a random action and return it as an Action instance."""
+        raw_action = self.sample()
+        coordinates = self.action_to_coordinates(raw_action)
+        return Action(fireline_coordinates=coordinates)
+    
     def contains(self, x) -> bool:
         """Check if the given action is within the action space."""
         if not isinstance(x, np.ndarray) or x.shape != (4,):
@@ -167,6 +175,13 @@ class ActionSpace(Space):
                 0 <= direction < 8 and
                 1 <= length <= self.max_fireline_length)
 
+
+    def action_to_coordinates(self, action: np.ndarray) -> List[Tuple[int, int]]:
+        """Convert an action to a list of coordinates representing the fireline."""
+        x, y, direction, length = action
+        dx, dy = self._get_direction_offsets(direction)
+        return [(x + i*dx, y + i*dy) for i in range(length)]
+    
     def get_action_mask(self, episode_step: EpisodeStep) -> np.ndarray:
         """Generate an action mask based on the current episode step."""
         self.logger.info("Generating action mask")
@@ -196,6 +211,19 @@ class ActionSpace(Space):
         coords = np.array([(x + i*dx, y + i*dy) for i in range(length)])
         return coords
 
+    def create_action(self, raw_action: np.ndarray) -> Action:
+        """
+        Create an Action instance from raw action data.
+
+        Args:
+            raw_action (np.ndarray): The raw action data [x, y, direction, length].
+
+        Returns:
+            Action: An Action instance with the corresponding fireline coordinates.
+        """
+        coordinates = self.action_to_coordinates(raw_action)
+        return Action(fireline_coordinates=coordinates)
+    
     def _get_direction_offsets(self, direction: int) -> Tuple[int, int]:
         return [
             (0, 1), (1, 1), (1, 0), (1, -1),
@@ -216,7 +244,6 @@ class ActionSpace(Space):
 
     def encode_action(self, x: int, y: int, direction: int, length: int) -> Action:
         return Action(
-            resource_changes={},  # Placeholder for resource changes
             fireline_coordinates=self._get_fireline_coords(np.array([x, y, direction, length]))
         )
 
@@ -245,7 +272,6 @@ class ActionSpace(Space):
             return 1 if dy > 0 else 3
         else:
             return 7 if dy > 0 else 5
-
 def main():
     config = OverseerConfig()
     data_manager = DataManager(config)
@@ -257,9 +283,11 @@ def main():
     # Test 1: Basic Functionality
     logger.info("Test 1: Basic Functionality - Sampling and Validation")
     for i in range(1, 6):
-        action = action_space.sample()
-        is_valid = action_space.contains(action)
-        logger.info(f"  1.{i}. Sampled action: {action}")
+        raw_action = action_space.sample()
+        action = action_space.create_action(raw_action)
+        is_valid = action_space.contains(raw_action)
+        logger.info(f"  1.{i}. Sampled action: {raw_action}")
+        logger.info(f"      Action coordinates: {action.fireline_coordinates}")
         logger.info(f"      Is valid: {is_valid}")
         logger.info(f"      Expected: True")
         logger.info(f"      Result: {'PASS' if is_valid else 'FAIL'}")
@@ -279,8 +307,10 @@ def main():
     ]
     for i, (case, expected, description) in enumerate(edge_cases, 1):
         is_valid = action_space.contains(np.array(case))
+        action = action_space.create_action(np.array(case))
         logger.info(f"  2.{i}. Testing: {description}")
-        logger.info(f"      Action: {case}")
+        logger.info(f"      Raw action: {case}")
+        logger.info(f"      Action coordinates: {action.fireline_coordinates}")
         logger.info(f"      Is valid: {is_valid}")
         logger.info(f"      Expected: {expected}")
         logger.info(f"      Result: {'PASS' if is_valid == expected else 'FAIL'}")
@@ -296,7 +326,16 @@ def main():
         resources={'firefighters': 50, 'trucks': 10},
         weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}
     )
-    action_mask = action_space.get_action_mask(mock_state)
+    mock_episode_step = EpisodeStep(
+        step=0,
+        state=mock_state,
+        action=None,
+        reward=0,
+        next_state=None,
+        simulation_result=None,
+        done=False
+    )
+    action_mask = action_space.get_action_mask(mock_episode_step)
     logger.info(f"  3.1. Action mask shape: {action_mask.shape}")
     logger.info(f"       Expected shape: ({action_space.grid_size}, {action_space.grid_size})")
     logger.info(f"       Result: {'PASS' if action_mask.shape == (action_space.grid_size, action_space.grid_size) else 'FAIL'}")
@@ -317,10 +356,12 @@ def main():
         ([0, 0, 0, 20], False, "Invalid: too long")
     ]
 
-    for i, (action, expected, description) in enumerate(test_actions, 1):
-        is_valid = action_space._check_constraints(np.array(action), mock_state)
+    for i, (raw_action, expected, description) in enumerate(test_actions, 1):
+        action = action_space.create_action(np.array(raw_action))
+        is_valid = action_space._check_constraints(np.array(raw_action), mock_state)
         logger.info(f"  4.{i}. Testing: {description}")
-        logger.info(f"      Action: {action}")
+        logger.info(f"      Raw action: {raw_action}")
+        logger.info(f"      Action coordinates: {action.fireline_coordinates}")
         logger.info(f"      Is valid: {is_valid}")
         logger.info(f"      Expected: {expected}")
         logger.info(f"      Result: {'PASS' if is_valid == expected else 'FAIL'}")

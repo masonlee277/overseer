@@ -47,10 +47,10 @@ class OverseerLogger:
         if name not in self.loggers:
             self._setup_logger(name)
         return self.loggers[name]
-
+    
     def _setup_logger(self, name: str) -> None:
         """
-        Set up a new logger for a component.
+        Set up a new logger for a component and clear existing logs.
 
         Args:
             name (str): Name of the component.
@@ -58,7 +58,13 @@ class OverseerLogger:
         logger = logging.getLogger(name)
         logger.setLevel(self.config.log_level)
 
-        file_handler = logging.FileHandler(self.log_dir / f"{name}_logs.log")
+        log_file = self.log_dir / f"{name}_logs.log"
+
+        # Clear existing logs
+        with open(log_file, 'w') as file:
+            file.write(f"Log file cleared and reinitialized on {datetime.now()}\n")
+
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(self.config.log_level)
 
         formatter = logging.Formatter(self.config.log_format)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from datetime import datetime
 
@@ -51,14 +51,27 @@ class SimulationState:
     
     # Add any other relevant state information
 
+
 @dataclass
 class SimulationConfig:
-    cell_size: float
-    duration: int
-    time_step: int
-    ignition_points: List[tuple]
+    elmfire_data: Dict[str, Dict[str, Any]]
     input_paths: InputPaths
     output_paths: OutputPaths
+
+    def get_parameter(self, section: str, key: str) -> Any:
+        value = self.elmfire_data.get(section, {}).get(key)
+        if value is not None:
+            # Try to convert to float first, then to int if possible
+            try:
+                float_value = float(value)
+                if float_value.is_integer():
+                    return int(float_value)
+                return float_value
+            except ValueError:
+                # If conversion fails, return the original string value
+                return value
+        return None
+    
 
 @dataclass
 class SimulationResult:
@@ -71,8 +84,7 @@ class SimulationResult:
 
 @dataclass
 class Action:
-    resource_changes: Dict[str, int]
-    fireline_coordinates: List[tuple]
+    fireline_coordinates: List[Tuple[int, int]]
 
 @dataclass
 class EpisodeStep:

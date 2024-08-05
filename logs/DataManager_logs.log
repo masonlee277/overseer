@@ -1,0 +1,25 @@
+Log file cleared and reinitialized on 2024-08-05 11:40:54.883622
+2024-08-05 11:40:54,894 - DataManager - INFO - Updating fuel file: data\mock\inputs\fbfm40.tif
+2024-08-05 11:40:54,933 - DataManager - INFO - Fuel file update completed
+2024-08-05 11:40:54,933 - DataManager - INFO - Updating fuel file: data\mock\inputs\cbd.tif
+2024-08-05 11:40:54,943 - DataManager - INFO - Fuel file update completed
+2024-08-05 11:40:54,943 - DataManager - INFO - Updating fuel file: data\mock\inputs\cbh.tif
+2024-08-05 11:40:54,953 - DataManager - INFO - Fuel file update completed
+2024-08-05 11:40:54,953 - DataManager - INFO - Updating fuel file: data\mock\inputs\ch.tif
+2024-08-05 11:40:54,969 - DataManager - INFO - Fuel file update completed
+2024-08-05 11:40:54,970 - DataManager - INFO - Updating fuel file: data\mock\inputs\cc.tif
+2024-08-05 11:40:54,983 - DataManager - INFO - Fuel file update completed
+2024-08-05 11:40:54,990 - DataManager - INFO - Updating state
+2024-08-05 11:40:54,990 - DataManager - INFO - Attempting to save state to disk
+2024-08-05 11:40:55,005 - DataManager - INFO - State successfully saved to data\states\state_20240805_114054_990093.json
+2024-08-05 11:40:55,020 - DataManager - INFO - Updating state
+2024-08-05 11:40:55,020 - DataManager - INFO - Attempting to save state to disk
+2024-08-05 11:40:55,027 - DataManager - INFO - State successfully saved to data\states\state_20240805_114055_020062.json
+2024-08-05 11:40:55,027 - DataManager - INFO - Updating state
+2024-08-05 11:40:55,027 - DataManager - INFO - Attempting to save state to disk
+2024-08-05 11:40:55,033 - DataManager - INFO - State successfully saved to data\states\state_20240805_124055_027915.json
+2024-08-05 11:40:55,328 - DataManager - INFO - Updating state
+2024-08-05 11:40:55,328 - DataManager - INFO - Attempting to save state to disk
+2024-08-05 11:40:55,336 - DataManager - INFO - State successfully saved to data\states\state_20240805_114055_328316.json
+2024-08-05 11:40:55,336 - DataManager - INFO - Attempting to save state to disk
+2024-08-05 11:40:55,345 - DataManager - INFO - State successfully saved to data\states\state_20240805_114055_328316.json

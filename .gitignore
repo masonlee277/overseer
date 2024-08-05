@@ -103,3 +103,5 @@ overseer_logs/
 
 # ELMFIRE specific
 elmfire/
+data/
+

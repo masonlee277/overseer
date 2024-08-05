@@ -15,7 +15,7 @@ from scipy import ndimage
 from typing import Dict, Any, Tuple, List, Optional
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-
+from rasterio.transform import Affine
 
 from overseer.config.config import OverseerConfig
 from overseer.utils.logging import OverseerLogger
@@ -472,6 +472,86 @@ class GeoSpatialManager:
 
         return valid_area
     
+    
+    def open_tiff(self, filepath: str) -> Dict[str, Any]:
+        """
+        Open a GeoTIFF file and return its data and metadata.
+
+        Args:
+            filepath (str): Path to the GeoTIFF file.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the raster data and metadata.
+        """
+        try:
+            with rasterio.open(filepath) as src:
+                data = src.read(1)
+                metadata = {
+                    'driver': src.driver,
+                    'width': src.width,
+                    'height': src.height,
+                    'count': src.count,
+                    'dtype': src.dtypes[0],
+                    'crs': src.crs.to_string(),
+                    'transform': src.transform.to_gdal(),
+                }
+                self.logger.info(f"Opened GeoTIFF: {filepath}")
+                self.logger.info(f"Metadata: {metadata}")
+                return {'data': data, 'metadata': metadata}
+        except rasterio.errors.RasterioIOError as e:
+            self.logger.error(f"Error opening GeoTIFF file {filepath}: {str(e)}")
+            raise
+
+
+    def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
+        self.logger.info(f"Updating fuel file: {filepath}")
+        self.logger.info(f"Fireline coordinates: {fireline_coords}")
+
+        try:
+            with rasterio.open(filepath) as src:
+                data = src.read(1)
+                metadata = src.meta.copy()
+
+            # Update the data
+            for x, y in fireline_coords:
+                if 0 <= y < data.shape[0] and 0 <= x < data.shape[1]:
+                    data[y, x] = 0  # Set fireline cells to 0 (or another appropriate value)
+                else:
+                    self.logger.warning(f"Coordinate ({x}, {y}) is out of bounds and will be skipped")
+
+            # Update the metadata to use Affine transform
+            transform = metadata['transform']
+            if isinstance(transform, Affine):
+                # If it's already an Affine object, use it directly
+                new_transform = transform
+            elif len(transform) == 6:
+                # If it's a tuple of 6 elements, create Affine from it
+                new_transform = Affine.from_gdal(*transform)
+            elif len(transform) == 9:
+                # If it's a tuple of 9 elements (3x3 matrix), create Affine from the first 6
+                new_transform = Affine.from_gdal(*transform[:6])
+            else:
+                # If it's something else, log an error and raise an exception
+                self.logger.error(f"Unexpected transform format: {transform}")
+                raise ValueError(f"Unexpected transform format: {transform}")
+
+            metadata.update({
+                'driver': 'GTiff',
+                'height': data.shape[0],
+                'width': data.shape[1],
+                'transform': new_transform,
+            })
+
+            # Write the updated data
+            with rasterio.open(filepath, 'w', **metadata) as dst:
+                dst.write(data, 1)
+
+            self.logger.info(f"Successfully updated fuel file: {filepath}")
+        except Exception as e:
+            self.logger.error(f"Error updating fuel file {filepath}: {str(e)}")
+            raise
+
+
 
     def visualize_action_mask(self, fire_intensity: np.ndarray, action_mask: np.ndarray, title: str):
         """

@@ -1,196 +1,155 @@
-# ELMFIRE Configuration
-
-# General Settings
-project_name: "ELMFIRE Simulation"
-version: "2024.0326"
-
-# ELMFIRE Directory absolute
-# Path from overseer to elmfire directory
-elmfire_relative_path: "../elmfire"
-
-# Directories (relative to base_directory of ELMFIRE)
-directories:
-  base_directory: "."
-  install_directory: "./install"
-  scratch_base: "./scratch"
-  fuels_and_topography: "./inputs"
-  weather: "./inputs"
-  outputs: "./outputs"
-  scratch: "./scratch"
-
-# Input/Output
-io:
-  data_in_path: "C:/Users/mason/Desktop/misc/overseer/elmfire/tutorials/05-UMD-spotting/elmfire.data.in"
-
-# Input Generation Parameters
-center_lon: -120.281
-center_lat: 37.440
-fuel_source: "landfire"
-fuel_version: "2.2.0"
-
-# Environment Variables
-environment:
-  cloudfire_server: "172.92.17.198"
-  elmfire_scratch_base: "C:/Users/mason/Desktop/misc/overseer/elmfire/scratch"
-  elmfire_base_dir: "C:/Users/mason/Desktop/misc/overseer/elmfire"
-  elmfire_install_dir: "C:/Users/mason/Desktop/misc/overseer/elmfire/build/linux/bin" ## Be careful is on windows to change
-
-# Simulation Parameters
-simulation:
-  mode: "SIMULATOR"
-  dt: 3600 # in seconds
-  tstop: 86400 # in seconds
-  cell_size: 30 # in meters
-
-# Spatial Parameters
-spatial:
-  coordinate_reference_system: "EPSG:4326"
-  resolution: 30 # in meters
-  extent:
-    xmin: 0
-    ymin: 0
-    xmax: 10000
-    ymax: 10000
-
-# Weather Parameters
-weather:
-  wind_speed: 10 # in m/s
-  wind_direction: 0 # in degrees
-  temperature: 25 # in Celsius
-  relative_humidity: 30 # in percent
-
-# Fuel Parameters
-fuel:
-  moisture_1hr: 6 # in percent
-  moisture_10hr: 7 # in percent
-  moisture_100hr: 8 # in percent
-  moisture_live_herb: 60 # in percent
-  moisture_live_woody: 90 # in percent
-
-# Ignition Parameters
-ignition:
-  type: "point"
-  coordinates:
-    - [5000, 5000] # [x, y] in meters
-
-# GeoSpatial Analysis
-geospatial:
-  fire_intensity_threshold: 100 # Threshold for considering an area burned
-  high_risk_threshold: 0.7 # Threshold for identifying high-risk areas
-  spot_fire_probability_threshold: 0.5
-
-# Resource Management
-resources:
-  types:
-    - name: "firefighter"
-      max_count: 100
-      effectiveness: 0.8
-    - name: "firetruck"
-      max_count: 20
-      effectiveness: 1.2
-    - name: "aircraft"
-      max_count: 5
-      effectiveness: 2.0
-
-# Performance Metrics
-performance_metrics:
-  - "total_burned_area"
-  - "average_containment_time"
-  - "resource_efficiency"
-  - "cost_effectiveness"
-
-# Visualization
-visualization:
-  update_interval: 3600 # in seconds
-  plot_types:
-    - "fire_progression"
-    - "resource_allocation"
-    - "risk_map"
-
-# Data Management
-data_management:
-  storage_type: "file" # Options: file, database
-  data_directory: "data/"
-  state_history_limit: 1000 # Number of states to keep in memory
-
-# Logging
-logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/elmfire.log"
-
-# Validation
-validation:
-  required_directories:
-    - "base_directory"
-    - "install_directory"
-    - "scratch_base"
-  required_files:
-    - "elmfire.data.in"
-
-# Advanced GeoSpatial Analysis
+&id001
 advanced_geospatial:
-  terrain_effect_enabled: true
-  spot_fire_prediction_enabled: true
-  fire_age_tracking_enabled: true
   burn_severity_calculation_enabled: true
+  fire_age_tracking_enabled: true
   fire_return_interval_calculation_enabled: true
   landscape_diversity_calculation_enabled: true
+  spot_fire_prediction_enabled: true
+  terrain_effect_enabled: true
   viewshed_generation_enabled: true
-
-# Time Control
-time_control:
-  simulation_dt: 3600 # in seconds
-  simulation_tstop: 86400 # in seconds
-
-# Output Control
+center_lat: 37.44
+center_lon: -120.281
+data_management:
+  data_directory: data/
+  state_history_limit: 1000
+  storage_type: file
+directories:
+  base_directory: .
+  fuels_and_topography: ./data/mock/inputs
+  install_directory: ./install
+  outputs: ./data/mock/outputs
+  scratch: ./scratch
+  scratch_base: ./scratch
+  weather: ./data/mock/inputs
+elmfire: *id001
+elmfire_relative_path: ../elmfire
+environment:
+  cloudfire_server: 172.92.17.198
+  elmfire_base_dir: C:/Users/mason/Desktop/misc/overseer/elmfire
+  elmfire_install_dir: C:/Users/mason/Desktop/misc/overseer/elmfire/build/linux/bin
+  elmfire_scratch_base: C:/Users/mason/Desktop/misc/overseer/elmfire/scratch
+fuel:
+  moisture_100hr: 8
+  moisture_10hr: 7
+  moisture_1hr: 6
+  moisture_live_herb: 60
+  moisture_live_woody: 90
+fuel_source: landfire
+fuel_version: 2.2.0
+geospatial:
+  fire_intensity_threshold: 100
+  high_risk_threshold: 0.7
+  spot_fire_probability_threshold: 0.5
+ignition:
+  coordinates:
+  - - 5000
+    - 5000
+  type: point
+io:
+  data_in_path: ./data/mock/elmfire.data.in
+logging:
+  file: logs/elmfire.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
 output_control:
-  save_intermediate_state_interval: 10 # Save state every N steps
   metrics_to_track:
-    - "burned_area"
-    - "fire_intensity"
-    - "resources_deployed"
-    - "wind_speed"
-    - "wind_direction"
-
-# System Requirements
-system:
-  min_memory: "8GB"
-  recommended_cpu_cores: 4
-  gpu_acceleration: false
-
-# Reinforcement Learning Parameters
+  - burned_area
+  - fire_intensity
+  - resources_deployed
+  - wind_speed
+  - wind_direction
+  save_intermediate_state_interval: 10
+performance_metrics:
+- total_burned_area
+- average_containment_time
+- resource_efficiency
+- cost_effectiveness
+project_name: ELMFIRE Simulation
 reinforcement_learning:
   action_space:
+    constructable_vegetation_types:
+    - 1
+    - 2
+    - 3
+    max_construction_slope: 30
+    max_fireline_distance: 10
     max_fireline_length: 10
-    max_fireline_distance: 10 # Maximum distance from fire to construct fireline
-    max_construction_slope: 30 # Maximum slope for fireline construction (in degrees)
-    constructable_vegetation_types: [1, 2, 3] # Vegetation types suitable for fireline construction
   constraints:
-    min_effective_fireline_length: 3 # Minimum length for an effective fireline
-    max_firelines_per_timestep: 5 # Maximum number of firelines that can be constructed in one timestep
-    resource_limit_factor: 0.8 # Factor to limit total fireline length based on available resources
-  state_space:
-    include_fire_intensity: true
-    include_firelines: true
-    include_elevation: true
-    include_vegetation: true
-    include_wind: true
-    include_fuel_moisture: true
+    max_firelines_per_timestep: 5
+    min_effective_fireline_length: 3
+    resource_limit_factor: 0.8
+  evaluation:
+    evaluation_episodes: 100
+    evaluation_frequency: 10000
   reward_function:
     burned_area_weight: -1.0
     fireline_length_weight: -0.1
     protected_asset_weight: 10.0
     resource_efficiency_weight: 0.5
+  state_space:
+    include_elevation: true
+    include_fire_intensity: true
+    include_firelines: true
+    include_fuel_moisture: true
+    include_vegetation: true
+    include_wind: true
   training:
-    learning_rate: 0.001
-    discount_factor: 0.99
-    epsilon_start: 1.0
-    epsilon_end: 0.01
-    epsilon_decay: 0.995
     batch_size: 64
+    discount_factor: 0.99
+    epsilon_decay: 0.995
+    epsilon_end: 0.01
+    epsilon_start: 1.0
+    learning_rate: 0.001
     memory_size: 10000
     target_update_frequency: 1000
-  evaluation:
-    evaluation_episodes: 100
-    evaluation_frequency: 10000 # Evaluate every N steps
+resources:
+  types:
+  - effectiveness: 0.8
+    max_count: 100
+    name: firefighter
+  - effectiveness: 1.2
+    max_count: 20
+    name: firetruck
+  - effectiveness: 2.0
+    max_count: 5
+    name: aircraft
+simulation:
+  cell_size: 30
+  dt: 3600
+  mode: SIMULATOR
+  tstop: 86400
+spatial:
+  coordinate_reference_system: EPSG:4326
+  extent:
+    xmax: 10000
+    xmin: 0
+    ymax: 10000
+    ymin: 0
+  resolution: 30
+system:
+  gpu_acceleration: false
+  min_memory: 8GB
+  recommended_cpu_cores: 4
+time_control:
+  simulation_dt: 3600
+  simulation_tstop: 86400
+use_relative_paths: true
+validation:
+  required_directories:
+  - base_directory
+  - install_directory
+  - scratch_base
+  required_files:
+  - elmfire.data.in
+version: '2024.0326'
+visualization:
+  plot_types:
+  - fire_progression
+  - resource_allocation
+  - risk_map
+  update_interval: 3600
+weather:
+  relative_humidity: 30
+  temperature: 25
+  wind_direction: 0
+  wind_speed: 10

@@ -1,0 +1,23 @@
+Log file cleared and reinitialized on 2024-08-05 11:40:54.889367
+2024-08-05 11:40:54,890 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:54,890 - TestElmfireSetup - INFO - Testing ConfigManager and DataManager initialization
+2024-08-05 11:40:54,891 - TestElmfireSetup - INFO - Initialization test passed
+2024-08-05 11:40:54,891 - TestElmfireSetup - INFO - Config and Data Integration test completed
+2024-08-05 11:40:54,894 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:54,894 - TestElmfireSetup - INFO - Testing action application in ConfigManager
+2024-08-05 11:40:54,983 - TestElmfireSetup - INFO - Action application test passed
+2024-08-05 11:40:54,983 - TestElmfireSetup - INFO - Config and Data Integration test completed
+2024-08-05 11:40:54,989 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:54,990 - TestElmfireSetup - INFO - Testing state update in DataManager
+2024-08-05 11:40:55,005 - TestElmfireSetup - INFO - State update test passed
+2024-08-05 11:40:55,006 - TestElmfireSetup - INFO - Config and Data Integration test completed
+2024-08-05 11:40:55,007 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:55,007 - TestElmfireSetup - INFO - Testing geospatial data loading
+2024-08-05 11:40:55,011 - TestElmfireSetup - INFO - Geospatial data loading test passed
+2024-08-05 11:40:55,011 - TestElmfireSetup - INFO - Config and Data Integration test completed
+2024-08-05 11:40:55,020 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:55,020 - TestElmfireSetup - INFO - Testing state history in DataManager
+2024-08-05 11:40:55,326 - TestElmfireSetup - INFO - Config and Data Integration test completed
+2024-08-05 11:40:55,327 - TestElmfireSetup - INFO - Starting Config and Data Integration test
+2024-08-05 11:40:55,328 - TestElmfireSetup - INFO - Testing save and load state in DataManager
+2024-08-05 11:40:55,351 - TestElmfireSetup - INFO - Config and Data Integration test completed

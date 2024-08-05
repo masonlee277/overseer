@@ -13,3 +13,29 @@
 2024-08-01 10:11:44,667 - RewardManagerTest - INFO - Testing error handling
 2024-08-01 10:11:44,667 - RewardManagerTest - INFO - Reward calculated with faulty strategy: 0.0
 2024-08-01 10:11:44,667 - RewardManagerTest - INFO - RewardManager test completed
+2024-08-02 10:38:28,951 - RewardManagerTest - INFO - Starting RewardManager test
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO - Initialized RewardManager with strategy: SimpleAreaRewardStrategy
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO - Testing strategy: MockRewardStrategy
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO -   Timestamp: 0, Burned Area: 579.90, Resources Deployed: {'firefighters': 14, 'trucks': 5}, Reward: 2.0000
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO -   Timestamp: 3600, Burned Area: 831.02, Resources Deployed: {'firefighters': 24, 'trucks': 10}, Reward: 2.0000
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO -   Timestamp: 7200, Burned Area: 826.78, Resources Deployed: {'firefighters': 10, 'trucks': 4}, Reward: 2.0000
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO -   Timestamp: 10800, Burned Area: 531.70, Resources Deployed: {'firefighters': 20, 'trucks': 10}, Reward: 2.0000
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO -   Timestamp: 14400, Burned Area: 257.03, Resources Deployed: {'firefighters': 49, 'trucks': 8}, Reward: 2.0000
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO - Finished testing MockRewardStrategy
+
+2024-08-02 10:38:28,952 - RewardManagerTest - INFO - Testing error handling
+2024-08-02 10:38:28,953 - RewardManagerTest - INFO - Reward calculated with faulty strategy: 0.0
+2024-08-02 10:38:28,953 - RewardManagerTest - INFO - RewardManager test completed
+2024-08-02 10:40:40,839 - RewardManagerTest - INFO - Starting RewardManager test
+2024-08-02 10:40:40,839 - RewardManagerTest - INFO - Initialized RewardManager with strategy: MockRewardStrategy
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO - Testing strategy: MockRewardStrategy
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO -   Timestamp: 0, Burned Area: 598.07, Resources Deployed: {'firefighters': 50, 'trucks': 3}, Reward: 2.0000
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO -   Timestamp: 3600, Burned Area: 967.43, Resources Deployed: {'firefighters': 16, 'trucks': 2}, Reward: 2.0000
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO -   Timestamp: 7200, Burned Area: 522.94, Resources Deployed: {'firefighters': 33, 'trucks': 8}, Reward: 2.0000
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO -   Timestamp: 10800, Burned Area: 305.60, Resources Deployed: {'firefighters': 17, 'trucks': 4}, Reward: 2.0000
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO -   Timestamp: 14400, Burned Area: 638.66, Resources Deployed: {'firefighters': 10, 'trucks': 6}, Reward: 2.0000
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO - Finished testing MockRewardStrategy
+
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO - Testing error handling
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO - Reward calculated with faulty strategy: 0.0
+2024-08-02 10:40:40,840 - RewardManagerTest - INFO - RewardManager test completed

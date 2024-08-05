@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 import json
@@ -52,29 +52,43 @@ class DataManager:
         self.state_history: List[SimulationState] = []
         self.rl_metrics: Dict[int, List[Dict[str, float]]] = {}
 
-    def update_state(self, new_data: Dict[str, Any]) -> None:
-
-        ## TODO: simulation state needs to be like high level for the fire perims
-        
+    def update_state(self, new_data: Union[Dict[str, Any], SimulationState]) -> None:
         """
         Update the current state with new data.
 
         Args:
-            new_data (Dict[str, Any]): New state data to incorporate.
+            new_data (Union[Dict[str, Any], SimulationState]): New state data to incorporate.
         """
         self.logger.info("Updating state")
-        new_state = SimulationState(
-            timestamp=datetime.now(),
-            fire_intensity=new_data.get('fire_intensity', np.array([])),
-            burned_area=self.calculate_burned_area(new_data.get('fire_intensity', np.array([])), threshold=0.5),
-            fire_perimeter_length=self.calculate_fire_perimeter_length(new_data.get('fire_intensity', np.array([])), threshold=0.5),
-            containment_percentage=self.calculate_fire_containment_percentage(new_data),
-            resources=new_data.get('resources', {}),
-            weather=new_data.get('weather', {})
-        )
+        
+        if isinstance(new_data, SimulationState):
+            new_state = new_data
+        else:
+            new_state = SimulationState(
+                timestamp=datetime.now(),
+                fire_intensity=new_data.get('fire_intensity', np.array([])),
+                burned_area=self.calculate_burned_area(new_data.get('fire_intensity', np.array([])), threshold=0.5),
+                fire_perimeter_length=self.calculate_fire_perimeter_length(new_data.get('fire_intensity', np.array([])), threshold=0.5),
+                containment_percentage=self.calculate_fire_containment_percentage(new_data),
+                resources=new_data.get('resources', {}),
+                weather=new_data.get('weather', {})
+            )
+
         self.current_state = new_state
         self.state_history.append(new_state)
-        self._save_state_to_disk(new_data)
+        self._save_state_to_disk(new_state.__dict__)
+
+    def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]):
+        """Update a fuel file with new fireline coordinates."""
+        self.logger.info(f"Updating fuel file: {filepath}")
+        self.logger.debug(f"Fireline coordinates: {fireline_coords}")
+        
+        assert isinstance(filepath, str), "filepath must be a string"
+        assert isinstance(fireline_coords, list), "fireline_coords must be a list"
+        assert all(isinstance(coord, tuple) and len(coord) == 2 for coord in fireline_coords), "Each coordinate in fireline_coords must be a tuple of two integers"
+        
+        self.geospatial_manager.update_fuel_file(filepath, fireline_coords)
+        self.logger.info("Fuel file update completed")
 
     def get_current_state(self) -> Optional[SimulationState]:
         """
@@ -196,20 +210,83 @@ class DataManager:
         """
         return self.state_history
 
-    def _save_state_to_disk(self, state: Dict[str, Any]) -> None:
-        """Save the state to disk."""
-        file_path = self.data_dir / 'simulations' / 'raw' / f'episode_{self.current_episode}_step_{self.current_step}.json'
-        with open(file_path, 'w') as f:
-            json.dump(state, f)
+    def _save_state_to_disk(self, state_data: Dict[str, Any]) -> None:
+        """
+        Save the current state to disk.
 
-    def _load_state_from_disk(self, timestamp: float) -> Optional[Dict[str, Any]]:
+        Args:
+            state_data (Dict[str, Any]): The state data to save.
+        """
+        self.logger.info("Attempting to save state to disk")
+        state_dir = self.data_dir / 'states'
+        state_dir.mkdir(parents=True, exist_ok=True)
+
+        # Get the timestamp and format it for a valid filename
+        try:
+            if 'timestamp' in state_data:
+                if isinstance(state_data['timestamp'], datetime):
+                    timestamp = state_data['timestamp']
+                else:
+                    timestamp = datetime.fromtimestamp(state_data['timestamp'])
+            else:
+                timestamp = datetime.now()
+            
+            # Format the timestamp in a filename-safe format
+            formatted_timestamp = timestamp.strftime("%Y%m%d_%H%M%S_%f")
+            self.logger.debug(f"Formatted timestamp: {formatted_timestamp}")
+        except Exception as e:
+            self.logger.error(f"Error formatting timestamp: {str(e)}")
+            formatted_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            self.logger.info(f"Using current time as fallback: {formatted_timestamp}")
+
+        # Create a valid filename
+        filename = f'state_{formatted_timestamp}.json'
+        file_path = state_dir / filename
+
+        self.logger.debug(f"Attempting to save state to file: {file_path}")
+
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(state_data, f, default=self._json_serializer)
+            self.logger.info(f"State successfully saved to {file_path}")
+        except Exception as e:
+            self.logger.error(f"Failed to save state to disk: {str(e)}")
+            raise
+
+    def _json_serializer(self, obj):
+        """Custom JSON serializer for objects not serializable by default json code"""
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        self.logger.warning(f"Unserializable object encountered: {type(obj)}")
+        return str(obj)
+
+    def load_state_from_disk(self, timestamp: float) -> Optional[Dict[str, Any]]:
         """Load a state from disk based on timestamp."""
-        for file in os.listdir(self.data_dir / 'simulations' / 'raw'):
-            if file.startswith('episode_'):
-                file_path = self.data_dir / 'simulations' / 'raw' / file
-                #with open(file_path, 'r') as f:
-        return self.geospatial_manager.calculate_fire_perimeter(fire_intensity, threshold)
-
+        try:
+            state_dir = self.data_dir / 'states'
+            formatted_timestamp = datetime.fromtimestamp(timestamp).strftime("%Y%m%d_%H%M%S_%f")
+            filename = f'state_{formatted_timestamp}.json'
+            file_path = state_dir / filename
+            if file_path.exists():
+                with open(file_path, 'r') as f:
+                    return json.load(f)
+            else:
+                self.logger.warning(f"No state file found for timestamp: {timestamp}")
+                return None
+        except Exception as e:
+            self.logger.error(f"Failed to load state from disk: {str(e)}")
+            return None
+        
+    def get_state_files(self) -> List[Path]:
+        """Get a list of all state files."""
+        state_dir = self.data_dir / 'states'
+        return list(state_dir.glob('state_*.json'))
 
 
     def generate_action_mask_from_episode(self, episode_step: EpisodeStep) -> np.ndarray:
@@ -222,6 +299,10 @@ class DataManager:
         Returns:
             np.ndarray: Boolean mask where True indicates a valid action.
         """
+        
+        #log output files
+        self.logger.info(f"Output files: {episode_step.simulation_result.output_files}")
+
         # Extract file paths from the episode step
         fire_intensity_path = episode_step.simulation_result.output_files['time_of_arrival']
         existing_firelines_path = episode_step.simulation_result.output_files['fire_intensity']
@@ -454,19 +535,6 @@ class DataManager:
             self.logger.error(f"Failed to load episode {episode_id}: {str(e)}")
             return None
 
-    def _save_state_to_disk(self, state_data: Dict[str, Any]) -> None:
-        """
-        Save the current state to disk.
-
-        Args:
-            state_data (Dict[str, Any]): The state data to save.
-        """
-        state_dir = self.data_dir / 'states'
-        state_dir.mkdir(parents=True, exist_ok=True)
-        timestamp = state_data.get('timestamp', datetime.now().timestamp())
-        with open(state_dir / f'state_{timestamp}.json', 'w') as f:
-            json.dump(state_data, f)
-
     def _load_state_from_disk(self, timestamp: float) -> Optional[Dict[str, Any]]:
         """
         Load a state from disk.
@@ -529,6 +597,16 @@ class DataManager:
         """Get the history of states."""
         return self.state_history
     
+    def clear_state_history(self):
+        """Clear the state history."""
+        self.state_history.clear()
+        self.logger.info("State history cleared")
+        
+    def set_data_dir(self, data_dir: Path):
+        """Set the data directory."""
+        self.data_dir = data_dir
+        self.logger.info(f"Data directory set to: {self.data_dir}")
+
     def save_simulation_state(self, simulation_result: SimulationResult) -> None:
         """
         Save the simulation state and results.
@@ -595,11 +673,7 @@ class DataManager:
             self.logger.error(f"Failed to update RL metrics: {str(e)}")
             raise
 
-    def _json_serializer(self, obj):
-        """Custom JSON serializer for objects not serializable by default json code"""
-        if isinstance(obj, (datetime, np.ndarray)):
-            return obj.isoformat()
-        raise TypeError(f"Type {type(obj)} not serializable")
+
     
 def main():
     # This main function can be used for testing the DataManager
