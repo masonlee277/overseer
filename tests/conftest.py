@@ -3,6 +3,10 @@ from pathlib import Path
 import sys
 from datetime import datetime
 import numpy as np
+import os
+import rasterio
+from rasterio.transform import from_origin
+
 
 # Add the src directory to the Python path
 src_dir = Path(__file__).resolve().parent.parent / 'src'
@@ -15,7 +19,94 @@ from overseer.elmfire.config_manager import ElmfireConfigManager
 from overseer.data.geospatial_manager import GeoSpatialManager
 from overseer.rl.spaces.action_space import ActionSpace
 from overseer.data.data_manager import DataManager
-from overseer.core.models import SimulationState, Action
+from overseer.core.models import (
+    SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics,
+    InputPaths, OutputPaths, Action, EpisodeStep, Episode
+)
+
+def create_mock_data():
+    base_dir = os.path.join('data', 'mock')
+    input_dir = os.path.join(base_dir, 'inputs')
+    output_dir = os.path.join(base_dir, 'outputs')
+    scratch_dir = './scratch'
+
+    # Create directories if they don't exist
+    os.makedirs(input_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(scratch_dir, exist_ok=True)
+
+    # Define common parameters for all GeoTIFF files
+    width, height = 100, 100
+    transform = from_origin(0, 0, 60, 60)  # 60m resolution as per COMPUTATIONAL_DOMAIN_CELLSIZE
+    crs = rasterio.crs.CRS.from_epsg(32610)  # EPSG:32610 - UTM Zone 10N
+
+    # Create input files
+    input_files = ['asp', 'cbd', 'cbh', 'cc', 'ch', 'dem', 'fbfm40', 'slp', 'adj', 'new_phi', 'ws', 'wd', 'm1', 'm10', 'm100']
+    for filename in input_files:
+        data = np.ones((height, width))
+        output_path = os.path.join(input_dir, f'{filename}.tif')
+        with rasterio.open(output_path, 'w', driver='GTiff', height=height, width=width, count=1, dtype=data.dtype, crs=crs, transform=transform) as dst:
+            dst.write(data, 1)
+        print(f"Created mock input file: {output_path}")
+
+    # Create output files
+    output_files = ['flin', 'spread_rate', 'time_of_arrival']
+    for filename in output_files:
+        data = np.ones((height, width))
+        output_path = os.path.join(output_dir, f'{filename}.tif')
+        with rasterio.open(output_path, 'w', driver='GTiff', height=height, width=width, count=1, dtype=data.dtype, crs=crs, transform=transform) as dst:
+            dst.write(data, 1)
+        print(f"Created mock output file: {output_path}")
+
+    # Create elmfire.data.in file
+    elmfire_data_in_path = os.path.join(base_dir, 'elmfire.data.in')
+    with open(elmfire_data_in_path, 'w') as f:
+        f.write("&COMPUTATIONAL_DOMAIN\n")
+        f.write("  COMPUTATIONAL_DOMAIN_CELLSIZE = 60\n")
+        f.write("/\n\n")
+        
+        f.write("&INPUTS\n")
+        f.write(f"  FUELS_AND_TOPOGRAPHY_DIRECTORY = '{input_dir}'\n")
+        f.write(f"  WEATHER_DIRECTORY = '{input_dir}'\n")
+        f.write("  DT_METEOROLOGY = 3600.0\n")
+        f.write("  LH_MOISTURE_CONTENT = 30.0\n")
+        f.write("  LW_MOISTURE_CONTENT = 60.0\n")
+        for filename in input_files:
+            upper_filename = filename.upper()
+            if filename == 'fbfm40':
+                upper_filename = 'FBFM'
+            elif filename == 'new_phi':
+                upper_filename = 'PHI'
+            f.write(f"  {upper_filename}_FILENAME = '{filename}.tif'\n")
+        f.write("/\n\n")
+        
+        f.write("&OUTPUTS\n")
+        f.write(f"  OUTPUTS_DIRECTORY = '{output_dir}'\n")
+        f.write("  DTDUMP = 3600.\n")
+        f.write("  DUMP_FLIN = .TRUE.\n")
+        f.write("  DUMP_SPREAD_RATE = .TRUE.\n")
+        f.write("  DUMP_TIME_OF_ARRIVAL = .TRUE.\n")
+        f.write("  CONVERT_TO_GEOTIFF = .TRUE.\n")
+        f.write("  DUMP_SPOTTING_OUTPUTS = .TRUE.\n")
+        f.write("/\n\n")
+        
+        f.write("&MISCELLANEOUS\n")
+        f.write(f"  SCRATCH = '{scratch_dir}'\n")
+        f.write("/\n\n")
+        
+        f.write("&SIMULATOR\n")
+        f.write("  NUM_IGNITIONS = 2\n")
+        f.write("/\n\n")
+        
+        f.write("&TIME_CONTROL\n")
+        f.write("  SIMULATION_TSTOP = 43200.0\n")
+        f.write("/\n")
+    print(f"Created mock elmfire.data.in file: {elmfire_data_in_path}")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def create_fake_data():
+    create_mock_data()
 
 @pytest.fixture(scope="session")
 def config():
@@ -43,76 +134,91 @@ def data_in_handler(config, logger):
     handler.load_elmfire_data_in()
     return handler
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def config_manager(config, data_manager):
     return ElmfireConfigManager(config, data_manager)
 
 @pytest.fixture
-def mock_state():
+def mock_simulation_config(config):
+    data_dir = Path(config.get_config().get('data_management', {}).get('data_directory', 'data'))
+    mock_input_dir = data_dir / 'mock' / 'inputs'
+    return SimulationConfig(sections={
+        'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': str(mock_input_dir)},
+        'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'},
+    })
+
+@pytest.fixture
+def mock_state(mock_simulation_config):
+    data_dir = Path('data')
+    mock_input_dir = data_dir / 'mock' / 'inputs'
+    mock_output_dir = data_dir / 'mock' / 'outputs'
     return SimulationState(
         timestamp=datetime.now(),
-        fire_intensity=np.random.rand(100, 100),
-        burned_area=1000.0,
-        fire_perimeter_length=500.0,
-        containment_percentage=20.0,
+        config=mock_simulation_config,
+        paths=SimulationPaths(
+            input_paths=InputPaths(
+                fuels_and_topography_directory=mock_input_dir,
+                asp_filename=mock_input_dir / 'asp.tif',
+                cbd_filename=mock_input_dir / 'cbd.tif',
+                cbh_filename=mock_input_dir / 'cbh.tif',
+                cc_filename=mock_input_dir / 'cc.tif',
+                ch_filename=mock_input_dir / 'ch.tif',
+                dem_filename=mock_input_dir / 'dem.tif',
+                fbfm_filename=mock_input_dir / 'fbfm40.tif',
+                slp_filename=mock_input_dir / 'slp.tif',
+                adj_filename=mock_input_dir / 'adj.tif',
+                phi_filename=mock_input_dir / 'new_phi.tif',
+                weather_directory=mock_input_dir,
+                ws_filename=mock_input_dir / 'ws.tif',
+                wd_filename=mock_input_dir / 'wd.tif',
+                m1_filename=mock_input_dir / 'm1.tif',
+                m10_filename=mock_input_dir / 'm10.tif',
+                m100_filename=mock_input_dir / 'm100.tif',
+                fire=mock_input_dir / 'fire.shp',
+                vegetation=mock_input_dir / 'veg.tif',
+                elevation=mock_input_dir / 'dem.tif',
+                wind=mock_input_dir / 'wind.tif',
+                fuel_moisture=mock_input_dir / 'fuel_moisture.tif'
+            ),
+            output_paths=OutputPaths(
+                time_of_arrival=mock_output_dir / 'time_of_arrival.tif',
+                fire_intensity=mock_output_dir / 'flin.tif',
+                flame_length=mock_output_dir / 'flame_length.tif',
+                spread_rate=mock_output_dir / 'spread_rate.tif'
+            )
+        ),
+        metrics=SimulationMetrics(
+            burned_area=1000.0,
+            fire_perimeter_length=500.0,
+            containment_percentage=20.0,
+            execution_time=120.0,
+            performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0},
+            fire_intensity=np.random.rand(100, 100)
+        ),
+        save_path=data_dir / 'mock' / 'save',
         resources={'firefighters': 50, 'trucks': 10},
         weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}
     )
-
 @pytest.fixture(scope="function")
 def mock_episode_step(mock_state):
-    from overseer.core.models import EpisodeStep, SimulationState
     return EpisodeStep(
         step=0,
-        state=SimulationState(**mock_state),
-        action=None,
+        state=mock_state,
+        action=Action(fireline_coordinates=[(1, 1), (2, 2), (3, 3)]),
         reward=0,
-        next_state=None,
-        simulation_result=None,
+        next_state=mock_state,
         done=False
     )
 
-
 @pytest.fixture(scope="function")
-def mock_simulation_config():
-    from overseer.core.models import SimulationConfig, InputPaths, OutputPaths
-    return SimulationConfig(
-        elmfire_data={
-            'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': '/data/mock/inputs'},
-            'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'},
-        },
-        input_paths=InputPaths(
-            fuels_and_topography_directory='/data/mock/inputs',
-            asp_filename='asp.tif',
-            cbd_filename='cbd.tif',
-            cbh_filename='cbh.tif',
-            cc_filename='cc.tif',
-            ch_filename='ch.tif',
-            dem_filename='dem.tif',
-            fbfm_filename='fbfm.tif',
-            slp_filename='slp.tif',
-            adj_filename='adj.tif',
-            phi_filename='phi.tif',
-            weather_directory='/data/mock/inputs',
-            ws_filename='ws.tif',
-            wd_filename='wd.tif',
-            m1_filename='m1.tif',
-            m10_filename='m10.tif',
-            m100_filename='m100.tif',
-            fire='fire.shp',
-            vegetation='veg.tif',
-            elevation='dem.tif',
-            wind='wind.tif',
-            fuel_moisture='fuel_moisture.tif'
-        ),
-        output_paths=OutputPaths(
-            time_of_arrival='toa.tif',
-            fire_intensity='intensity.tif',
-            flame_length='flame_length.tif',
-            spread_rate='spread_rate.tif'
-        )
+def mock_episode(mock_episode_step):
+    return Episode(
+        episode_id=1,
+        steps=[mock_episode_step],
+        total_reward=0,
+        total_steps=1
     )
 
 @pytest.fixture(scope="function")
 def mock_action():
-    return [50, 50, 0, 5]  # x, y, direction, length
+    return Action(fireline_coordinates=[(50, 50), (55, 55), (60, 60)])

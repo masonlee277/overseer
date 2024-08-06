@@ -1,4 +1,13 @@
-2024-08-01 16:20:00,096 - StateManager - INFO - Updating state
-2024-08-01 16:20:00,100 - StateManager - INFO - Resetting StateManager
-2024-08-01 16:20:00,100 - StateManager - INFO - Updating state
-2024-08-01 16:20:00,100 - StateManager - INFO - Updating state
+Log file cleared and reinitialized on 2024-08-05 17:23:18.035395
+2024-08-05 17:23:18,036 - StateManager - INFO - Updating state for episode 0, step 0
+2024-08-05 17:23:18,037 - StateManager - INFO - Saving state to disk for episode 0, step 0
+2024-08-05 17:23:18,054 - StateManager - INFO - Resetting StateManager
+2024-08-05 17:23:18,056 - StateManager - INFO - Starting new episode
+2024-08-05 17:23:18,058 - StateManager - INFO - Adding step to episode 1, step 0
+2024-08-05 17:23:18,058 - StateManager - INFO - Saving episode step to disk for episode 1, step 0
+2024-08-05 17:23:18,086 - StateManager - INFO - Cleaning up states directory
+2024-08-05 17:23:18,088 - StateManager - INFO - States directory cleanup completed
+2024-08-05 17:23:18,089 - StateManager - INFO - Updating state for episode 0, step 0
+2024-08-05 17:23:18,089 - StateManager - INFO - Saving state to disk for episode 0, step 0
+2024-08-05 17:23:18,106 - StateManager - INFO - Saving state to disk for episode 0, step 0
+2024-08-05 17:23:18,121 - StateManager - INFO - Loading state from disk for timestamp 2024-08-05T17:23:18.086089

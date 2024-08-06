@@ -1,18 +1,21 @@
 import os
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Union
+from typing import Dict, Any, List, Optional, Tuple, Union, Any
 import numpy as np
-import pandas as pd
 import json
 from datetime import datetime
 
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
 from overseer.data.geospatial_manager import GeoSpatialManager
+from overseer.data.state_manager import StateManager
 from overseer.core.models import (
-    InputPaths, OutputPaths, SimulationConfig, SimulationState, 
-    SimulationResult, Action, EpisodeStep, Episode
+    SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics,
+    InputPaths, OutputPaths, Action, EpisodeStep, Episode
 )
 
 class DataManager:
@@ -21,24 +24,17 @@ class DataManager:
     including geospatial data handling and state management.
 
     This class is responsible for:
-    1. Saving and loading simulation states
-    2. Managing geospatial data (saving, loading, and processing GeoTIFF files)
-    3. Handling RL metrics
-    4. Preprocessing data for the RL environment
-    5. Managing intermediate states
-    6. Aggregating and analyzing simulation results
-    7. Coordinating geospatial operations through GeoSpatialManager
-    8. Managing the current state and history of states (previously StateManager functionality)
+    1. Coordinating between StateManager and GeoSpatialManager
+    2. Handling RL metrics
+    3. Preprocessing data for the RL environment
+    4. Aggregating and analyzing simulation results
 
     Attributes:
         config (OverseerConfig): The OverseerConfig instance.
         logger (logging.Logger): Logger for this class.
         data_dir (Path): Root directory for all data storage.
-        current_episode (int): The current episode number.
-        current_step (int): The current step number within the episode.
         geospatial_manager (GeoSpatialManager): Manager for geospatial operations.
-        current_state (Optional[SimulationState]): The current state of the simulation.
-        state_history (List[SimulationState]): History of states for the current episode.
+        state_manager (StateManager): Manager for simulation states and episodes.
     """
 
     def __init__(self, config: OverseerConfig):
@@ -46,670 +42,240 @@ class DataManager:
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
         self.geospatial_manager = GeoSpatialManager(self.config)
-        self.current_episode = 0
-        self.current_step = 0
-        self.current_state: Optional[SimulationState] = None
-        self.state_history: List[SimulationState] = []
+        self.state_manager = StateManager(self.config)
         self.rl_metrics: Dict[int, List[Dict[str, float]]] = {}
 
-    def update_state(self, new_data: Union[Dict[str, Any], SimulationState]) -> None:
-        """
-        Update the current state with new data.
-
-        Args:
-            new_data (Union[Dict[str, Any], SimulationState]): New state data to incorporate.
-        """
-        self.logger.info("Updating state")
-        
-        if isinstance(new_data, SimulationState):
-            new_state = new_data
-        else:
-            new_state = SimulationState(
-                timestamp=datetime.now(),
-                fire_intensity=new_data.get('fire_intensity', np.array([])),
-                burned_area=self.calculate_burned_area(new_data.get('fire_intensity', np.array([])), threshold=0.5),
-                fire_perimeter_length=self.calculate_fire_perimeter_length(new_data.get('fire_intensity', np.array([])), threshold=0.5),
-                containment_percentage=self.calculate_fire_containment_percentage(new_data),
-                resources=new_data.get('resources', {}),
-                weather=new_data.get('weather', {})
-            )
-
-        self.current_state = new_state
-        self.state_history.append(new_state)
-        self._save_state_to_disk(new_state.__dict__)
-
-    def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]):
-        """Update a fuel file with new fireline coordinates."""
-        self.logger.info(f"Updating fuel file: {filepath}")
-        self.logger.debug(f"Fireline coordinates: {fireline_coords}")
-        
-        assert isinstance(filepath, str), "filepath must be a string"
-        assert isinstance(fireline_coords, list), "fireline_coords must be a list"
-        assert all(isinstance(coord, tuple) and len(coord) == 2 for coord in fireline_coords), "Each coordinate in fireline_coords must be a tuple of two integers"
-        
-        self.geospatial_manager.update_fuel_file(filepath, fireline_coords)
-        self.logger.info("Fuel file update completed")
+    def update_state(self, state: SimulationState) -> None:
+        self.logger.info(f"Updating state at timestamp: {state.timestamp}")
+        self.state_manager.update_state(state)
 
     def get_current_state(self) -> Optional[SimulationState]:
-        """
-        Get the current state.
-
-        Returns:
-            Optional[SimulationState]: The current state, or None if not initialized.
-        """
-        return self.current_state
-
-    def get_state_at_time(self, timestamp: float) -> Optional[SimulationState]:
-        """
-        Get the state at a specific timestamp.
-
-        Args:
-            timestamp (float): The timestamp to retrieve the state for.
-
-        Returns:
-            Optional[SimulationState]: The state at the given timestamp, or None if not found.
-        """
-        state_data = self._load_state_from_disk(timestamp)
-        if state_data:
-            return SimulationState(
-                timestamp=datetime.fromtimestamp(timestamp),
-                fire_intensity=state_data.get('fire_intensity', np.array([])),
-                burned_area=self.calculate_burned_area(state_data.get('fire_intensity', np.array([])), threshold=0.5),
-                fire_perimeter_length=self.calculate_fire_perimeter_length(state_data.get('fire_intensity', np.array([])), threshold=0.5),
-                containment_percentage=self.calculate_fire_containment_percentage(state_data),
-                resources=state_data.get('resources', {}),
-                weather=state_data.get('weather', {})
-            )
-        return None
-
-    def get_fire_growth_rate(self, time_window: float) -> float:
-        """
-        Get the fire growth rate over a specified time window.
-
-        Args:
-            time_window (float): The time window to calculate the growth rate over.
-
-        Returns:
-            float: The fire growth rate in hectares per hour.
-        """
-        if self.current_state is None:
-            self.logger.error("Current state is not initialized")
-            return 0.0
-        
-        past_state = self.get_state_at_time(self.current_state.timestamp.timestamp() - time_window)
-        if past_state is None:
-            return 0.0
-        
-        area_difference = self.current_state.burned_area - past_state.burned_area
-        time_difference = (self.current_state.timestamp - past_state.timestamp).total_seconds() / 3600  # Convert to hours
-        return area_difference / time_difference if time_difference > 0 else 0.0
-
-    def get_resource_efficiency(self) -> float:
-        """
-        Get the resource efficiency for the current state.
-
-        Returns:
-            float: The resource efficiency score.
-        """
-        if self.current_state is None:
-            self.logger.error("Current state is not initialized")
-            return 0.0
-        
-        # Implement resource efficiency calculation logic here
-        # This is a placeholder implementation
-        total_resources = sum(self.current_state.resources.values())
-        return self.current_state.containment_percentage / total_resources if total_resources > 0 else 0.0
-
-    def get_fire_containment_percentage(self) -> float:
-        """
-        Get the fire containment percentage for the current state.
-
-        Returns:
-            float: The fire containment percentage.
-        """
-        if self.current_state is None:
-            self.logger.error("Current state is not initialized")
-            return 0.0
-        return self.current_state.containment_percentage
-
-    def get_high_risk_areas(self) -> Optional[np.ndarray]:
-        """
-        Get high-risk areas based on the current state.
-
-        Returns:
-            Optional[np.ndarray]: A boolean array indicating high-risk areas, or None if state is not initialized.
-        """
-        if self.current_state is None:
-            self.logger.error("Current state is not initialized")
-            return None
-        
-        # Implement high-risk areas identification logic here
-        # This is a placeholder implementation
-        return self.geospatial_manager.identify_high_risk_areas(
-            self.current_state.fire_intensity,
-            np.array([]),  # Placeholder for elevation data
-            np.array([])   # Placeholder for fuel type data
-        )
-
-    def reset(self) -> None:
-        """
-        Reset the data manager for a new episode.
-        """
-        self.logger.info("Resetting DataManager")
-        self.current_state = None
-        self.state_history.clear()
-        self.current_episode += 1
-        self.current_step = 0
+        state = self.state_manager.get_current_state()
+        self.logger.info(f"Retrieved current state: {'None' if state is None else state.timestamp}")
+        return state
 
     def get_state_history(self) -> List[SimulationState]:
-        """
-        Get the history of states for the current episode.
+        """Get the state history from the StateManager."""
+        return self.state_manager.get_state_history()
 
-        Returns:
-            List[SimulationState]: The history of states.
-        """
-        return self.state_history
+    def get_state_by_episode_step(self, episode_id: int, step: int) -> Optional[SimulationState]:
+        """Get a specific state by episode ID and step number."""
+        return self.state_manager.get_state_by_episode_step(episode_id, step)
 
-    def _save_state_to_disk(self, state_data: Dict[str, Any]) -> None:
-        """
-        Save the current state to disk.
+    def start_new_episode(self) -> None:
+        """Start a new episode using the StateManager."""
+        self.state_manager.start_new_episode()
 
-        Args:
-            state_data (Dict[str, Any]): The state data to save.
-        """
-        self.logger.info("Attempting to save state to disk")
-        state_dir = self.data_dir / 'states'
-        state_dir.mkdir(parents=True, exist_ok=True)
+    def add_step_to_current_episode(self, state: SimulationState, action: Action, reward: float, next_state: SimulationState, done: bool) -> None:
+        """Add a new step to the current episode using the StateManager."""
+        self.state_manager.add_step_to_current_episode(state, action, reward, next_state, done)
 
-        # Get the timestamp and format it for a valid filename
-        try:
-            if 'timestamp' in state_data:
-                if isinstance(state_data['timestamp'], datetime):
-                    timestamp = state_data['timestamp']
-                else:
-                    timestamp = datetime.fromtimestamp(state_data['timestamp'])
-            else:
-                timestamp = datetime.now()
-            
-            # Format the timestamp in a filename-safe format
-            formatted_timestamp = timestamp.strftime("%Y%m%d_%H%M%S_%f")
-            self.logger.debug(f"Formatted timestamp: {formatted_timestamp}")
-        except Exception as e:
-            self.logger.error(f"Error formatting timestamp: {str(e)}")
-            formatted_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            self.logger.info(f"Using current time as fallback: {formatted_timestamp}")
+    def get_current_episode(self) -> Optional[Episode]:
+        """Get the current episode from the StateManager."""
+        return self.state_manager.get_current_episode()
 
-        # Create a valid filename
-        filename = f'state_{formatted_timestamp}.json'
-        file_path = state_dir / filename
+    def get_episode(self, episode_id: int) -> Optional[Episode]:
+        """Get a specific episode by ID from the StateManager."""
+        return self.state_manager.get_episode(episode_id)
 
-        self.logger.debug(f"Attempting to save state to file: {file_path}")
-
-        try:
-            with open(file_path, 'w') as f:
-                json.dump(state_data, f, default=self._json_serializer)
-            self.logger.info(f"State successfully saved to {file_path}")
-        except Exception as e:
-            self.logger.error(f"Failed to save state to disk: {str(e)}")
-            raise
-
-    def _json_serializer(self, obj):
-        """Custom JSON serializer for objects not serializable by default json code"""
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        self.logger.warning(f"Unserializable object encountered: {type(obj)}")
-        return str(obj)
-
-    def load_state_from_disk(self, timestamp: float) -> Optional[Dict[str, Any]]:
-        """Load a state from disk based on timestamp."""
-        try:
-            state_dir = self.data_dir / 'states'
-            formatted_timestamp = datetime.fromtimestamp(timestamp).strftime("%Y%m%d_%H%M%S_%f")
-            filename = f'state_{formatted_timestamp}.json'
-            file_path = state_dir / filename
-            if file_path.exists():
-                with open(file_path, 'r') as f:
-                    return json.load(f)
-            else:
-                self.logger.warning(f"No state file found for timestamp: {timestamp}")
-                return None
-        except Exception as e:
-            self.logger.error(f"Failed to load state from disk: {str(e)}")
-            return None
-        
-    def get_state_files(self) -> List[Path]:
-        """Get a list of all state files."""
-        state_dir = self.data_dir / 'states'
-        return list(state_dir.glob('state_*.json'))
-
-
-    def generate_action_mask_from_episode(self, episode_step: EpisodeStep) -> np.ndarray:
-        """
-        Generate an action mask based on the simulation state contained in the EpisodeStep.
-
-        Args:
-            episode_step (EpisodeStep): The current episode step containing the simulation state.
-
-        Returns:
-            np.ndarray: Boolean mask where True indicates a valid action.
-        """
-        
-        #log output files
-        self.logger.info(f"Output files: {episode_step.simulation_result.output_files}")
-
-        # Extract file paths from the episode step
-        fire_intensity_path = episode_step.simulation_result.output_files['time_of_arrival']
-        existing_firelines_path = episode_step.simulation_result.output_files['fire_intensity']
-        elevation_path = episode_step.input_paths.dem_filename  # Using dem as elevation
-        vegetation_path = episode_step.input_paths.cc_filename  # Using cc as vegetation
-
-        # Generate action mask using file paths
-        return self.geospatial_manager.generate_action_mask_from_files(
-            fire_intensity_path=fire_intensity_path,
-            existing_firelines_path=existing_firelines_path,
-            elevation_path=elevation_path,
-            vegetation_path=vegetation_path,
-            min_distance=1,
-            max_distance=10,
-            max_slope=None,  # You can set this based on your requirements
-            constructable_veg_types=None,  # You can set this based on your requirements
-            min_effective_length=None  # You can set this based on your requirements
-        )
-
-    def get_existing_firelines(self, state: SimulationState) -> np.ndarray:
-        # Implement this method to extract existing firelines from the state
-        pass
-
-    def get_elevation_data(self, state: SimulationState) -> np.ndarray:
-        # Implement this method to extract elevation data from the state
-        pass
-
-    def get_vegetation_data(self, state: SimulationState) -> np.ndarray:
-        # Implement this method to extract vegetation data from the state
-        pass
-
-    def calculate_fire_distance(self, fire_intensity: np.ndarray) -> np.ndarray:
-        return self.geospatial_manager.calculate_fire_distance(fire_intensity)
-
-    def calculate_slope(self, elevation: np.ndarray) -> np.ndarray:
-        return self.geospatial_manager.calculate_slope(elevation)
-    
-    def check_action_constraints(self, state: SimulationState, fireline_coords: np.ndarray,
-                                 max_fireline_distance: float, max_construction_slope: float,
-                                 constructable_veg_types: List[int], min_effective_length: int) -> bool:
-        """Check if the given action satisfies all constraints."""
-        fire_intensity = state.fire_intensity
-        existing_firelines = self.get_existing_firelines(state)
-        elevation = self.get_elevation_data(state)
-        vegetation = self.get_vegetation_data(state)
-        fire_distance = self.calculate_fire_distance(fire_intensity)
-        slope = self.calculate_slope(elevation)
-
-        return self.geospatial_manager.check_fireline_constraints(
-            fireline_coords, fire_intensity, existing_firelines, elevation, vegetation,
-            fire_distance, slope, max_fireline_distance, max_construction_slope,
-            constructable_veg_types, min_effective_length
-        )
-
-
-    def compute_fire_spread_direction(self, fire_intensity: np.ndarray) -> np.ndarray:
-        """Compute the fire spread direction."""
-        return self.geospatial_manager.compute_fire_spread_direction(fire_intensity)
-
-    def calculate_terrain_effects(self, elevation: np.ndarray, fire_intensity: np.ndarray) -> np.ndarray:
-        """Calculate terrain effects on fire spread."""
-        return self.geospatial_manager.calculate_terrain_effects(elevation, fire_intensity)
-
-    def identify_high_risk_areas(self, fire_intensity: np.ndarray, elevation: np.ndarray, fuel_type: np.ndarray) -> np.ndarray:
-        """Identify areas at high risk for fire spread."""
-        return self.geospatial_manager.identify_high_risk_areas(fire_intensity, elevation, fuel_type)
-
-    def increment_step(self) -> None:
-        """Increment the current step counter."""
-        self.current_step += 1
-
-    def increment_episode(self) -> None:
-        """Increment the current episode counter and reset the step counter."""
-        self.current_episode += 1
-        self.current_step = 0
-
-    def get_latest_episode_and_step(self) -> Tuple[int, int]:
-        """Get the latest episode and step numbers from stored data."""
-        try:
-            episodes = [int(f.split('_')[1]) for f in os.listdir(self.data_dir / 'simulations' / 'raw') if f.startswith('episode_')]
-            if not episodes:
-                return 0, 0
-            latest_episode = max(episodes)
-            steps = [int(f.split('_')[3].split('.')[0]) for f in os.listdir(self.data_dir / 'simulations' / 'raw') if f.startswith(f'episode_{latest_episode}_')]
-            latest_step = max(steps) if steps else 0
-            return latest_episode, latest_step
-        except Exception as e:
-            self.logger.error(f"Failed to get latest episode and step: {str(e)}")
-            return 0, 0
-
-    def cleanup_old_data(self, max_episodes: int) -> None:
-        """
-        Remove old simulation data to free up storage space.
-
-        Args:
-            max_episodes (int): Maximum number of recent episodes to keep.
-        """
-        try:
-            episodes = sorted([int(f.split('_')[1]) for f in os.listdir(self.data_dir / 'simulations' / 'raw') if f.startswith('episode_')], reverse=True)
-            episodes_to_remove = episodes[max_episodes:]
-            for episode in episodes_to_remove:
-                for file in os.listdir(self.data_dir / 'simulations' / 'raw'):
-                    if file.startswith(f'episode_{episode}_'):
-                        os.remove(self.data_dir / 'simulations' / 'raw' / file)
-            self.logger.info(f"Cleaned up old data, keeping the most recent {max_episodes} episodes")
-        except Exception as e:
-            self.logger.error(f"Failed to clean up old data: {str(e)}")
-
-    def preprocess_data_for_rl(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Preprocess the simulation state for use in the RL environment.
-
-        This method includes geospatial preprocessing using GeoSpatialManager.
-
-        Args:
-            state (Dict[str, Any]): The raw simulation state.
-
-        Returns:
-            Dict[str, Any]: The preprocessed state suitable for the RL environment.
-        """
-        try:
-            processed_state = state.copy()
-            
-            fire_intensity = state['fire_intensity']
-            processed_state['burned_area'] = self.calculate_burned_area(fire_intensity, threshold=0.5)
-            processed_state['fire_perimeter'] = self.calculate_fire_perimeter(fire_intensity, threshold=0.5)
-            processed_state['fire_spread_direction'] = self.compute_fire_spread_direction(fire_intensity)
-            
-            if 'elevation' in state:
-                processed_state['terrain_effects'] = self.calculate_terrain_effects(state['elevation'], fire_intensity)
-            
-            if 'fuel_type' in state:
-                processed_state['high_risk_areas'] = self.identify_high_risk_areas(fire_intensity, state['elevation'], state['fuel_type'])
-            
-            self.logger.info("Preprocessed simulation state for RL")
-            return processed_state
-        except Exception as e:
-            self.logger.error(f"Failed to preprocess state for RL: {str(e)}")
-            raise
-
-    def save_episode(self, episode: Episode) -> None:
-        """
-        Save an entire episode to disk.
-
-        Args:
-            episode (Episode): The episode to save.
-        """
-        episode_dir = self.data_dir / 'episodes' / f'episode_{episode.episode_id}'
-        episode_dir.mkdir(parents=True, exist_ok=True)
-
-        # Save episode metadata
-        metadata = {
-            'episode_id': episode.episode_id,
-            'total_reward': episode.total_reward,
-            'total_steps': episode.total_steps,
-            'final_burned_area': episode.final_burned_area,
-            'final_containment_percentage': episode.final_containment_percentage,
-            'execution_time': episode.execution_time
-        }
-        with open(episode_dir / 'metadata.json', 'w') as f:
-            json.dump(metadata, f)
-
-        # Save each step
-        for i, step in enumerate(episode.steps):
-            step_data = {
-                'step': step.step,
-                'state': step.state.__dict__,
-                'action': step.action.__dict__,
-                'reward': step.reward,
-                'next_state': step.next_state.__dict__,
-                'simulation_result': step.simulation_result.__dict__,
-                'done': step.done
-            }
-            with open(episode_dir / f'step_{i}.json', 'w') as f:
-                json.dump(step_data, f)
-
-        self.logger.info(f"Saved episode {episode.episode_id} to disk")
-
-    def load_episode(self, episode_id: int) -> Optional[Episode]:
-        """
-        Load an entire episode from disk.
-
-        Args:
-            episode_id (int): The ID of the episode to load.
-
-        Returns:
-            Optional[Episode]: The loaded episode, or None if not found.
-        """
-        episode_dir = self.data_dir / 'episodes' / f'episode_{episode_id}'
-        if not episode_dir.exists():
-            self.logger.warning(f"Episode {episode_id} not found on disk")
-            return None
-
-        try:
-            # Load episode metadata
-            with open(episode_dir / 'metadata.json', 'r') as f:
-                metadata = json.load(f)
-
-            metadata = json.load(f)
-
-            # Load steps
-            steps = []
-            step_files = sorted([f for f in os.listdir(episode_dir) if f.startswith('step_')])
-            for step_file in step_files:
-                with open(episode_dir / step_file, 'r') as f:
-                    step_data = json.load(f)
-                steps.append(EpisodeStep(
-                    step=step_data['step'],
-                    state=SimulationState(**step_data['state']),
-                    action=Action(**step_data['action']),
-                    reward=step_data['reward'],
-                    next_state=SimulationState(**step_data['next_state']),
-                    simulation_result=SimulationResult(**step_data['simulation_result']),
-                    done=step_data['done']
-                ))
-
-            episode = Episode(
-                episode_id=metadata['episode_id'],
-                steps=steps,
-                total_reward=metadata['total_reward'],
-                total_steps=metadata['total_steps'],
-                final_burned_area=metadata['final_burned_area'],
-                final_containment_percentage=metadata['final_containment_percentage'],
-                execution_time=metadata['execution_time']
-            )
-
-            self.logger.info(f"Loaded episode {episode_id} from disk")
-            return episode
-        except Exception as e:
-            self.logger.error(f"Failed to load episode {episode_id}: {str(e)}")
-            return None
-
-    def _load_state_from_disk(self, timestamp: float) -> Optional[Dict[str, Any]]:
-        """
-        Load a state from disk.
-
-        Args:
-            timestamp (float): The timestamp of the state to load.
-
-        Returns:
-            Optional[Dict[str, Any]]: The loaded state data, or None if not found.
-        """
-        state_dir = self.data_dir / 'states'
-        state_file = state_dir / f'state_{timestamp}.json'
-        if not state_file.exists():
-            return None
-        with open(state_file, 'r') as f:
-            return json.load(f)
+    def get_fire_growth_rate(self, time_interval: float) -> float:
+        """Calculate the fire growth rate."""
+        current_state = self.get_current_state()
+        if current_state is None:
+            return 0.0
+        return self.geospatial_manager.calculate_fire_growth_rate(current_state.metrics.fire_intensity, time_interval)
 
     def get_resource_efficiency(self) -> float:
-        """
-        Calculate the resource efficiency based on the current state.
-
-        Returns:
-            float: The resource efficiency score (0.0 to 1.0).
-        """
-        if self.current_state is None:
+        """Calculate the resource efficiency based on the current state."""
+        current_state = self.get_current_state()
+        if current_state is None:
             return 0.0
-
-        # This is a simplified calculation and should be adjusted based on your specific requirements
-        total_resources = sum(self.current_state.resources.values())
-        if total_resources == 0:
-            return 0.0
-
-        containment_per_resource = self.current_state.containment_percentage / total_resources
-        return min(containment_per_resource / 100, 1.0)  # Normalize to 0.0-1.0 range
+        total_resources = sum(current_state.resources.values())
+        containment_percentage = current_state.metrics.containment_percentage
+        return containment_percentage / total_resources if total_resources > 0 else 0.0
 
     def get_high_risk_areas(self) -> Optional[np.ndarray]:
-        """
-        Identify high-risk areas based on the current state.
-
-        Returns:
-            Optional[np.ndarray]: A boolean array indicating high-risk areas, or None if not available.
-        """
-        if self.current_state is None:
+        """Identify high-risk areas based on the current state."""
+        current_state = self.get_current_state()
+        if current_state is None:
             return None
-
-        return self.identify_high_risk_areas(
-            self.current_state.fire_intensity,
-            self.current_state.elevation if hasattr(self.current_state, 'elevation') else np.array([]),
-            self.current_state.fuel_type if hasattr(self.current_state, 'fuel_type') else np.array([])
+        return self.geospatial_manager.identify_high_risk_areas(
+            current_state.metrics.fire_intensity,
+            current_state.paths.input_paths.elevation,
+            current_state.paths.input_paths.fuel_moisture
         )
 
     def reset(self) -> None:
         """Reset the state manager."""
-        self.current_state = None
-        self.state_history = []
-        self.current_episode += 1
-        self.current_step = 0
+        self.state_manager.reset()
 
-    def get_state_history(self) -> List[SimulationState]:
-        """Get the history of states."""
-        return self.state_history
-    
-    def clear_state_history(self):
-        """Clear the state history."""
-        self.state_history.clear()
-        self.logger.info("State history cleared")
-        
-    def set_data_dir(self, data_dir: Path):
-        """Set the data directory."""
-        self.data_dir = data_dir
-        self.logger.info(f"Data directory set to: {self.data_dir}")
+    def cleanup_old_data(self, max_episodes: int) -> None:
+        """Remove old simulation data to free up storage space."""
+        self.state_manager.cleanup_old_episodes(max_episodes)
 
-    def save_simulation_state(self, simulation_result: SimulationResult) -> None:
-        """
-        Save the simulation state and results.
+    def save_state_to_disk(self, state: SimulationState) -> None:
+        self.logger.info(f"Saving state to disk at timestamp: {state.timestamp}")
+        save_filepath = self.state_manager._save_state_to_disk(state)
+        self.logger.info(f"State saved to filepath: {save_filepath}")
 
-        Args:
-            simulation_result (SimulationResult): The simulation result to save.
-        """
-        try:
-            self.logger.info(f"Saving simulation state for episode {self.current_episode}, step {self.current_step}")
-            
-            # Update the current state
-            self.current_state = simulation_result.final_state
-            self.state_history.append(self.current_state)
+    def load_state_from_disk(self, timestamp: str) -> Optional[SimulationState]:
+        """Load a state from disk."""
+        self.logger.info(f"Loading state from disk for timestamp {timestamp}")
+        self.logger.info(f"State manager: {self.state_manager}")
+        state = self.state_manager.load_state_from_disk(timestamp)
+        if state:
+            self.logger.info(f"Successfully loaded state from disk for timestamp {timestamp}")
+            self.logger.debug(f"Loaded state details: timestamp={state.timestamp}, "
+                              f"config sections={list(state.config.sections.keys())}, "
+                              f"metrics={state.metrics}")
+        else:
+            self.logger.warning(f"Failed to load state from disk for timestamp {timestamp}")
+        return state
 
-            # Save the simulation result
-            result_dir = self.data_dir / 'simulations' / 'results'
-            result_dir.mkdir(parents=True, exist_ok=True)
-            result_file = result_dir / f'episode_{self.current_episode}_step_{self.current_step}.json'
-            
-            with open(result_file, 'w') as f:
-                json.dump({
-                    'final_state': self.current_state.__dict__,
-                    'performance_metrics': simulation_result.performance_metrics,
-                    'output_files': simulation_result.output_files,
-                    'execution_time': simulation_result.execution_time,
-                    'metadata': simulation_result.metadata
-                }, f, default=self._json_serializer)
+    #########################################################################
+    def get_episode_summary(self, episode_id: int) -> Optional[Dict[str, Any]]:
+        """Get a summary of an episode."""
+        return self.state_manager.get_episode_summary(episode_id)
 
-            self.logger.info(f"Simulation state saved successfully")
-        except Exception as e:
-            self.logger.error(f"Failed to save simulation state: {str(e)}")
-            raise
+    def get_all_episode_summaries(self) -> List[Dict[str, Any]]:
+        """Get summaries for all episodes."""
+        return self.state_manager.get_all_episode_summaries()
+
+    def export_episode_data(self, episode_id: int, export_path: Path) -> None:
+        """Export all data for a specific episode to a file."""
+        self.state_manager.export_episode_data(episode_id, export_path)
+
+    def import_episode_data(self, import_path: Path) -> Optional[int]:
+        """Import episode data from a file."""
+        return self.state_manager.import_episode_data(import_path)
+
+    def get_episode_statistics(self, episode_id: int) -> Optional[Dict[str, Any]]:
+        """Calculate various statistics for an episode."""
+        return self.state_manager.get_episode_statistics(episode_id)
+
+
+
+    ####################################################################################33
 
     def update_rl_metrics(self, episode: int, step: int, metrics: Dict[str, float]) -> None:
-        """
-        Update the RL metrics for a given episode and step.
+        """Update RL metrics for a given episode and step."""
+        self.logger.info(f"Updating RL metrics for episode {episode}, step {step}")
+        if episode not in self.rl_metrics:
+            self.rl_metrics[episode] = []
+        self.rl_metrics[episode].append({'step': step, **metrics})
+        self._save_rl_metrics_to_disk(episode)
 
-        Args:
-            episode (int): The current episode number.
-            step (int): The current step number within the episode.
-            metrics (Dict[str, float]): The RL metrics to update.
-        """
-        try:
-            self.logger.info(f"Updating RL metrics for episode {episode}, step {step}")
-            
-            if episode not in self.rl_metrics:
-                self.rl_metrics[episode] = []
-            
-            self.rl_metrics[episode].append({
-                'step': step,
-                **metrics
-            })
+    def get_rl_metrics(self, episode: int) -> List[Dict[str, float]]:
+        """Get RL metrics for a specific episode."""
+        return self.rl_metrics.get(episode, [])
 
-            # Save the updated metrics to disk
-            metrics_dir = self.data_dir / 'rl_metrics'
-            metrics_dir.mkdir(parents=True, exist_ok=True)
-            metrics_file = metrics_dir / f'episode_{episode}.json'
-            
-            with open(metrics_file, 'w') as f:
-                json.dump(self.rl_metrics[episode], f)
-
-            self.logger.info(f"RL metrics updated successfully")
-        except Exception as e:
-            self.logger.error(f"Failed to update RL metrics: {str(e)}")
-            raise
+    def _save_rl_metrics_to_disk(self, episode: int) -> None:
+        """Save RL metrics for an episode to disk."""
+        metrics_dir = self.data_dir / 'rl_metrics'
+        metrics_dir.mkdir(parents=True, exist_ok=True)
+        metrics_file = metrics_dir / f'episode_{episode}.json'
+        with open(metrics_file, 'w') as f:
+            json.dump(self.rl_metrics[episode], f)
 
 
+    def _create_simulation_state(self, state_data: Dict) -> SimulationState:
+        """Create a SimulationState object from a dictionary of state data."""
+        config = SimulationConfig()
+        for section, params in state_data.get('config', {}).items():
+            for key, value in params.items():
+                config.set_parameter(section, key, value)
+
+        return SimulationState(
+            timestamp=datetime.now(),
+            config=config,
+            paths=SimulationPaths(
+                input_paths=InputPaths(**state_data.get('input_paths', {})),
+                output_paths=OutputPaths(**state_data.get('output_paths', {}))
+            ),
+            metrics=SimulationMetrics(**state_data.get('metrics', {})),
+            save_path=Path(state_data.get('save_path', '')),
+            resources=state_data.get('resources', {}),
+            weather=state_data.get('weather', {})
+        )
     
+    def clean_states(self):
+        """Clean up the states directory."""
+        self.state_manager.clean_states()
+
 def main():
     # This main function can be used for testing the DataManager
     config = OverseerConfig()  # Assuming you have a way to create this
     data_manager = DataManager(config)
 
+    # Create a fake SimulationState
+    fake_state = SimulationState(
+        timestamp=datetime.now(),
+        config=SimulationConfig(sections={
+            'INPUTS': {
+                'FUELS_AND_TOPOGRAPHY_DIRECTORY': '/path/to/fuels',
+                'WEATHER_DIRECTORY': '/path/to/weather'
+            },
+            'OUTPUTS': {
+                'OUTPUTS_DIRECTORY': '/path/to/outputs'
+            },
+            'TIME_CONTROL': {
+                'SIMULATION_TSTOP': '3600.0'
+            }
+        }),
+        paths=SimulationPaths(
+            input_paths=InputPaths(
+                fuels_and_topography_directory=Path('/path/to/fuels'),
+                asp_filename=Path('/path/to/fuels/asp.tif'),
+                cbd_filename=Path('/path/to/fuels/cbd.tif'),
+                cbh_filename=Path('/path/to/fuels/cbh.tif'),
+                cc_filename=Path('/path/to/fuels/cc.tif'),
+                ch_filename=Path('/path/to/fuels/ch.tif'),
+                dem_filename=Path('/path/to/fuels/dem.tif'),
+                fbfm_filename=Path('/path/to/fuels/fbfm.tif'),
+                slp_filename=Path('/path/to/fuels/slp.tif'),
+                adj_filename=Path('/path/to/fuels/adj.tif'),
+                phi_filename=Path('/path/to/fuels/phi.tif'),
+                weather_directory=Path('/path/to/weather'),
+                ws_filename=Path('/path/to/weather/ws.tif'),
+                wd_filename=Path('/path/to/weather/wd.tif'),
+                m1_filename=Path('/path/to/weather/m1.tif'),
+                m10_filename=Path('/path/to/weather/m10.tif'),
+                m100_filename=Path('/path/to/weather/m100.tif'),
+                fire=Path('/path/to/fire.shp'),
+                vegetation=Path('/path/to/vegetation.tif'),
+                elevation=Path('/path/to/elevation.tif'),
+                wind=Path('/path/to/wind.tif'),
+                fuel_moisture=Path('/path/to/fuel_moisture.tif')
+            ),
+            output_paths=OutputPaths(
+                time_of_arrival=Path('/path/to/outputs/time_of_arrival.tif'),
+                fire_intensity=Path('/path/to/outputs/fire_intensity.tif'),
+                flame_length=Path('/path/to/outputs/flame_length.tif'),
+                spread_rate=Path('/path/to/outputs/spread_rate.tif')
+            )
+        ),
+        metrics=SimulationMetrics(
+            burned_area=1000.0,
+            fire_perimeter_length=500.0,
+            containment_percentage=30.0,
+            execution_time=120.0,
+            performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0},
+            fire_intensity=np.array([[0, 1, 2], [1, 2, 3], [2, 3, 4]])
+        ),
+        save_path=Path('/path/to/save'),
+        resources={'firefighters': 20, 'trucks': 5},
+        weather={'wind_speed': 10.0, 'wind_direction': 180.0}
+    )
+
     # Test updating state
     print("Testing state update:")
-    initial_state = {
-        'timestamp': datetime.now().timestamp(),
-        'fire_intensity': np.array([[0, 0, 1], [0, 1, 2], [1, 2, 3]]),
-        'resources': {'firefighters': 20, 'trucks': 5},
-        'weather': {'wind_speed': 10.0, 'wind_direction': 180.0},
-    }
-    data_manager.update_state(initial_state)
+    data_manager.update_state(fake_state)
     print(f"Current state after update: {data_manager.get_current_state()}")
 
     # Test getting current state
     print("\nTesting get_current_state:")
     current_state = data_manager.get_current_state()
     print(f"Current state: {current_state}")
-
-    # Test getting fire growth rate
-    print("\nTesting get_fire_growth_rate:")
-    growth_rate = data_manager.get_fire_growth_rate(3600)
-    print(f"Fire growth rate: {growth_rate}")
-
-    # Test getting resource efficiency
-    print("\nTesting get_resource_efficiency:")
-    efficiency = data_manager.get_resource_efficiency()
-    print(f"Resource efficiency: {efficiency}")
-
-    # Test getting high risk areas
-    print("\nTesting get_high_risk_areas:")
-    high_risk_areas = data_manager.get_high_risk_areas()
-    print(f"High risk areas: {high_risk_areas}")
 
     # Test resetting data manager
     print("\nTesting reset:")
@@ -718,13 +284,25 @@ def main():
 
     # Test getting state history
     print("\nTesting get_state_history:")
-    data_manager.update_state(initial_state)
-    data_manager.update_state({**initial_state, 'timestamp': datetime.now().timestamp()})
+    data_manager.update_state(fake_state)
+    data_manager.update_state(SimulationState(**{**fake_state.__dict__, 'timestamp': datetime.now()}))
     history = data_manager.get_state_history()
     print(f"State history length: {len(history)}")
     print(f"State history: {history}")
 
+    # Test episode management
+    print("\nTesting episode management:")
+    data_manager.start_new_episode()
+    action = Action(fireline_coordinates=[(1, 1), (2, 2), (3, 3)])
+    data_manager.add_step_to_current_episode(fake_state, action, 1.0, fake_state, False)
+    current_episode = data_manager.get_current_episode()
+    print(f"Current episode: {current_episode}")
 
+    # Test RL metrics
+    print("\nTesting RL metrics:")
+    data_manager.update_rl_metrics(1, 1, {'reward': 1.0, 'loss': 0.5})
+    rl_metrics = data_manager.get_rl_metrics(1)
+    print(f"RL metrics: {rl_metrics}")
 
 if __name__ == "__main__":
     main()

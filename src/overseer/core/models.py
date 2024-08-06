@@ -2,85 +2,86 @@ from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from datetime import datetime
+from pathlib import Path
 
 @dataclass
 class InputPaths:
-    fuels_and_topography_directory: str
-    asp_filename: str
-    cbd_filename: str
-    cbh_filename: str
-    cc_filename: str
-    ch_filename: str
-    dem_filename: str
-    fbfm_filename: str
-    slp_filename: str
-    adj_filename: str
-    phi_filename: str
-    weather_directory: str
-    ws_filename: str
-    wd_filename: str
-    m1_filename: str
-    m10_filename: str
-    m100_filename: str
-    # Keep the existing fields
-    fire: str
-    vegetation: str
-    elevation: str
-    wind: str
-    fuel_moisture: str
-
-
+    fuels_and_topography_directory: Path
+    asp_filename: Path
+    cbd_filename: Path
+    cbh_filename: Path
+    cc_filename: Path
+    ch_filename: Path
+    dem_filename: Path
+    fbfm_filename: Path
+    slp_filename: Path
+    adj_filename: Path
+    phi_filename: Path
+    weather_directory: Path
+    ws_filename: Path
+    wd_filename: Path
+    m1_filename: Path
+    m10_filename: Path
+    m100_filename: Path
+    fire: Path
+    vegetation: Path
+    elevation: Path
+    wind: Path
+    fuel_moisture: Path
 
 @dataclass
 class OutputPaths:
-    time_of_arrival: str
-    fire_intensity: str
-    flame_length: str
-    spread_rate: str
+    time_of_arrival: Path
+    fire_intensity: Path
+    flame_length: Path
+    spread_rate: Path
     # Add any other output file paths here
+
+@dataclass
+class SimulationPaths:
+    input_paths: InputPaths
+    output_paths: OutputPaths
+
+@dataclass
+class SimulationConfig:
+    sections: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+
+    def __init__(self, sections: Dict[str, Dict[str, Any]] = None):
+        self.sections = sections or {}
+
+    def get_parameter(self, section: str, key: str) -> Any:
+        return self.sections.get(section, {}).get(key)
+
+    def set_parameter(self, section: str, key: str, value: Any) -> None:
+        if section not in self.sections:
+            self.sections[section] = {}
+        self.sections[section][key] = value
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Dict[str, Any]]):
+        return cls(sections=data)
+
+    def to_dict(self) -> Dict[str, Dict[str, Any]]:
+        return self.sections
+    
+@dataclass
+class SimulationMetrics:
+    burned_area: float
+    fire_perimeter_length: float
+    containment_percentage: float
+    execution_time: float
+    performance_metrics: Dict[str, float]
+    fire_intensity: np.ndarray
 
 @dataclass
 class SimulationState:
     timestamp: datetime
-    fire_intensity: np.ndarray
-    burned_area: float
-    fire_perimeter_length: float
-    containment_percentage: float
+    config: SimulationConfig
+    paths: SimulationPaths
+    metrics: SimulationMetrics
+    save_path: Path
     resources: Dict[str, int]
     weather: Dict[str, float]
-    
-    # Add any other relevant state information
-
-
-@dataclass
-class SimulationConfig:
-    elmfire_data: Dict[str, Dict[str, Any]]
-    input_paths: InputPaths
-    output_paths: OutputPaths
-
-    def get_parameter(self, section: str, key: str) -> Any:
-        value = self.elmfire_data.get(section, {}).get(key)
-        if value is not None:
-            # Try to convert to float first, then to int if possible
-            try:
-                float_value = float(value)
-                if float_value.is_integer():
-                    return int(float_value)
-                return float_value
-            except ValueError:
-                # If conversion fails, return the original string value
-                return value
-        return None
-    
-
-@dataclass
-class SimulationResult:
-    final_state: SimulationState
-    performance_metrics: Dict[str, float]
-    output_files: Dict[str, str]  # File type to file path mapping
-    execution_time: float
-    metadata: Dict[str, Any]
-
 
 @dataclass
 class Action:
@@ -93,7 +94,6 @@ class EpisodeStep:
     action: Action
     reward: float
     next_state: SimulationState
-    simulation_result: SimulationResult
     done: bool
 
 @dataclass
@@ -102,10 +102,3 @@ class Episode:
     steps: List[EpisodeStep]
     total_reward: float
     total_steps: int
-    final_burned_area: float
-    final_containment_percentage: float
-    execution_time: float
-
-# Remove WeatherData, GeospatialData, and GeospatialPaths classes
-
-# Keep other necessary classes like RLMetrics if needed
