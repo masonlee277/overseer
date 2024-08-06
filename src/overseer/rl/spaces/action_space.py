@@ -248,17 +248,26 @@ class ActionSpace(Space):
         )
 
     def decode_action(self, action: Action) -> dict:
-        if not action.fireline_coordinates:
+        if action.fireline_coordinates.size == 0:
             return {}
-        start = action.fireline_coordinates[0]
-        end = action.fireline_coordinates[-1]
-        direction = self._get_direction_from_coords(start, end)
+        
+        start_point = action.fireline_coordinates[0]
+        end_point = action.fireline_coordinates[-1]
+        
+        x, y = start_point
         length = len(action.fireline_coordinates)
+        
+        if length > 1:
+            dx, dy = end_point - start_point
+            direction = int(np.round(np.arctan2(dy, dx) / (np.pi / 4))) % 8
+        else:
+            direction = 0
+        
         return {
-            "x": start[0],
-            "y": start[1],
-            "direction": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][direction],
-            "length": length
+            'x': int(x),
+            'y': int(y),
+            'direction': ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][direction],
+            'length': length
         }
 
     def _get_direction_from_coords(self, start: Tuple[int, int], end: Tuple[int, int]) -> int:

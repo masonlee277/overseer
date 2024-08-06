@@ -20,21 +20,88 @@ from overseer.core.models import (
 
 class DataManager:
     """
-    Manages all data operations for ELMFIRE simulations and the RL environment,
-    including geospatial data handling and state management.
+    DataManager: Central hub for managing simulation data, states, and metrics in the Overseer system.
 
-    This class is responsible for:
-    1. Coordinating between StateManager and GeoSpatialManager
-    2. Handling RL metrics
-    3. Preprocessing data for the RL environment
-    4. Aggregating and analyzing simulation results
+    Responsibilities:
+    1. Coordinate data flow between StateManager and GeoSpatialManager
+    2. Handle RL metrics collection and storage
+    3. Preprocess and aggregate data for the RL environment
+    4. Manage simulation states, episodes, and their persistence
+    5. Provide high-level data analysis and retrieval methods
 
-    Attributes:
-        config (OverseerConfig): The OverseerConfig instance.
-        logger (logging.Logger): Logger for this class.
-        data_dir (Path): Root directory for all data storage.
-        geospatial_manager (GeoSpatialManager): Manager for geospatial operations.
-        state_manager (StateManager): Manager for simulation states and episodes.
+    Key Data Structures:
+    1. SimulationState: Comprehensive snapshot of the simulation at a given time
+       - timestamp: DateTime of the state
+       - config: SimulationConfig object with ELMFIRE parameters
+       - paths: SimulationPaths object with input/output file locations
+       - metrics: SimulationMetrics object with performance and fire behavior data
+       - resources: Dict of available firefighting resources
+       - weather: Dict of current weather conditions
+    2. Episode: Sequence of EpisodeSteps representing a complete simulation run
+       - id: Unique identifier for the episode
+       - steps: List of EpisodeStep objects
+    3. EpisodeStep: Single step within an episode
+       - state: SimulationState at this step
+       - action: Action taken at this step
+       - reward: Reward received for the action
+       - next_state: Resulting SimulationState after the action
+       - done: Boolean indicating if the episode is complete
+    4. RL Metrics: Dict[int, List[Dict[str, float]]] storing metrics per episode and step
+
+    Scope:
+    The DataManager serves as an abstraction layer between the simulation logic and data storage/retrieval.
+    It does not directly modify simulation states or apply actions; instead, it manages the flow of data
+    and provides an interface for other components to access and update simulation information.
+
+    Differences from ConfigManager:
+    - ConfigManager focuses on ELMFIRE configuration management and input file generation
+    - DataManager handles broader simulation data, including states, episodes, and RL metrics
+    - DataManager does not interact with ELMFIRE directly or generate input files
+
+    Interaction with StateManager and GeoSpatialManager:
+    - StateManager: DataManager delegates state and episode management tasks to StateManager,
+      including saving/loading states, managing episodes, and handling state history
+    - GeoSpatialManager: DataManager uses GeoSpatialManager for spatial calculations and analysis,
+      such as fire growth rate and high-risk area identification
+
+    Key Methods:
+    - update_state: Update the current simulation state
+    - get_current_state: Retrieve the most recent simulation state
+    - start_new_episode: Begin a new simulation episode
+    - add_step_to_current_episode: Record a new step in the current episode
+    - get_fire_growth_rate: Calculate the current fire growth rate
+    - get_high_risk_areas: Identify areas at high risk in the current state
+    - update_rl_metrics: Record metrics for reinforcement learning
+    - export_episode_data: Save all data for a specific episode
+    - get_episode_statistics: Calculate various statistics for an episode
+
+    Thread Safety:
+    The DataManager is designed with thread-safety in mind, utilizing thread-safe data structures
+    and delegating to thread-safe sub-managers (StateManager and GeoSpatialManager).
+
+    Performance Considerations:
+    - Implements caching mechanisms to reduce redundant calculations
+    - Uses efficient data structures for quick access to states and metrics
+    - Delegates computationally intensive tasks to specialized managers
+
+    Error Handling:
+    Implements comprehensive error checking and logging for all data operations,
+    ensuring data integrity and providing detailed feedback for debugging.
+
+    Usage:
+    Typically instantiated once at the start of the Overseer system and used throughout
+    the simulation lifecycle to manage and provide access to all simulation-related data.
+
+    Example:
+        data_manager = DataManager(config)
+        data_manager.update_state(new_state)
+        current_state = data_manager.get_current_state()
+        data_manager.start_new_episode()
+        data_manager.add_step_to_current_episode(state, action, reward, next_state, done)
+        fire_growth_rate = data_manager.get_fire_growth_rate(time_interval)
+
+    Note: This class is central to the Overseer system's data management and should be
+    maintained with careful consideration of its impact on overall system performance and data integrity.
     """
 
     def __init__(self, config: OverseerConfig):
@@ -201,6 +268,37 @@ class DataManager:
     def clean_states(self):
         """Clean up the states directory."""
         self.state_manager.clean_states()
+
+    def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
+        """
+        Update the fuel file with new fireline coordinates.
+        
+        Args:
+            filepath (str): Path to the fuel file.
+            fireline_coords (List[Tuple[int, int]]): List of fireline coordinates.
+        """
+        self.geospatial_manager.update_fuel_file(filepath, fireline_coords)
+
+
+    def generate_action_mask_from_episode(self, episode_step: EpisodeStep) -> np.ndarray:
+        """Generate an action mask based on the current episode step."""
+        self.logger.info("Generating action mask from episode step")
+        
+        time_of_arrival_path = episode_step.state.paths.output_paths.time_of_arrival
+        fbfm40_path = episode_step.state.paths.input_paths.fbfm_filename
+        self.logger.info(f"Time of arrival path: {time_of_arrival_path}")
+        self.logger.info(f"FBFM40 path: {fbfm40_path}")
+        
+        if not time_of_arrival_path.exists() or not fbfm40_path.exists():
+            self.logger.warning("Required files for action mask generation not found")
+            return np.ones((self.config.get('grid_size', 100), self.config.get('grid_size', 100)), dtype=bool)
+        
+        #TODO: add min and max distance if we need
+        return self.geospatial_manager.generate_action_from_files(
+            str(time_of_arrival_path),
+            str(fbfm40_path)
+        )
+    
 
 def main():
     # This main function can be used for testing the DataManager

@@ -1,0 +1,58 @@
+Log file cleared and reinitialized on 2024-08-05 18:43:08.054790
+2024-08-05 18:43:08,054 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,056 - TestConfigDataIntegration - INFO - Testing data manager state operations
+2024-08-05 18:43:08,073 - TestConfigDataIntegration - INFO - State update and retrieval successful
+2024-08-05 18:43:08,073 - TestConfigDataIntegration - INFO - State history retrieval successful
+2024-08-05 18:43:08,074 - TestConfigDataIntegration - INFO - Data manager reset successful
+2024-08-05 18:43:08,074 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,076 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,076 - TestConfigDataIntegration - INFO - Testing data manager episode operations
+2024-08-05 18:43:08,076 - TestConfigDataIntegration - INFO - New episode started
+2024-08-05 18:43:08,105 - TestConfigDataIntegration - INFO - Step added to current episode
+2024-08-05 18:43:08,105 - TestConfigDataIntegration - INFO - Current episode retrieval and verification successful
+2024-08-05 18:43:08,106 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,107 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,107 - TestConfigDataIntegration - INFO - Testing data manager with real data
+2024-08-05 18:43:08,108 - TestConfigDataIntegration - INFO - Updating state at timestamp: 2024-08-05 18:43:08.107464
+2024-08-05 18:43:08,128 - TestConfigDataIntegration - INFO - Current state retrieved at timestamp: 2024-08-05 18:43:08.107464
+2024-08-05 18:43:08,128 - TestConfigDataIntegration - INFO - Saving state to disk at timestamp: 2024-08-05 18:43:08.107464
+2024-08-05 18:43:08,148 - TestConfigDataIntegration - INFO - Loading state from disk for timestamp: 2024-08-05T18:43:08.107464
+2024-08-05 18:43:08,178 - TestConfigDataIntegration - INFO - Retrieved state from disk at timestamp: 2024-08-05 18:43:08.107464
+2024-08-05 18:43:08,178 - TestConfigDataIntegration - INFO - All assertions passed for state saving and retrieval
+2024-08-05 18:43:08,178 - TestConfigDataIntegration - INFO - State history verified
+2024-08-05 18:43:08,180 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,181 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,181 - TestConfigDataIntegration - INFO - Testing saving and retrieving multiple states
+2024-08-05 18:43:08,188 - TestConfigDataIntegration - INFO - Saved state 0
+2024-08-05 18:43:08,194 - TestConfigDataIntegration - INFO - Saved state 1
+2024-08-05 18:43:08,202 - TestConfigDataIntegration - INFO - Saved state 2
+2024-08-05 18:43:08,209 - TestConfigDataIntegration - INFO - Saved state 3
+2024-08-05 18:43:08,216 - TestConfigDataIntegration - INFO - Saved state 4
+2024-08-05 18:43:08,240 - TestConfigDataIntegration - INFO - Successfully verified state 0
+2024-08-05 18:43:08,256 - TestConfigDataIntegration - INFO - Successfully verified state 1
+2024-08-05 18:43:08,270 - TestConfigDataIntegration - INFO - Successfully verified state 2
+2024-08-05 18:43:08,284 - TestConfigDataIntegration - INFO - Successfully verified state 3
+2024-08-05 18:43:08,299 - TestConfigDataIntegration - INFO - Successfully verified state 4
+2024-08-05 18:43:08,299 - TestConfigDataIntegration - INFO - State history length: 5
+2024-08-05 18:43:08,299 - TestConfigDataIntegration - INFO - State history verified
+2024-08-05 18:43:08,300 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,300 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,302 - TestConfigDataIntegration - INFO - Testing episode management
+2024-08-05 18:43:08,302 - TestConfigDataIntegration - INFO - Started new episode
+2024-08-05 18:43:08,313 - TestConfigDataIntegration - INFO - Added step 0 to episode
+2024-08-05 18:43:08,324 - TestConfigDataIntegration - INFO - Added step 1 to episode
+2024-08-05 18:43:08,335 - TestConfigDataIntegration - INFO - Added step 2 to episode
+2024-08-05 18:43:08,336 - TestConfigDataIntegration - INFO - Current episode verified
+2024-08-05 18:43:08,337 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,338 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,338 - TestConfigDataIntegration - INFO - Testing data manager reset and state persistence
+2024-08-05 18:43:08,394 - TestConfigDataIntegration - INFO - Data manager reset and state persistence test completed
+2024-08-05 18:43:08,395 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,397 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,397 - TestConfigDataIntegration - INFO - Testing data manager with multiple episodes
+2024-08-05 18:43:08,608 - TestConfigDataIntegration - INFO - Multiple episodes test completed
+2024-08-05 18:43:08,610 - TestConfigDataIntegration - INFO - Config Data Integration test completed
+2024-08-05 18:43:08,611 - TestConfigDataIntegration - INFO - Starting Config Data Integration test
+2024-08-05 18:43:08,611 - TestConfigDataIntegration - INFO - Testing data manager edge cases
+2024-08-05 18:43:08,650 - TestConfigDataIntegration - INFO - Edge cases test completed
+2024-08-05 18:43:08,651 - TestConfigDataIntegration - INFO - Config Data Integration test completed

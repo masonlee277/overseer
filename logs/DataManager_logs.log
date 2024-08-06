@@ -1,11 +1,41 @@
-Log file cleared and reinitialized on 2024-08-05 17:23:18.034382
-2024-08-05 17:23:18,036 - DataManager - INFO - Updating state at timestamp: 2024-08-05 17:23:18.036522
-2024-08-05 17:23:18,054 - DataManager - INFO - Retrieved current state: 2024-08-05 17:23:18.036522
-2024-08-05 17:23:18,054 - DataManager - INFO - Retrieved current state: None
-2024-08-05 17:23:18,089 - DataManager - INFO - Updating state at timestamp: 2024-08-05 17:23:18.086089
-2024-08-05 17:23:18,105 - DataManager - INFO - Retrieved current state: 2024-08-05 17:23:18.086089
-2024-08-05 17:23:18,106 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-05 17:23:18.086089
-2024-08-05 17:23:18,121 - DataManager - INFO - State saved to filepath: data\states\state_20240805_172318_086089.json
-2024-08-05 17:23:18,121 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T17:23:18.086089
-2024-08-05 17:23:18,121 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001DBDD571690>
-2024-08-05 17:23:18,147 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T17:23:18.086089
+Log file cleared and reinitialized on 2024-08-05 19:23:47.410825
+2024-08-05 19:23:47,473 - DataManager - INFO - Updating state at timestamp: 2024-08-05 19:23:47.472898
+2024-08-05 19:23:47,492 - DataManager - INFO - Retrieved current state: 2024-08-05 19:23:47.472898
+2024-08-05 19:23:47,492 - DataManager - INFO - Retrieved current state: None
+2024-08-05 19:23:47,527 - DataManager - INFO - Updating state at timestamp: 2024-08-05 19:23:47.527313
+2024-08-05 19:23:47,545 - DataManager - INFO - Retrieved current state: 2024-08-05 19:23:47.527313
+2024-08-05 19:23:47,545 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-05 19:23:47.527313
+2024-08-05 19:23:47,565 - DataManager - INFO - State saved to filepath: data\states\state_20240805_192347_527313.json
+2024-08-05 19:23:47,566 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T19:23:47.527313
+2024-08-05 19:23:47,566 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,596 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T19:23:47.527313
+2024-08-05 19:23:47,605 - DataManager - INFO - Updating state at timestamp: 2024-08-05 19:23:47.604196
+2024-08-05 19:23:47,616 - DataManager - INFO - Updating state at timestamp: 2024-08-05 20:23:47.616727
+2024-08-05 19:23:47,623 - DataManager - INFO - Updating state at timestamp: 2024-08-05 21:23:47.623766
+2024-08-05 19:23:47,632 - DataManager - INFO - Updating state at timestamp: 2024-08-05 22:23:47.631982
+2024-08-05 19:23:47,638 - DataManager - INFO - Updating state at timestamp: 2024-08-05 23:23:47.638579
+2024-08-05 19:23:47,645 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T19:23:47.604196
+2024-08-05 19:23:47,645 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,660 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T19:23:47.604196
+2024-08-05 19:23:47,661 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T20:23:47.616727
+2024-08-05 19:23:47,661 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,712 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T20:23:47.616727
+2024-08-05 19:23:47,714 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T21:23:47.623766
+2024-08-05 19:23:47,714 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,730 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T21:23:47.623766
+2024-08-05 19:23:47,732 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T22:23:47.631982
+2024-08-05 19:23:47,732 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,743 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T22:23:47.631982
+2024-08-05 19:23:47,745 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T23:23:47.638579
+2024-08-05 19:23:47,745 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,758 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T23:23:47.638579
+2024-08-05 19:23:47,801 - DataManager - INFO - Retrieved current state: None
+2024-08-05 19:23:47,801 - DataManager - INFO - Updating state at timestamp: 2024-08-05 19:23:47.801312
+2024-08-05 19:23:47,820 - DataManager - INFO - Retrieved current state: 2024-08-05 19:23:47.801312
+2024-08-05 19:23:47,820 - DataManager - INFO - Retrieved current state: None
+2024-08-05 19:23:47,820 - DataManager - INFO - Loading state from disk for timestamp 2024-08-05T19:23:47.801312
+2024-08-05 19:23:47,820 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:47,848 - DataManager - INFO - Successfully loaded state from disk for timestamp 2024-08-05T19:23:47.801312
+2024-08-05 19:23:48,163 - DataManager - INFO - Loading state from disk for timestamp 2024-08-06T19:23:48.163645
+2024-08-05 19:23:48,163 - DataManager - INFO - State manager: <overseer.data.state_manager.StateManager object at 0x000001CA6A7BF3A0>
+2024-08-05 19:23:48,164 - DataManager - WARNING - Failed to load state from disk for timestamp 2024-08-06T19:23:48.163645

@@ -49,6 +49,13 @@ class SimulationConfig:
     def __init__(self, sections: Dict[str, Dict[str, Any]] = None):
         self.sections = sections or {}
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        return cls(sections=data)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.sections
+
     def get_parameter(self, section: str, key: str) -> Any:
         return self.sections.get(section, {}).get(key)
 
@@ -56,13 +63,6 @@ class SimulationConfig:
         if section not in self.sections:
             self.sections[section] = {}
         self.sections[section][key] = value
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Dict[str, Any]]):
-        return cls(sections=data)
-
-    def to_dict(self) -> Dict[str, Dict[str, Any]]:
-        return self.sections
     
 @dataclass
 class SimulationMetrics:

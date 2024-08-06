@@ -383,7 +383,7 @@ class GeoSpatialManager:
         return valid_area
     
 
-    def generate_action_mask_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
+    def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
                                         elevation_path: str = None, vegetation_path: str = None,
                                         min_distance: int = 1, max_distance: int = 10,
                                         max_slope: float = None, constructable_veg_types: List[int] = None,

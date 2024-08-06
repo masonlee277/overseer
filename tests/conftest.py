@@ -147,60 +147,93 @@ def mock_simulation_config(config):
         'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'},
     })
 
+# ... (keep existing imports)
+
+
+# ... (keep existing imports and other fixtures)
+
 @pytest.fixture
-def mock_state(mock_simulation_config):
-    data_dir = Path('data')
-    mock_input_dir = data_dir / 'mock' / 'inputs'
-    mock_output_dir = data_dir / 'mock' / 'outputs'
-    return SimulationState(
-        timestamp=datetime.now(),
-        config=mock_simulation_config,
-        paths=SimulationPaths(
-            input_paths=InputPaths(
-                fuels_and_topography_directory=mock_input_dir,
-                asp_filename=mock_input_dir / 'asp.tif',
-                cbd_filename=mock_input_dir / 'cbd.tif',
-                cbh_filename=mock_input_dir / 'cbh.tif',
-                cc_filename=mock_input_dir / 'cc.tif',
-                ch_filename=mock_input_dir / 'ch.tif',
-                dem_filename=mock_input_dir / 'dem.tif',
-                fbfm_filename=mock_input_dir / 'fbfm40.tif',
-                slp_filename=mock_input_dir / 'slp.tif',
-                adj_filename=mock_input_dir / 'adj.tif',
-                phi_filename=mock_input_dir / 'new_phi.tif',
-                weather_directory=mock_input_dir,
-                ws_filename=mock_input_dir / 'ws.tif',
-                wd_filename=mock_input_dir / 'wd.tif',
-                m1_filename=mock_input_dir / 'm1.tif',
-                m10_filename=mock_input_dir / 'm10.tif',
-                m100_filename=mock_input_dir / 'm100.tif',
-                fire=mock_input_dir / 'fire.shp',
-                vegetation=mock_input_dir / 'veg.tif',
-                elevation=mock_input_dir / 'dem.tif',
-                wind=mock_input_dir / 'wind.tif',
-                fuel_moisture=mock_input_dir / 'fuel_moisture.tif'
+def create_mock_state():
+    def _create_mock_state(config, timestamp=None, custom_config=None, custom_metrics=None, custom_resources=None, custom_weather=None):
+        data_dir = Path(config.get_config().get('data_management', {}).get('data_directory', 'data'))
+        mock_input_dir = data_dir / 'mock' / 'inputs'
+        mock_output_dir = data_dir / 'mock' / 'outputs'
+
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        if custom_config is None:
+            custom_config = {
+                'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': str(mock_input_dir)},
+                'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'},
+            }
+
+        if custom_metrics is None:
+            custom_metrics = {
+                'burned_area': 1000.0,
+                'fire_perimeter_length': 500.0,
+                'containment_percentage': 20.0,
+                'execution_time': 120.0,
+                'performance_metrics': {'cpu_usage': 80.0, 'memory_usage': 4000.0},
+                'fire_intensity': np.random.rand(100, 100)
+            }
+
+        if custom_resources is None:
+            custom_resources = {'firefighters': 50, 'trucks': 10}
+
+        if custom_weather is None:
+            custom_weather = {'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}
+
+        return SimulationState(
+            timestamp=timestamp,
+            config=SimulationConfig(sections=custom_config),
+            paths=SimulationPaths(
+                input_paths=InputPaths(
+                    fuels_and_topography_directory=mock_input_dir,
+                    asp_filename=mock_input_dir / 'asp.tif',
+                    cbd_filename=mock_input_dir / 'cbd.tif',
+                    cbh_filename=mock_input_dir / 'cbh.tif',
+                    cc_filename=mock_input_dir / 'cc.tif',
+                    ch_filename=mock_input_dir / 'ch.tif',
+                    dem_filename=mock_input_dir / 'dem.tif',
+                    fbfm_filename=mock_input_dir / 'fbfm40.tif',
+                    slp_filename=mock_input_dir / 'slp.tif',
+                    adj_filename=mock_input_dir / 'adj.tif',
+                    phi_filename=mock_input_dir / 'new_phi.tif',
+                    weather_directory=mock_input_dir,
+                    ws_filename=mock_input_dir / 'ws.tif',
+                    wd_filename=mock_input_dir / 'wd.tif',
+                    m1_filename=mock_input_dir / 'm1.tif',
+                    m10_filename=mock_input_dir / 'm10.tif',
+                    m100_filename=mock_input_dir / 'm100.tif',
+                    fire=mock_input_dir / 'fire.shp',
+                    vegetation=mock_input_dir / 'veg.tif',
+                    elevation=mock_input_dir / 'dem.tif',
+                    wind=mock_input_dir / 'wind.tif',
+                    fuel_moisture=mock_input_dir / 'fuel_moisture.tif'
+                ),
+                output_paths=OutputPaths(
+                    time_of_arrival=mock_output_dir / 'time_of_arrival.tif',
+                    fire_intensity=mock_output_dir / 'flin.tif',
+                    flame_length=mock_output_dir / 'flame_length.tif',
+                    spread_rate=mock_output_dir / 'spread_rate.tif'
+                )
             ),
-            output_paths=OutputPaths(
-                time_of_arrival=mock_output_dir / 'time_of_arrival.tif',
-                fire_intensity=mock_output_dir / 'flin.tif',
-                flame_length=mock_output_dir / 'flame_length.tif',
-                spread_rate=mock_output_dir / 'spread_rate.tif'
-            )
-        ),
-        metrics=SimulationMetrics(
-            burned_area=1000.0,
-            fire_perimeter_length=500.0,
-            containment_percentage=20.0,
-            execution_time=120.0,
-            performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0},
-            fire_intensity=np.random.rand(100, 100)
-        ),
-        save_path=data_dir / 'mock' / 'save',
-        resources={'firefighters': 50, 'trucks': 10},
-        weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}
-    )
+            metrics=SimulationMetrics(**custom_metrics),
+            save_path=data_dir / 'mock' / 'save',
+            resources=custom_resources,
+            weather=custom_weather
+        )
+    
+    return _create_mock_state
+
+@pytest.fixture
+def mock_state(config, create_mock_state):
+    return create_mock_state(config)
+
 @pytest.fixture(scope="function")
-def mock_episode_step(mock_state):
+def mock_episode_step(config, create_mock_state):
+    mock_state = create_mock_state(config)
     return EpisodeStep(
         step=0,
         state=mock_state,
@@ -210,6 +243,7 @@ def mock_episode_step(mock_state):
         done=False
     )
 
+# ... (keep other fixtures)
 @pytest.fixture(scope="function")
 def mock_episode(mock_episode_step):
     return Episode(
@@ -222,3 +256,4 @@ def mock_episode(mock_episode_step):
 @pytest.fixture(scope="function")
 def mock_action():
     return Action(fireline_coordinates=[(50, 50), (55, 55), (60, 60)])
+
