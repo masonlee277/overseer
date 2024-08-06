@@ -167,6 +167,7 @@ class TestConfigManagerIntegration:
         self.logger.info("Config manager complex scenario test completed")
     def test_data_manager_state_operations(self, data_manager, mock_state):
         self.logger.info("Testing data manager state operations")
+        data_manager.clear_all_episode_data()
         # Test updating state
         data_manager.update_state(mock_state)
         current_state = data_manager.get_current_state()
@@ -280,7 +281,9 @@ class TestConfigManagerIntegration:
         self.logger.info(f"Saving state to disk at timestamp: {current_state.timestamp}")
         data_manager.save_state_to_disk(current_state)
         self.logger.info(f"Loading state from disk for timestamp: {current_state.timestamp.isoformat()}")
-        retrieved_state = data_manager.load_state_from_disk(current_state.timestamp.isoformat())
+        #retrieved_state = data_manager.load_state_from_disk(current_state.timestamp.isoformat())
+        retrieved_state = data_manager.load_state_from_disk(0, 1)  # episode 0, step 1
+
         self.logger.info(f"Retrieved state from disk at timestamp: {retrieved_state.timestamp if retrieved_state else 'None'}")
         assert retrieved_state is not None
         assert retrieved_state.timestamp == current_state.timestamp
@@ -327,7 +330,7 @@ class TestConfigManagerIntegration:
 
         # Retrieve and verify states
         for i, original_state in enumerate(states):
-            retrieved_state = data_manager.load_state_from_disk(original_state.timestamp.isoformat())
+            retrieved_state = data_manager.load_state_from_disk(data_manager.get_episode_id(), i+1)
             assert retrieved_state is not None, f"Failed to retrieve state {i}"
             assert retrieved_state.timestamp == original_state.timestamp
             assert retrieved_state.config.sections == original_state.config.sections
@@ -388,11 +391,9 @@ class TestConfigManagerIntegration:
 
     def test_data_manager_reset_and_state_persistence(self, config, data_manager, create_mock_state):
         self.logger.info("Testing data manager reset and state persistence")
-        
-        # Reset the data manager
-        data_manager.reset()
-        assert data_manager.get_current_state() is None
-        assert len(data_manager.get_state_history()) == 0
+
+        # Clear all data at the start of the test
+        data_manager.clear_all_data()
 
         # Create and add a state
         state1 = create_mock_state(config, timestamp=datetime.now())
@@ -400,13 +401,13 @@ class TestConfigManagerIntegration:
         assert data_manager.get_current_state() == state1
         assert len(data_manager.get_state_history()) == 1
 
-        # Reset the data manager again
+        # Reset the data manager (should not delete files)
         data_manager.reset()
         assert data_manager.get_current_state() is None
         assert len(data_manager.get_state_history()) == 0
 
         # Verify that the previously saved state can still be loaded
-        loaded_state = data_manager.load_state_from_disk(state1.timestamp.isoformat())
+        loaded_state = data_manager.load_state_from_disk(0, 1)
         assert loaded_state is not None
         assert loaded_state.timestamp == state1.timestamp
 
@@ -460,17 +461,122 @@ class TestConfigManagerIntegration:
         assert non_existent_state is None
 
         # Test loading a non-existent state from disk
-        non_existent_loaded_state = data_manager.load_state_from_disk((datetime.now() + timedelta(days=1)).isoformat())
+        non_existent_loaded_state = data_manager.load_state_from_disk(999, 0)
         assert non_existent_loaded_state is None
 
         # Test starting a new episode without finishing the current one
         data_manager.start_new_episode()
         assert len(data_manager.state_manager.episodes) == 2
-        assert data_manager.state_manager.current_episode_id == 2
+        assert data_manager.state_manager.current_episode_id == 2  # Assuming it starts from 0
 
         self.logger.info("Edge cases test completed")
 
 
+    def test_data_manager_save_and_retrieve_multiple_states(self, data_manager, config, create_mock_state):
+        self.logger.info("Testing saving and retrieving multiple states")
+        data_manager.reset()  # Add this line
+
+        # Create multiple states
+        states = []
+        for i in range(5):
+            custom_config = {'TEST': {'VALUE': f'test_{i}'}}
+            custom_metrics = {
+                'burned_area': 100.0 * i,
+                'fire_perimeter_length': 50.0 * i,
+                'containment_percentage': 10.0 * i,
+                'execution_time': 60.0 * i,
+                'performance_metrics': {'cpu_usage': 50.0 + i, 'memory_usage': 2000.0 + i * 100},
+                'fire_intensity': np.random.rand(50, 50)
+            }
+            custom_resources = {'firefighters': 50 + i * 10, 'trucks': 10 + i}
+            custom_weather = {'temperature': 25.0 + i, 'wind_speed': 10.0 + i * 0.5, 'wind_direction': 180.0 + i * 10}
+            
+            state = create_mock_state(
+                config,
+                timestamp=datetime.now() + timedelta(hours=i),
+                custom_config=custom_config,
+                custom_metrics=custom_metrics,
+                custom_resources=custom_resources,
+                custom_weather=custom_weather
+            )
+            states.append(state)
+            data_manager.update_state(state)
+            self.logger.info(f"Saved state {i}")
+
+        # Retrieve and verify states
+        for i, original_state in enumerate(states):
+            retrieved_state = data_manager.load_state_from_disk(data_manager.get_episode_id(), i+1)
+            assert retrieved_state is not None, f"Failed to retrieve state {i}"
+            assert retrieved_state.timestamp == original_state.timestamp
+            assert retrieved_state.config.sections == original_state.config.sections
+            assert retrieved_state.paths.input_paths.fuels_and_topography_directory == original_state.paths.input_paths.fuels_and_topography_directory
+            assert retrieved_state.metrics.burned_area == original_state.metrics.burned_area
+            assert np.array_equal(retrieved_state.metrics.fire_intensity, original_state.metrics.fire_intensity)
+            self.logger.info(f"Successfully verified state {i}")
+
+        # Verify state history
+        history = data_manager.get_state_history()
+        #logg the len of history
+        self.logger.info(f"State history length: {len(history)}")
+        
+        assert len(history) == 5, "Incorrect number of states in history"
+        self.logger.info("State history verified")
+
+    def test_data_manager_episode_management(self, data_manager, config, create_mock_state):
+        self.logger.info("Testing episode management")
+        
+        # Start a new episode
+        data_manager.start_new_episode()
+        self.logger.info("Started new episode")
+
+        # Create and add steps to the episode
+        for i in range(3):
+            custom_config = {'EPISODE_TEST': {'STEP': f'step_{i}'}}
+            custom_metrics = {
+                'burned_area': 100.0 * i,
+                'fire_perimeter_length': 50.0 * i,
+                'containment_percentage': 10.0 * i,
+                'execution_time': 60.0 * i,
+                'performance_metrics': {'cpu_usage': 50.0 + i, 'memory_usage': 2000.0 + i * 100},
+                'fire_intensity': np.random.rand(30, 30)
+            }
+            custom_resources = {'firefighters': 50 + i * 10, 'trucks': 10 + i}
+            custom_weather = {'temperature': 25.0 + i, 'wind_speed': 10.0 + i * 0.5, 'wind_direction': 180.0 + i * 10}
+            
+            state = create_mock_state(
+                config,
+                timestamp=datetime.now() + timedelta(hours=i),
+                custom_config=custom_config,
+                custom_metrics=custom_metrics,
+                custom_resources=custom_resources,
+                custom_weather=custom_weather
+            )
+            action = Action(fireline_coordinates=[(j, j) for j in range(i+1)])
+            data_manager.add_step_to_current_episode(state, action, reward=i * 0.5, next_state=state, done=(i == 2))
+            self.logger.info(f"Added step {i} to episode")
+
+        # Verify current episode
+        current_episode = data_manager.get_current_episode()
+        assert current_episode is not None, "Failed to retrieve current episode"
+        assert len(current_episode.steps) == 3, "Incorrect number of steps in episode"
+        assert current_episode.total_steps == 3
+        assert current_episode.total_reward == 0.0 + 0.5 + 1.0
+        self.logger.info("Current episode verified")
+
+        # Load episode from disk and verify
+        loaded_episode = data_manager.state_manager.load_episode_from_disk(data_manager.state_manager.current_episode_id)
+        assert loaded_episode is not None, "Failed to load episode from disk"
+        assert len(loaded_episode.steps) == 3, "Incorrect number of steps in loaded episode"
+        assert loaded_episode.total_steps == current_episode.total_steps
+        assert loaded_episode.total_reward == current_episode.total_reward
+        self.logger.info("Loaded episode verified")
+
+        # Verify episode summary
+        episode_summary = data_manager.get_episode_summary(data_manager.state_manager.current_episode_id)
+        assert episode_summary is not None, "Failed to retrieve episode summary"
+        assert episode_summary['total_steps'] == 3
+        assert episode_summary['total_reward'] == 0.0 + 0.5 + 1.0
+        self.logger.info("Episode summary verified")
 
 
 

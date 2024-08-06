@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional, Tuple, Union, Any
 import numpy as np
 import json
 from datetime import datetime
+import threading
 
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
@@ -100,6 +101,29 @@ class DataManager:
         data_manager.add_step_to_current_episode(state, action, reward, next_state, done)
         fire_growth_rate = data_manager.get_fire_growth_rate(time_interval)
 
+    The DataManager saves files in the following directory structure:
+
+    File Structure:
+    data/
+    ├── episodes/
+    │   ├── episode_1/
+    │   │   ├── metadata.json
+    │   │   ├── step_0/
+    │   │   │   ├── state.json
+    │   │   │   ├── action.json
+    │   │   │   └── metrics.json
+    │   │   ├── step_1/
+    │   │   │   ├── state.json
+    │   │   │   ├── action.json
+    │   │   │   └── metrics.json
+    │   │   └── ...
+    │   ├── episode_2/
+    │   │   └── ...
+    │   └── ...
+    └── global_metrics/
+        └── overall_performance.json
+
+
     Note: This class is central to the Overseer system's data management and should be
     maintained with careful consideration of its impact on overall system performance and data integrity.
     """
@@ -112,14 +136,18 @@ class DataManager:
         self.state_manager = StateManager(self.config)
         self.rl_metrics: Dict[int, List[Dict[str, float]]] = {}
 
+
+
     def update_state(self, state: SimulationState) -> None:
         self.logger.info(f"Updating state at timestamp: {state.timestamp}")
         self.state_manager.update_state(state)
+        self.save_state_to_disk(state)
 
     def get_current_state(self) -> Optional[SimulationState]:
         state = self.state_manager.get_current_state()
         self.logger.info(f"Retrieved current state: {'None' if state is None else state.timestamp}")
         return state
+    
 
     def get_state_history(self) -> List[SimulationState]:
         """Get the state history from the StateManager."""
@@ -129,6 +157,15 @@ class DataManager:
         """Get a specific state by episode ID and step number."""
         return self.state_manager.get_state_by_episode_step(episode_id, step)
 
+    def get_episode_id(self) -> int:
+        """Get the current episode ID from the StateManager."""
+        return self.state_manager.get_episode_id()
+    
+    def get_current_step(self) -> int:
+        """Get the current step number from the StateManager."""
+        return self.state_manager.get_current_step()
+    
+
     def start_new_episode(self) -> None:
         """Start a new episode using the StateManager."""
         self.state_manager.start_new_episode()
@@ -136,6 +173,12 @@ class DataManager:
     def add_step_to_current_episode(self, state: SimulationState, action: Action, reward: float, next_state: SimulationState, done: bool) -> None:
         """Add a new step to the current episode using the StateManager."""
         self.state_manager.add_step_to_current_episode(state, action, reward, next_state, done)
+
+    def save_state_to_disk(self, state: SimulationState) -> None:
+        self.logger.info(f"Saving state to disk at timestamp: {state.timestamp}")
+        self.logger.info(f"Saving state to disk for episode {self.state_manager.current_episode_id}, step {self.state_manager.current_step}")
+        save_filepath = self.state_manager._save_state_to_disk(state)
+        self.logger.info(f"Saved state to disk at path: {save_filepath}")
 
     def get_current_episode(self) -> Optional[Episode]:
         """Get the current episode from the StateManager."""
@@ -175,29 +218,33 @@ class DataManager:
     def reset(self) -> None:
         """Reset the state manager."""
         self.state_manager.reset()
+        
 
     def cleanup_old_data(self, max_episodes: int) -> None:
         """Remove old simulation data to free up storage space."""
         self.state_manager.cleanup_old_episodes(max_episodes)
 
-    def save_state_to_disk(self, state: SimulationState) -> None:
-        self.logger.info(f"Saving state to disk at timestamp: {state.timestamp}")
-        save_filepath = self.state_manager._save_state_to_disk(state)
-        self.logger.info(f"State saved to filepath: {save_filepath}")
+    def clear_all_data(self):
+        self.state_manager.clear_all_data()
 
-    def load_state_from_disk(self, timestamp: str) -> Optional[SimulationState]:
-        """Load a state from disk."""
-        self.logger.info(f"Loading state from disk for timestamp {timestamp}")
-        self.logger.info(f"State manager: {self.state_manager}")
-        state = self.state_manager.load_state_from_disk(timestamp)
+
+    def load_state_from_disk(self, episode_id: int, step: int) -> Optional[SimulationState]:
+        self.logger.info(f"Loading state from disk for episode {episode_id}, step {step}")
+        state = self.state_manager.load_state_from_disk(episode_id, step)
         if state:
-            self.logger.info(f"Successfully loaded state from disk for timestamp {timestamp}")
-            self.logger.debug(f"Loaded state details: timestamp={state.timestamp}, "
-                              f"config sections={list(state.config.sections.keys())}, "
-                              f"metrics={state.metrics}")
+            self.logger.info(f"Successfully loaded state from disk for episode {episode_id}, step {step}")
         else:
-            self.logger.warning(f"Failed to load state from disk for timestamp {timestamp}")
+            self.logger.warning(f"Failed to load state from disk for episode {episode_id}, step {step}")
         return state
+
+    def print_valid_episodes_and_steps(self):
+        """Iterate through the episodes directory and print the valid episodes"""
+        for episode_dir in self.data_dir.iterdir():
+            if episode_dir.is_dir():
+                self.logger.info(f"Valid episode: {episode_dir}")
+                for step_dir in episode_dir.iterdir():
+                    if step_dir.is_dir():
+                        self.logger.info(f"Valid step: {step_dir}")
 
     #########################################################################
     def get_episode_summary(self, episode_id: int) -> Optional[Dict[str, Any]]:
@@ -268,6 +315,10 @@ class DataManager:
     def clean_states(self):
         """Clean up the states directory."""
         self.state_manager.clean_states()
+
+    def clear_all_episode_data(self):
+        """Clean up the states directory."""
+        self.state_manager.clear_all_episode_data()
 
     def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
         """
