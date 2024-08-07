@@ -121,6 +121,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 import numpy as np
 from typing import List, Tuple, Optional
 from gym import Space
+from gym import spaces
+
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -150,7 +152,13 @@ class ActionSpace(Space):
         self.max_construction_slope = self.config.get('max_construction_slope', 30)
         self.min_effective_length = self.config.get('min_effective_length', 3)
         self.constructable_veg_types = self.config.get('constructable_veg_types', [1, 2, 3])
-
+        # Define the space as a MultiDiscrete space
+        self.space = spaces.MultiDiscrete([
+            self.grid_size,  # x coordinate
+            self.grid_size,  # y coordinate
+            8,  # direction (0-7 for 8 directions)
+            self.max_fireline_length  # length
+        ])
     def sample(self) -> np.ndarray:
         """Sample a random action from the action space and return raw action space."""
         x = np.random.randint(0, self.grid_size)

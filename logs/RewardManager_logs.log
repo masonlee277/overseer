@@ -1,27 +1,5 @@
-2024-08-01 10:11:19,111 - RewardManager - WARNING - Unknown reward strategy 'mock'. Using SimpleAreaRewardStrategy.
-2024-08-01 10:11:44,661 - RewardManager - WARNING - Unknown reward strategy 'mock'. Using SimpleAreaRewardStrategy.
-2024-08-01 10:11:44,661 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-01 10:11:44,661 - RewardManager - INFO - Calculated reward: -3.686485486682363
-2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 0.5735042767675331
-2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 2.644871639165766
-2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: 2.0208246165539343
-2024-08-01 10:11:44,667 - RewardManager - INFO - Calculated reward: -4.500665261256391
-2024-08-01 10:11:44,667 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-01 10:11:44,667 - RewardManager - ERROR - Error calculating reward: main.<locals>.faulty_calculate_reward() missing 1 required positional argument: 'state_manager'
-2024-08-02 10:38:28,952 - RewardManager - WARNING - Unknown reward strategy 'mock'. Using SimpleAreaRewardStrategy.
-2024-08-02 10:38:28,952 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-02 10:38:28,952 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:38:28,952 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:38:28,952 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:38:28,952 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:38:28,952 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:38:28,952 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-02 10:38:28,953 - RewardManager - ERROR - Error calculating reward: main.<locals>.faulty_calculate_reward() missing 1 required positional argument: 'state'
-2024-08-02 10:40:40,840 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-02 10:40:40,840 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:40:40,840 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:40:40,840 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:40:40,840 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:40:40,840 - RewardManager - INFO - Calculated reward: 2.0
-2024-08-02 10:40:40,840 - RewardManager - INFO - Reward strategy set to MockRewardStrategy
-2024-08-02 10:40:40,840 - RewardManager - ERROR - Error calculating reward: main.<locals>.faulty_calculate_reward() missing 1 required positional argument: 'state'
+Log file cleared and reinitialized on 2024-08-07 10:21:16.802383
+2024-08-07 10:21:16,855 - RewardManager - INFO - Calculated reward: -1000.0
+2024-08-07 10:21:16,985 - RewardManager - INFO - Calculated reward: -1000.0
+2024-08-07 10:21:17,431 - RewardManager - INFO - Calculated reward: -1000.0
+2024-08-07 10:21:17,883 - RewardManager - INFO - Calculated reward: -1000.0

@@ -1,57 +1,99 @@
-Log file cleared and reinitialized on 2024-08-06 12:37:14.421907
-2024-08-06 12:37:14,469 - DataManager - INFO - Updating state at timestamp: 2024-08-06 12:37:14.466862
-2024-08-06 12:37:14,487 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.466862
-2024-08-06 12:37:14,487 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-06 12:37:14,498 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-06 12:37:14,498 - DataManager - INFO - Retrieved current state: 2024-08-06 12:37:14.466862
-2024-08-06 12:37:14,498 - DataManager - INFO - Retrieved current state: None
-2024-08-06 12:37:14,544 - DataManager - INFO - Updating state at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,561 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,561 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-06 12:37:14,579 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-06 12:37:14,579 - DataManager - INFO - Retrieved current state: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,579 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,579 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-06 12:37:14,600 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-06 12:37:14,600 - DataManager - INFO - Loading state from disk for episode 0, step 1
-2024-08-06 12:37:14,630 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 1
-2024-08-06 12:37:14,633 - DataManager - INFO - Updating state at timestamp: 2024-08-06 12:37:14.632813
-2024-08-06 12:37:14,638 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.632813
-2024-08-06 12:37:14,638 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-06 12:37:14,643 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-06 12:37:14,644 - DataManager - INFO - Updating state at timestamp: 2024-08-06 13:37:14.643552
-2024-08-06 12:37:14,649 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 13:37:14.643552
-2024-08-06 12:37:14,649 - DataManager - INFO - Saving state to disk for episode 0, step 2
-2024-08-06 12:37:14,654 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_2\state.json
-2024-08-06 12:37:14,654 - DataManager - INFO - Updating state at timestamp: 2024-08-06 14:37:14.654601
-2024-08-06 12:37:14,661 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 14:37:14.654601
-2024-08-06 12:37:14,661 - DataManager - INFO - Saving state to disk for episode 0, step 3
-2024-08-06 12:37:14,664 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_3\state.json
-2024-08-06 12:37:14,664 - DataManager - INFO - Updating state at timestamp: 2024-08-06 15:37:14.664802
-2024-08-06 12:37:14,670 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 15:37:14.664802
-2024-08-06 12:37:14,670 - DataManager - INFO - Saving state to disk for episode 0, step 4
-2024-08-06 12:37:14,678 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_4\state.json
-2024-08-06 12:37:14,678 - DataManager - INFO - Updating state at timestamp: 2024-08-06 16:37:14.678033
-2024-08-06 12:37:14,681 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 16:37:14.678033
-2024-08-06 12:37:14,681 - DataManager - INFO - Saving state to disk for episode 0, step 5
-2024-08-06 12:37:14,688 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_5\state.json
-2024-08-06 12:37:14,688 - DataManager - INFO - Loading state from disk for episode 0, step 1
-2024-08-06 12:37:14,700 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 1
-2024-08-06 12:37:14,700 - DataManager - INFO - Loading state from disk for episode 0, step 2
-2024-08-06 12:37:14,712 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 2
-2024-08-06 12:37:14,712 - DataManager - INFO - Loading state from disk for episode 0, step 3
-2024-08-06 12:37:14,727 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 3
-2024-08-06 12:37:14,727 - DataManager - INFO - Loading state from disk for episode 0, step 4
-2024-08-06 12:37:14,737 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 4
-2024-08-06 12:37:14,738 - DataManager - INFO - Loading state from disk for episode 0, step 5
-2024-08-06 12:37:14,748 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 5
-2024-08-06 12:37:14,827 - DataManager - INFO - Updating state at timestamp: 2024-08-06 12:37:14.827893
-2024-08-06 12:37:14,848 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.827893
-2024-08-06 12:37:14,848 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-06 12:37:14,865 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-06 12:37:14,865 - DataManager - INFO - Retrieved current state: 2024-08-06 12:37:14.827893
-2024-08-06 12:37:14,865 - DataManager - INFO - Retrieved current state: None
-2024-08-06 12:37:14,865 - DataManager - INFO - Loading state from disk for episode 0, step 1
-2024-08-06 12:37:14,888 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 1
-2024-08-06 12:37:15,168 - DataManager - INFO - Loading state from disk for episode 999, step 0
-2024-08-06 12:37:15,168 - DataManager - WARNING - Failed to load state from disk for episode 999, step 0
+Log file cleared and reinitialized on 2024-08-07 10:21:16.799343
+2024-08-07 10:21:16,823 - DataManager - INFO - ========================================
+2024-08-07 10:21:16,823 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:16.822962
+2024-08-07 10:21:16,823 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:16,851 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:16,852 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:16,853 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:16.822962
+2024-08-07 10:21:16,853 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:16,854 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:16,855 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:16,855 - DataManager - INFO - ========================================
+2024-08-07 10:21:16,867 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:16,867 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:16,869 - DataManager - INFO - State array: (0,)
+2024-08-07 10:21:16,882 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:16,882 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:16,882 - DataManager - INFO - State array: (0,)
+2024-08-07 10:21:16,883 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:16,974 - DataManager - INFO - ========================================
+2024-08-07 10:21:16,974 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:16.974855
+2024-08-07 10:21:16,974 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:16,982 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:16,982 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:16,983 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:16.974855
+2024-08-07 10:21:16,983 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:16,984 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:16,984 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:16,984 - DataManager - INFO - ========================================
+2024-08-07 10:21:16,985 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:16,985 - DataManager - INFO - State array: (100, 100, 6)
+2024-08-07 10:21:17,317 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:17,317 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:17,319 - DataManager - INFO - State array: (0,)
+2024-08-07 10:21:17,319 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:17,319 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:17,419 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,419 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.419361
+2024-08-07 10:21:17,419 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:17,426 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:17,426 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:17,429 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.419361
+2024-08-07 10:21:17,429 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:17,430 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:17,430 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:17,430 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,430 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:17,431 - DataManager - INFO - State array: (100, 100, 6)
+2024-08-07 10:21:17,527 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,527 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.527199
+2024-08-07 10:21:17,527 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:17,534 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:17,536 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:17,537 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.527199
+2024-08-07 10:21:17,537 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:17,538 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:17,538 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:17,538 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,539 - DataManager - INFO - Retrieved current state: 2024-08-07 10:21:17.527199
+2024-08-07 10:21:17,586 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.542683
+2024-08-07 10:21:17,586 - DataManager - INFO - Saving state to disk for episode 1, step 1
+2024-08-07 10:21:17,612 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_1\step_1\state.json
+2024-08-07 10:21:17,613 - DataManager - INFO - Loading state from disk for episode 1, step 0
+2024-08-07 10:21:17,613 - DataManager - WARNING - Failed to load state from disk for episode 1, step 0
+2024-08-07 10:21:17,627 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,627 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.627741
+2024-08-07 10:21:17,627 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:17,640 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:17,641 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:17,642 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.627741
+2024-08-07 10:21:17,642 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:17,645 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:17,645 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:17,645 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,751 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,751 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.751884
+2024-08-07 10:21:17,751 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:17,757 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:17,757 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:17,759 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.751884
+2024-08-07 10:21:17,759 - DataManager - INFO - Saving state to disk for episode 0, step 2
+2024-08-07 10:21:17,760 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_2\state.json
+2024-08-07 10:21:17,760 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:17,760 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,774 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:17,774 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:17,774 - DataManager - INFO - State array: (0,)
+2024-08-07 10:21:17,775 - DataManager - INFO - Retrieved current state: None
+2024-08-07 10:21:17,871 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,871 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.871822
+2024-08-07 10:21:17,872 - DataManager - INFO - Calculating state metrics
+2024-08-07 10:21:17,877 - DataManager - INFO - State metrics calculated and updated
+2024-08-07 10:21:17,879 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
+2024-08-07 10:21:17,880 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.871822
+2024-08-07 10:21:17,880 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-07 10:21:17,882 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-07 10:21:17,882 - DataManager - INFO - State updated and saved to disk
+2024-08-07 10:21:17,882 - DataManager - INFO - ========================================
+2024-08-07 10:21:17,883 - DataManager - INFO - Converting state to array
+2024-08-07 10:21:17,883 - DataManager - INFO - State array: (100, 100, 6)

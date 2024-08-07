@@ -1,1 +1,140 @@
-Log file cleared and reinitialized on 2024-08-06 12:37:14.421907
+Log file cleared and reinitialized on 2024-08-07 10:21:16.800355
+2024-08-07 10:21:16,823 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:16,824 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:16,824 - GeoSpatialManager - INFO - Fire intensity path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\flin.tif
+2024-08-07 10:21:16,824 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:16,824 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:16,837 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:16,850 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\flin.tif
+2024-08-07 10:21:16,851 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:16,851 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:16,851 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:16,851 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:16,851 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:16,884 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:16,884 - GeoSpatialManager - INFO - Fireline coordinates: [(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)]
+2024-08-07 10:21:16,903 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:16,905 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:16,905 - GeoSpatialManager - INFO - Fireline coordinates: [(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)]
+2024-08-07 10:21:16,923 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:16,924 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:16,924 - GeoSpatialManager - INFO - Fireline coordinates: [(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)]
+2024-08-07 10:21:16,940 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:16,941 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:16,941 - GeoSpatialManager - INFO - Fireline coordinates: [(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)]
+2024-08-07 10:21:16,958 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:16,959 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:16,959 - GeoSpatialManager - INFO - Fireline coordinates: [(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)]
+2024-08-07 10:21:16,973 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:16,974 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:16,974 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:16,974 - GeoSpatialManager - INFO - Fire intensity path: 
+2024-08-07 10:21:16,974 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:16,974 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:16,980 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:16,981 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:16,981 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:16,981 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:16,981 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:16,982 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:17,320 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,320 - GeoSpatialManager - INFO - Fireline coordinates: [(20, 17), (19, 17), (18, 17)]
+2024-08-07 10:21:17,342 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,342 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,343 - GeoSpatialManager - INFO - Fireline coordinates: [(20, 17), (19, 17), (18, 17)]
+2024-08-07 10:21:17,362 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,362 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,362 - GeoSpatialManager - INFO - Fireline coordinates: [(20, 17), (19, 17), (18, 17)]
+2024-08-07 10:21:17,383 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,383 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,383 - GeoSpatialManager - INFO - Fireline coordinates: [(20, 17), (19, 17), (18, 17)]
+2024-08-07 10:21:17,401 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,402 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,402 - GeoSpatialManager - INFO - Fireline coordinates: [(20, 17), (19, 17), (18, 17)]
+2024-08-07 10:21:17,418 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,419 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:17,419 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,419 - GeoSpatialManager - INFO - Fire intensity path: 
+2024-08-07 10:21:17,419 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:17,419 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:17,424 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,425 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:17,425 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:17,425 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:17,425 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:17,425 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:17,528 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:17,528 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,528 - GeoSpatialManager - INFO - Fire intensity path: 
+2024-08-07 10:21:17,528 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:17,528 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:17,532 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,534 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:17,534 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:17,534 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:17,534 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:17,534 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:17,629 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:17,629 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,629 - GeoSpatialManager - INFO - Fire intensity path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\flin.tif
+2024-08-07 10:21:17,629 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:17,629 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:17,633 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,639 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\flin.tif
+2024-08-07 10:21:17,640 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:17,640 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:17,640 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:17,640 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:17,640 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:17,647 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,647 - GeoSpatialManager - INFO - Fireline coordinates: [(1, 1), (2, 2), (3, 3)]
+2024-08-07 10:21:17,671 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,671 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,672 - GeoSpatialManager - INFO - Fireline coordinates: [(1, 1), (2, 2), (3, 3)]
+2024-08-07 10:21:17,693 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,694 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,694 - GeoSpatialManager - INFO - Fireline coordinates: [(1, 1), (2, 2), (3, 3)]
+2024-08-07 10:21:17,715 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,716 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,716 - GeoSpatialManager - INFO - Fireline coordinates: [(1, 1), (2, 2), (3, 3)]
+2024-08-07 10:21:17,735 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,735 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,735 - GeoSpatialManager - INFO - Fireline coordinates: [(1, 1), (2, 2), (3, 3)]
+2024-08-07 10:21:17,751 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,753 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:17,753 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,753 - GeoSpatialManager - INFO - Fire intensity path: 
+2024-08-07 10:21:17,753 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:17,753 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:17,756 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,757 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:17,757 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:17,757 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:17,757 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:17,757 - GeoSpatialManager - WARNING - Please check the input files and calculation functions
+2024-08-07 10:21:17,776 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,776 - GeoSpatialManager - INFO - Fireline coordinates: [(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)]
+2024-08-07 10:21:17,790 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\fbfm40.tif
+2024-08-07 10:21:17,790 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,790 - GeoSpatialManager - INFO - Fireline coordinates: [(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)]
+2024-08-07 10:21:17,812 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbd.tif
+2024-08-07 10:21:17,812 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,812 - GeoSpatialManager - INFO - Fireline coordinates: [(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)]
+2024-08-07 10:21:17,833 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cbh.tif
+2024-08-07 10:21:17,833 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,833 - GeoSpatialManager - INFO - Fireline coordinates: [(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)]
+2024-08-07 10:21:17,854 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\ch.tif
+2024-08-07 10:21:17,854 - GeoSpatialManager - INFO - Updating fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,854 - GeoSpatialManager - INFO - Fireline coordinates: [(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)]
+2024-08-07 10:21:17,871 - GeoSpatialManager - INFO - Successfully updated fuel file: data\mock\inputs\cc.tif
+2024-08-07 10:21:17,872 - GeoSpatialManager - INFO - [calculate_state_metrics]
+2024-08-07 10:21:17,872 - GeoSpatialManager - INFO - Time of arrival path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,872 - GeoSpatialManager - INFO - Fire intensity path: 
+2024-08-07 10:21:17,872 - GeoSpatialManager - INFO - Flame length path: 
+2024-08-07 10:21:17,872 - GeoSpatialManager - INFO - Spread rate path: C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\spread_rate.tif
+2024-08-07 10:21:17,876 - GeoSpatialManager - INFO - Loaded GeoTIFF from C:\Users\mason\Desktop\misc\overseer\data\mock\outputs\time_of_arrival.tif
+2024-08-07 10:21:17,877 - GeoSpatialManager - ERROR - Failed to load GeoTIFF from : : No such file or directory
+2024-08-07 10:21:17,877 - GeoSpatialManager - WARNING - Error calculating state metrics: : No such file or directory
+2024-08-07 10:21:17,877 - GeoSpatialManager - WARNING - Returning SimulationMetrics with all zeros
+2024-08-07 10:21:17,877 - GeoSpatialManager - WARNING - This may indicate a problem with input data or calculation methods
+2024-08-07 10:21:17,877 - GeoSpatialManager - WARNING - Please check the input files and calculation functions

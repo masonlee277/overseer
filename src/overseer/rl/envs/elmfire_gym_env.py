@@ -31,9 +31,9 @@ class ElmfireGymEnv(gym.Env):
         self.config = OverseerConfig(config_path)
 
         #####################################
-        self.config_manager = ElmfireConfigManager(self.config)
         self.data_manager = DataManager(self.config)
-        
+        self.config_manager = ElmfireConfigManager(self.config, self.data_manager)
+
         self.sim_manager = SimulationManager(
             self.config, 
             self.config_manager, 
@@ -43,11 +43,11 @@ class ElmfireGymEnv(gym.Env):
 
 
 
-        self.reward_manager = RewardManager(self.config)
+        self.reward_manager = RewardManager(self.config, self.data_manager)
         
         self.observation_space = ObservationSpace(self.config).space
-        self.action_space = ActionSpace(self.config).space
-        
+        self.action_space = ActionSpace(self.config, self.data_manager)
+
         self.state_encoder = StateEncoder(self.config)
         
         self.current_episode = 0
@@ -64,8 +64,7 @@ class ElmfireGymEnv(gym.Env):
         self.config_manager.initialize()
         self.data_manager.reset()
         
-        initial_state = self.sim_manager.run_simulation()
-        self.data_manager.save_simulation_state(initial_state)
+        initial_state = self.sim_manager.get_state()
         
         self.current_episode += 1
         self.current_step = 0
@@ -77,82 +76,83 @@ class ElmfireGymEnv(gym.Env):
             action=None,  # No action taken yet
             reward=0.0,
             next_state=initial_state,
-            simulation_result=None,  # Will be filled after the first step
             done=False
         )
         
-        encoded_state = self.state_encoder.encode(self.data_manager.get_current_state().get_raw_data())
-        
+        #encoded_state = self.state_encoder.encode(self.data_manager.get_current_state().get_raw_data())
+        encoded_state = self.data_manager.state_to_array()
         self.logger.info("Environment reset complete")
-        return encoded_state, {}
+        #log the type of the encoded state
+        self.logger.info(f"Type of encoded state: {type(encoded_state)}")
+        return encoded_state
     
+
     def step(self, action: Any) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         self.logger.info(f"Taking step with action: {action}")
         
+        # Convert the raw action to an Action object
+        action_obj = self.action_space.create_action(action)
+        self.logger.info(f"Converted action: {action_obj}")
+
         # Create an EpisodeStep for the current action
         current_state = self.data_manager.get_current_state()
-        episode_step = EpisodeStep(
-            step=self.current_step,
-            state=current_state,
-            action=action,
-            reward=0.0,  # Reward will be calculated after applying the action
-            next_state=None,  # To be filled after applying the action
-            simulation_result=None,  # To be filled after applying the action
-            done=False
-        )
         
         # Apply the action and get simulation results
-        simulation_results = self.sim_manager.apply_action(action)
-        
-        # Update the episode step with the new state and simulation results
-        episode_step.next_state = self.data_manager.get_current_state()
-        episode_step.simulation_result = simulation_results
-        
-        # Save the simulation state
-        self.data_manager.save_simulation_state(simulation_results)
+        next_state, done = self.sim_manager.apply_action(action_obj)
+
+
+
         
         # Encode the next state
-        encoded_next_state = self.state_encoder.encode(episode_step.next_state.get_raw_data())
-        
+        #encoded_next_state = self.state_encoder.encode(next_state.get_raw_data())
+        #convert next state to array
+        encoded_next_state = self.data_manager.state_to_array(next_state)
         # Calculate the reward
-        reward = self.reward_manager.calculate_reward(episode_step.next_state)
+        reward = self.reward_manager.calculate_reward(next_state)
         
+
+        self.data_manager.add_step_to_current_episode(
+            state=current_state,
+            action=action_obj,
+            reward=reward,
+            next_state=next_state,
+            done=done
+        )
         # Check termination and truncation conditions
-        terminated = self._check_termination(episode_step.next_state)
-        truncated = self._check_truncation(episode_step.next_state)
         
         # Gather additional info
-        info = self._get_info(episode_step.next_state)
+        info = self._get_info(next_state)
         
         # Update RL metrics
         rl_metrics = {
             "reward": reward,
-            "terminated": terminated,
-            "truncated": truncated,
+            "terminated": done,
         }
+        terminated=done
+
         self.data_manager.update_rl_metrics(self.current_episode, self.current_step, rl_metrics)
         self.current_step += 1
         
-        self.logger.info(f"Step complete. Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}")
-        return encoded_next_state, reward, terminated, truncated, info
+        self.logger.info(f"Step complete. Reward: {reward}, Terminated: {terminated}")
+        return encoded_next_state, reward, terminated, info
 
-
-    def _check_termination(self, state: State) -> bool:
-        self.logger.debug("Checking termination condition")
-        total_area = self.config.get('total_area', 10000)
-        return state.get_basic_stats()['burned_area'] > 0.5 * total_area
-    
-    def _check_truncation(self, state: State) -> bool:
-        self.logger.debug("Checking truncation condition")
-        return state.get_raw_data()['timestamp'] > 24 * 3600
-    
-    def _get_info(self, state: State) -> Dict[str, Any]:
+    def _get_info(self, state: SimulationState) -> Dict[str, Any]:
         self.logger.debug("Gathering additional state information")
+        current_state = self.data_manager.get_current_state()
+        
+        if current_state is None:
+            self.logger.warning("No current state available for info gathering")
+            return {}
+
         return {
+            "burned_area": current_state.metrics.burned_area,
+            "fire_perimeter_length": current_state.metrics.fire_perimeter_length,
+            "containment_percentage": current_state.metrics.containment_percentage,
+            "execution_time": current_state.metrics.execution_time,
             "fire_growth_rate": self.data_manager.get_fire_growth_rate(3600),
-            "resources_used": sum(state.get_raw_data()['resources_deployed'].values()),
-            "current_wind_speed": state.get_raw_data()['wind_speed'],
-            "current_wind_direction": state.get_raw_data()['wind_direction'],
+            "resources_used": sum(current_state.resources.values()),
+            "current_wind_speed": current_state.weather.get('wind_speed', 0),
+            "current_wind_direction": current_state.weather.get('wind_direction', 0),
         }
 
     def get_episode_data(self, episode: int) -> List[Dict[str, Any]]:
@@ -165,7 +165,7 @@ class ElmfireGymEnv(gym.Env):
     
     def close(self):
         self.logger.info("Closing ElmfireGymEnv and cleaning up resources")
-        self.data_manager.close()
+        self.data_manager.reset()
         self.sim_manager.cleanup()
 
     def render(self, mode='human'):

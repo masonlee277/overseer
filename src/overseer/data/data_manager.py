@@ -11,6 +11,8 @@ from datetime import datetime
 import threading
 
 from overseer.utils.logging import OverseerLogger
+from overseer.utils import fix_path
+
 from overseer.config.config import OverseerConfig
 from overseer.data.geospatial_manager import GeoSpatialManager
 from overseer.data.state_manager import StateManager
@@ -139,15 +141,38 @@ class DataManager:
 
 
     def update_state(self, state: SimulationState) -> None:
+        self.logger.info("=" * 40)
         self.logger.info(f"Updating state at timestamp: {state.timestamp}")
+        if state is None:
+            self.logger.warning("State is None. Using Current State")
+            state = self.get_current_state()
+        state = self.calculate_state_metrics(state)
+        self.logger.info(f"State metrics after calculation: {state.metrics}")
         self.state_manager.update_state(state)
         self.save_state_to_disk(state)
+        self.logger.info(f"State updated and saved to disk")
+        self.logger.info("=" * 40)
 
     def get_current_state(self) -> Optional[SimulationState]:
         state = self.state_manager.get_current_state()
         self.logger.info(f"Retrieved current state: {'None' if state is None else state.timestamp}")
         return state
-    
+
+
+    def state_to_array(self, state: Optional[SimulationState] = None) -> np.ndarray:
+        """
+        Convert a SimulationState to a numpy array.
+
+        Args:
+            state (Optional[SimulationState]): The state to convert. If None, use the current state.
+
+        Returns:
+            np.ndarray: A numpy array representation of the state.
+        """
+        self.logger.info("Converting state to array")
+        state_array = self.state_manager.state_to_array(state)
+        self.logger.info(f"State array: {np.shape(state_array)}")
+        return state_array
 
     def get_state_history(self) -> List[SimulationState]:
         """Get the state history from the StateManager."""
@@ -165,7 +190,6 @@ class DataManager:
         """Get the current step number from the StateManager."""
         return self.state_manager.get_current_step()
     
-
     def start_new_episode(self) -> None:
         """Start a new episode using the StateManager."""
         self.state_manager.start_new_episode()
@@ -187,13 +211,64 @@ class DataManager:
     def get_episode(self, episode_id: int) -> Optional[Episode]:
         """Get a specific episode by ID from the StateManager."""
         return self.state_manager.get_episode(episode_id)
+    
+    def add_step_to_current_episode(self, state: SimulationState, action: Action, reward: float, next_state: SimulationState, done: bool) -> None:
+        step = EpisodeStep(
+            step=self.state_manager.update_state_counter(),
+            state=state,
+            action=action,
+            reward=reward,
+            next_state=next_state,
+            done=done
+        )
+        self.state_manager.add_step(step)
+
+
+
+    def calculate_state_metrics(self, state: SimulationState) -> SimulationState:
+        """
+        Calculate and update the simulation metrics for the given state.
+
+        Args:
+            state (SimulationState): The current simulation state.
+
+        Returns:
+            SimulationState: Updated simulation state with new metrics.
+        """
+        self.logger.info("Calculating state metrics")
+        if state is None: # use the current state
+            state = self.get_current_state()
+
+        new_metrics = self.geospatial_manager.calculate_state_metrics(state)
+        
+        # Create a new SimulationState with updated metrics
+        updated_state = SimulationState(
+            timestamp=state.timestamp,
+            config=state.config,
+            paths=state.paths,
+            metrics=new_metrics,
+            save_path=state.save_path,
+            resources=state.resources,
+            weather=state.weather
+        )
+        
+        self.logger.info("State metrics calculated and updated")
+        return updated_state
+    
 
     def get_fire_growth_rate(self, time_interval: float) -> float:
         """Calculate the fire growth rate."""
         current_state = self.get_current_state()
         if current_state is None:
             return 0.0
-        return self.geospatial_manager.calculate_fire_growth_rate(current_state.metrics.fire_intensity, time_interval)
+        
+        toa_path = fix_path(str(current_state.paths.output_paths.time_of_arrival), add_tif=True)
+        if not toa_path:
+            self.logger.error("Invalid or non-existent time of arrival path")
+            return 0.0
+        
+        return self.geospatial_manager.calculate_fire_growth_rate(toa_path, time_interval)
+
 
     def get_resource_efficiency(self) -> float:
         """Calculate the resource efficiency based on the current state."""

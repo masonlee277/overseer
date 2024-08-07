@@ -19,7 +19,9 @@ from rasterio.transform import Affine
 
 from overseer.config.config import OverseerConfig
 from overseer.utils.logging import OverseerLogger
+from overseer.utils import fix_path
 from overseer.data.utils import create_fake_data, visualize_multiple
+from overseer.core.models import SimulationState, SimulationMetrics
 
 class GeoSpatialManager:
     """
@@ -241,6 +243,37 @@ class GeoSpatialManager:
                 layers[layer_name] = self.load_tiff(path)[0]
         return layers
     
+
+    def calculate_fire_growth_rate(self, toa_path: str, time_interval: float) -> float:
+        """
+        Calculate the fire growth rate based on the time of arrival (TOA) data.
+
+        Args:
+            toa_path (str): Path to the time of arrival raster file.
+            time_interval (float): Time interval in seconds to calculate the growth rate.
+
+        Returns:
+            float: Fire growth rate in square meters per second.
+        """
+        try:
+            with rasterio.open(toa_path) as src:
+                toa_data = src.read(1)
+                pixel_area = abs(src.transform.a * src.transform.e)  # Calculate pixel area
+
+            # Calculate the area burned at the start and end of the interval
+            start_area = np.sum(toa_data > 0) * pixel_area
+            end_area = np.sum(toa_data <= time_interval) * pixel_area
+
+            # Calculate the growth rate
+            growth_rate = (end_area - start_area) / time_interval
+
+            return growth_rate
+
+        except Exception as e:
+            self.logger.error(f"Error calculating fire growth rate: {str(e)}")
+            return 0.0
+
+
     def update_raster_with_fireline(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
         """
         Update a raster file by setting values to zero along the fireline coordinates.
@@ -355,32 +388,72 @@ class GeoSpatialManager:
         
         return new_fire
 
-    def generate_action_maskv1(self, fire_intensity: np.ndarray, existing_firelines: np.ndarray, min_distance: int = 1, max_distance: int = 10) -> np.ndarray:
+    def calculate_state_metrics(self, state: SimulationState) -> SimulationMetrics:
         """
-        Generate an action mask based on the current fire perimeter.
+        Calculate simulation metrics based on the current state.
 
         Args:
-            fire_intensity (np.ndarray): Current fire intensity matrix.
-            existing_firelines (np.ndarray): Existing firelines matrix.
-            min_distance (int): Minimum distance from fire to construct firelines.
-            max_distance (int): Maximum distance from fire to construct firelines.
+            state (SimulationState): The current simulation state.
 
         Returns:
-            np.ndarray: Boolean mask where True indicates a valid action.
+            SimulationMetrics: Updated simulation metrics.
         """
-        # Create binary fire map
-        fire_binary = fire_intensity > 0
+        try:
+            #fix all these paths 
+            time_of_arrival_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
+            fire_intensity_path = fix_path(str(state.paths.output_paths.fire_intensity), add_tif=True)
+            flame_length_path = fix_path(str(state.paths.output_paths.flame_length), add_tif=True)
+            spread_rate_path = fix_path(str(state.paths.output_paths.spread_rate), add_tif=True)
 
-        # Create inner boundary (minimum distance)
-        inner_boundary = ndimage.binary_dilation(fire_binary, iterations=min_distance)
+            self.logger.info(f"[calculate_state_metrics]")
+            self.logger.info(f"Time of arrival path: {time_of_arrival_path}")
+            self.logger.info(f"Fire intensity path: {fire_intensity_path}")
+            self.logger.info(f"Flame length path: {flame_length_path}")
+            self.logger.info(f"Spread rate path: {spread_rate_path}")
 
-        # Create outer boundary (maximum distance)
-        outer_boundary = ndimage.binary_dilation(fire_binary, iterations=max_distance)
+        
+            # Load necessary data
+            time_of_arrival, _ = self.load_tiff(str(time_of_arrival_path))
+            fire_intensity, _ = self.load_tiff(str(fire_intensity_path))
+            flame_length, _ = self.load_tiff(str(flame_length_path))
+            spread_rate, _ = self.load_tiff(str(spread_rate_path))
 
-        # Valid area is between inner and outer boundaries, excluding existing firelines
-        valid_area = outer_boundary & ~inner_boundary & (existing_firelines == 0)
+            # Calculate metrics
+            burned_area = np.sum(time_of_arrival > 0) * (self.resolution ** 2)  # in square meters
+            fire_perimeter_length = self.calculate_fire_perimeter(time_of_arrival)
+            containment_percentage = self.calculate_containment_percentage(time_of_arrival)
 
-        return valid_area
+            return SimulationMetrics(
+                burned_area=burned_area,
+                fire_perimeter_length=fire_perimeter_length,
+                containment_percentage=containment_percentage,
+                execution_time=state.metrics.execution_time,
+                performance_metrics=state.metrics.performance_metrics,
+                fire_intensity=fire_intensity
+            )
+        except Exception as e:
+            self.logger.warning(f"Error calculating state metrics: {str(e)}")
+            self.logger.warning("Returning SimulationMetrics with all zeros")
+            self.logger.warning("This may indicate a problem with input data or calculation methods")
+            self.logger.warning("Please check the input files and calculation functions")
+            return SimulationMetrics(
+                burned_area=0.0,
+                fire_perimeter_length=0.0,
+                containment_percentage=0.0,
+                execution_time=0.0,
+                performance_metrics={},
+                fire_intensity=np.zeros((1, 1))
+            )
+
+    def calculate_fire_perimeter(self, time_of_arrival: np.ndarray) -> float:
+        # Implement fire perimeter calculation
+        # This is a placeholder implementation
+        return 0.0 #TODO
+
+    def calculate_containment_percentage(self, time_of_arrival: np.ndarray) -> float:
+        # Implement containment percentage calculation
+        # This is a placeholder implementation
+        return 0.0 #TODO
     
 
     def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
