@@ -87,6 +87,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from pprint import pformat
 import copy
+from pprint import pformat
 
 from overseer.config import OverseerConfig
 from overseer.data.data_manager import DataManager
@@ -123,7 +124,7 @@ class ElmfireConfigManager:
 
         self.elmfire_base_path = self._get_elmfire_base_path()
         self.logger.info(f"ElmfireConfigManager initialized with base path: {self.elmfire_base_path}")
-        self.logger.info(f"Loaded configuration: {self.elmfire_config}")
+        self.logger.info(f"Loaded configuration:\n{pformat(self.elmfire_config, indent=4, width=120, sort_dicts=True)}")
         print(f"Loaded configuration: {pformat(self.elmfire_config, indent=2, width=120)}")  # Add this line for debugging
 
 
