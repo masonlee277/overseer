@@ -102,6 +102,6 @@ overseer_outputs/
 overseer_logs/
 
 # ELMFIRE specific
-elmfire/
-data/
+#elmfire/
+#data/
 
