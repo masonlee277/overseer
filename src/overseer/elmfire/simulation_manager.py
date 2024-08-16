@@ -2,6 +2,8 @@ from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
 from datetime import datetime
 import numpy as np
+import traceback
+from pprint import pformat
 
 from overseer.config.config import OverseerConfig
 from overseer.elmfire.config_manager import ElmfireConfigManager
@@ -163,7 +165,10 @@ class SimulationManager:
 
         except Exception as e:
             self.logger.error(f"Error during simulation run: {str(e)}")
+            self.logger.error("Full traceback:")
+            self.logger.error(traceback.format_exc())
             raise
+
 
 
     def _create_simulation_state_from_result(self, result: SimulationResult, sim_config: SimulationConfig) -> SimulationState:
