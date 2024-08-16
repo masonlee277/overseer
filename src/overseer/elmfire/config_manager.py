@@ -331,8 +331,11 @@ class ElmfireConfigManager:
         
         # Get the base simulation directory
         sim_dir = Path(self.config.get('elmfire_sim_dir', ''))
-        if not sim_dir.is_absolute():
-            sim_dir = Path(os.getcwd()) / sim_dir
+
+        # if not sim_dir.is_absolute():
+        #     self.logger.info(f"Simulation directory is not absolute: {sim_dir}")
+        #     sim_dir = Path(os.getcwd()) / sim_dir
+        self.logger.info(f"Simulation directory is now absolute: {sim_dir}")
 
         # Get the relative fuels directory path from the config
         relative_fuels_dir = Path(self.elmfire_config.get('INPUTS', {}).get('FUELS_AND_TOPOGRAPHY_DIRECTORY', ''))
