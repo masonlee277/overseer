@@ -360,21 +360,21 @@ class ElmfireDataInHandler:
         input_paths = self.get_input_paths()
         
         required_files = [
-            (self.input_dir / input_paths.asp_filename),
-            (self.input_dir / input_paths.cbd_filename),
-            (self.input_dir / input_paths.cbh_filename),
-            (self.input_dir / input_paths.cc_filename),
-            (self.input_dir / input_paths.ch_filename),
-            (self.input_dir / input_paths.dem_filename),
-            (self.input_dir / input_paths.fbfm_filename),
-            (self.input_dir / input_paths.slp_filename),
-            (self.input_dir / input_paths.adj_filename),
-            (self.input_dir / input_paths.phi_filename),
-            (self.input_dir / input_paths.ws_filename),
-            (self.input_dir / input_paths.wd_filename),
-            (self.input_dir / input_paths.m1_filename),
-            (self.input_dir / input_paths.m10_filename),
-            (self.input_dir / input_paths.m100_filename),
+            (self.input_dir / f"{input_paths.asp_filename}.tif"),
+            (self.input_dir / f"{input_paths.cbd_filename}.tif"),
+            (self.input_dir / f"{input_paths.cbh_filename}.tif"),
+            (self.input_dir / f"{input_paths.cc_filename}.tif"),
+            (self.input_dir / f"{input_paths.ch_filename}.tif"),
+            (self.input_dir / f"{input_paths.dem_filename}.tif"),
+            (self.input_dir / f"{input_paths.fbfm_filename}.tif"),
+            (self.input_dir / f"{input_paths.slp_filename}.tif"),
+            (self.input_dir / f"{input_paths.adj_filename}.tif"),
+            (self.input_dir / f"{input_paths.phi_filename}.tif"),
+            (self.input_dir / f"{input_paths.ws_filename}.tif"),
+            (self.input_dir / f"{input_paths.wd_filename}.tif"),
+            (self.input_dir / f"{input_paths.m1_filename}.tif"),
+            (self.input_dir / f"{input_paths.m10_filename}.tif"),
+            (self.input_dir / f"{input_paths.m100_filename}.tif"),
         ]
 
         all_files_exist = True
