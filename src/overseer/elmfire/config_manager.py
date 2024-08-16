@@ -339,7 +339,7 @@ class ElmfireConfigManager:
             self.logger.info(f"Converted to absolute path: {sim_dir}")
 
         # Get the relative inputs directory path from the config
-        relative_inputs_dir = Path(self.elmfire_config.get('directories', {}).get('inputs', ''))
+        relative_inputs_dir = Path(self.config.get('directories', {}).get('inputs', ''))
         self.logger.info(f"Relative inputs directory from config: {relative_inputs_dir}")
         
         # Combine to get the absolute fuels directory path
