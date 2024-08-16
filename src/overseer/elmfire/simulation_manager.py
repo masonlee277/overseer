@@ -6,7 +6,7 @@ import numpy as np
 from overseer.config.config import OverseerConfig
 from overseer.elmfire.config_manager import ElmfireConfigManager
 from overseer.data.data_manager import DataManager
-from overseer.core.models import SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics, Action
+from overseer.core.models import JobStatus, SimulationResult, SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics, Action
 from overseer.utils.logging import OverseerLogger
 from overseer.compute.compute_manager import ComputeManager
 
@@ -85,28 +85,51 @@ class SimulationManager:
         return results, done
     
 
+    # def run_simulation(self, sim_config: SimulationConfig = None) -> SimulationState:
+    #     """
+    #     Run the ELMFIRE simulation using the provided configuration.
+        
+    #     Args:
+    #         sim_config (SimulationConfig, optional): The simulation configuration to use.
+    #             If None, uses self.sim_config. Defaults to None.
+        
+    #     Returns:
+    #         SimulationState: The resulting state after running the simulation.
+    #     """
+    #     self.logger.info("Running ELMFIRE simulation")
+    #     if sim_config is None:
+    #         sim_config = self.sim_config
+    #     # Here you would interface with the ComputeManager to actually run ELMFIRE
+    #     # For now, we'll create a mock simulation state
+    #     mock_state = self._create_mock_simulation_state(sim_config)
+        
+
+    #     self.data_manager.update_state(mock_state)
+    #     return mock_state
+    
     def run_simulation(self, sim_config: SimulationConfig = None) -> SimulationState:
-        """
-        Run the ELMFIRE simulation using the provided configuration.
-        
-        Args:
-            sim_config (SimulationConfig, optional): The simulation configuration to use.
-                If None, uses self.sim_config. Defaults to None.
-        
-        Returns:
-            SimulationState: The resulting state after running the simulation.
-        """
         self.logger.info("Running ELMFIRE simulation")
         if sim_config is None:
             sim_config = self.sim_config
-        # Here you would interface with the ComputeManager to actually run ELMFIRE
-        # For now, we'll create a mock simulation state
-        mock_state = self._create_mock_simulation_state(sim_config)
         
+        # Run the simulation using ComputeManager
+        result = self.compute_manager.submit_simulation()
+        self.logger.info(f"Simulation finished with job ID: {result.job_id}")
+        if result.status == JobStatus.COMPLETED:
+            # Create a SimulationState from the result
+            state = self._create_simulation_state_from_result(result, sim_config)
+            self.data_manager.update_state(state)
+            return state
+        else:
+            self.logger.error(f"Simulation failed with status: {result.status}")
+            print('failed the simulation')
+            return None
 
-        self.data_manager.update_state(mock_state)
-        return mock_state
-    
+    def _create_simulation_state_from_result(self, result: SimulationResult, sim_config: SimulationConfig) -> SimulationState:
+        # Implement this method to create a SimulationState from the SimulationResult
+        # You'll need to parse the output files or use the result data to populate the SimulationState
+        pass
+
     def check_simulation_complete(self, results: SimulationState) -> bool:
         """
         Check if the simulation is complete.

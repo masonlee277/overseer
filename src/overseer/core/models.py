@@ -3,6 +3,8 @@ from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from datetime import datetime
 from pathlib import Path
+from enum import Enum
+
 
 @dataclass
 class InputPaths:
@@ -98,3 +100,24 @@ class Episode:
     steps: List[EpisodeStep]
     total_reward: float
     total_steps: int
+
+
+class JobStatus(Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+
+@dataclass
+class SimulationResult:
+    job_id: str
+    status: JobStatus
+    duration: Optional[float] = None
+    cpu_usage: Optional[float] = None
+    memory_usage: Optional[float] = None
+    exit_code: Optional[int] = None
+    error_message: Optional[str] = None
+

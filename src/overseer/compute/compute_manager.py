@@ -18,35 +18,8 @@ import threading
 
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
-class JobStatus(Enum):
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
+from overseer.core.models import JobStatus, SimulationResult
 
-@dataclass
-class JobResources:
-    cpus: int = 1
-    memory_gb: int = 4
-    time_limit_hours: int = 12
-    gpu: bool = False
-
-@dataclass
-class JobMetrics:
-    start_time: float
-    end_time: float
-    cpu_usage: float
-    memory_usage: float
-    exit_code: int
-
-@dataclass
-class JobInfo:
-    id: str
-    status: JobStatus
-    submit_time: float
-    resources: JobResources
-    metrics: Optional[JobMetrics] = None
 
 
 
@@ -209,15 +182,50 @@ class ComputeManager:
         else:
             raise ValueError(f"Unsupported compute environment: {env_type}")
 
-    def submit_simulation(self) -> str:
+
+    def submit_simulation(self) -> SimulationResult:
         command = f"cd {self.sim_dir} && bash {self.start_script.name}"
         self.logger.info(f"Preparing to submit simulation with command: {command}")
         
-        resources = JobResources(**self.config.get('compute_resources', {}))
-        job_id = self.environment.submit_job(command)
-        self.logger.info(f"Submitted simulation job {job_id}")
-        return job_id
-    
+        try:
+            job_id = self.environment.submit_job(command)
+            self.logger.info(f"Submitted simulation job {job_id}")
+            
+            # Wait for the simulation to complete
+            final_result = self.wait_for_simulation(job_id)
+            return final_result
+        except Exception as e:
+            self.logger.error(f"Error submitting simulation: {str(e)}")
+            return SimulationResult(job_id="", status=JobStatus.FAILED, error_message=str(e))
+
+    def wait_for_simulation(self, job_id: str, check_interval: int = 2) -> SimulationResult:
+        last_print_time = time.time()
+        while True:
+            status = self.check_simulation_status(job_id)
+            if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
+                self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
+                results = self.retrieve_simulation_results(job_id)
+                return results
+            
+            current_time = time.time()
+            if current_time - last_print_time >= 8:
+                self.logger.info(f"Simulation {job_id} is still running...")
+                last_print_time = current_time
+            
+            time.sleep(check_interval)
+            
+    def retrieve_simulation_results(self, job_id: str) -> SimulationResult:
+        results = self.environment.retrieve_results(job_id)
+        self.logger.info(f"Retrieved results for job {job_id}: {json.dumps(results, indent=2)}")
+        return SimulationResult(
+            job_id=job_id,
+            status=JobStatus(results['status']),
+            duration=results.get('duration'),
+            cpu_usage=results.get('cpu_usage'),
+            memory_usage=results.get('memory_usage'),
+            exit_code=results.get('exit_code')
+        )
+
 
     def check_simulation_status(self, job_id: str) -> JobStatus:
         return self.environment.check_job_status(job_id)
@@ -225,32 +233,12 @@ class ComputeManager:
     def cancel_simulation(self, job_id: str) -> bool:
         return self.environment.cancel_job(job_id)
 
-    def retrieve_simulation_results(self, job_id: str) -> Dict[str, Any]:
-        results = self.environment.retrieve_results(job_id)
-        self.logger.info(f"Retrieved results for job {job_id}: {json.dumps(results, indent=2)}")
-        return results
-
-    def wait_for_simulation(self, job_id: str, check_interval: int = 2) -> JobStatus:
-        while True:
-            status = self.check_simulation_status(job_id)
-            if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
-                self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
-                return status
-            time.sleep(check_interval)
-
-    def add_compute_resources(self, resources: JobResources):
-        # This method would be implemented differently for different environments
-        # For now, we'll just log the request
-        self.logger.info(f"Request to add compute resources: {asdict(resources)}")
-        # In a real implementation, you might update a resource pool or
-        # communicate with a cluster management system
 
     def set_log_simulation_output(self, value: bool):
         self.log_simulation_output = value
         if isinstance(self.environment, LocalEnvironment):
             self.environment.log_simulation_output = value
         self.logger.info(f"Simulation output logging set to: {value}")
-
 def main():
     logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
     
@@ -269,43 +257,27 @@ def main():
             sys.exit(1)
 
         # Submit a simulation
-        try:
-            job_id = compute_manager.submit_simulation()
-            logger.info(f"Submitted simulation job with ID: {job_id}")
-        except Exception as e:
-            logger.error(f"Error submitting simulation: {e}")
+        submit_result = compute_manager.submit_simulation()
+        if submit_result.status == JobStatus.FAILED:
+            logger.error(f"Failed to submit simulation: {submit_result.error_message}")
             sys.exit(1)
+        logger.info(f"Submitted simulation job with ID: {submit_result.job_id}")
 
         # Wait for the simulation to complete
-        try:
-            final_status = compute_manager.wait_for_simulation(job_id)
-            logger.info(f"Simulation completed with status: {final_status}")
-        except Exception as e:
-            logger.error(f"Error waiting for simulation to complete: {e}")
-            sys.exit(1)
+        final_result = compute_manager.wait_for_simulation(submit_result.job_id)
+        logger.info(f"Simulation completed with status: {final_result.status}")
 
-        # Retrieve and check the results
-        try:
-            results = compute_manager.retrieve_simulation_results(job_id)
-            if results:
-                logger.info("Simulation results retrieved successfully")
-                logger.debug(f"Results: {json.dumps(results, indent=2)}")
-                
-                if results.get('status') == JobStatus.COMPLETED.value:
-                    logger.info("Simulation completed successfully")
-                else:
-                    logger.warning(f"Simulation did not complete successfully. Status: {results.get('status')}")
-                
-                if 'metrics' in results:
-                    logger.info("Job metrics available")
-                    logger.debug(f"Metrics: {json.dumps(results['metrics'], indent=2)}")
-                else:
-                    logger.warning("No job metrics available")
-            else:
-                logger.warning("No results retrieved for the simulation")
-        except Exception as e:
-            logger.error(f"Error retrieving simulation results: {e}")
-            sys.exit(1)
+        # Log the results
+        if final_result.status == JobStatus.COMPLETED:
+            logger.info("Simulation completed successfully")
+            logger.info(f"Duration: {final_result.duration} seconds")
+            logger.info(f"CPU Usage: {final_result.cpu_usage}%")
+            logger.info(f"Memory Usage: {final_result.memory_usage}%")
+            logger.info(f"Exit Code: {final_result.exit_code}")
+        else:
+            logger.warning(f"Simulation did not complete successfully. Status: {final_result.status}")
+            if final_result.error_message:
+                logger.error(f"Error message: {final_result.error_message}")
 
     except Exception as e:
         logger.critical(f"Unexpected error in main function: {e}")
