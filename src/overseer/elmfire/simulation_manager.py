@@ -265,6 +265,23 @@ class SimulationManager:
         self.logger.info(f"Current State: {self.data_manager.get_current_state()}")
         self.logger.info(f"Metrics: {self.get_simulation_metrics()}")
 
+    def print_simulation_params(self) -> None:
+        """
+        Print a well-formatted summary of the simulation parameters.
+        """
+        formatted_params = self.config_manager.get_formatted_simulation_params()
+        print(formatted_params)
+        self.logger.info("Printed simulation parameters summary")
+
+    def get_simulation_params_summary(self) -> str:
+        """
+        Get a well-formatted summary of the simulation parameters as a string.
+
+        Returns:
+            str: Formatted string of simulation parameters.
+        """
+        return self.config_manager.get_formatted_simulation_params()
+    
     def reset_simulation(self) -> SimulationState:
         """
         Reset the simulation to its initial state.

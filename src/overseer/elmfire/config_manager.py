@@ -537,6 +537,46 @@ class ElmfireConfigManager:
         except Exception as e:
             self.logger.error(f"Error during simulation preparation: {e}")
             raise
+
+
+    def get_formatted_simulation_params(self) -> str:
+        """
+        Generate a well-formatted string of simulation parameters.
+        
+        Returns:
+            str: Formatted string of simulation parameters.
+        """
+        elmfire_path = self._get_elmfire_base_path()
+        sim_config = self.get_config_for_simulation()
+        
+        formatted_output = [
+            "=" * 80,
+            "ELMFIRE Simulation Parameters".center(80),
+            "=" * 80,
+            f"ELMFIRE Directory: {elmfire_path}",
+            "-" * 80,
+            "Simulation Configuration:",
+            "-" * 80
+        ]
+
+        for section, params in sim_config.sections.items():
+            formatted_output.append(f"\n{section}:")
+            for key, value in params.items():
+                formatted_output.append(f"  {key}: {value}")
+
+        formatted_output.extend([
+            "-" * 80,
+            "Input/Output Paths:",
+            "-" * 80
+        ])
+
+        sim_paths = self.get_simulation_paths()
+        for path_type, paths in [("Input Paths", sim_paths.input_paths), ("Output Paths", sim_paths.output_paths)]:
+            formatted_output.append(f"\n{path_type}:")
+            for key, value in paths.__dict__.items():
+                formatted_output.append(f"  {key}: {value}")
+
+        return "\n".join(formatted_output)
 def main():
     """
     Main function to demonstrate the usage of ElmfireConfigManager.
