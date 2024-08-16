@@ -19,6 +19,7 @@ directories:
   inputs: inputs
   outputs: outputs
   data_in: elmfire.data.in
+  start_script: 01-run.sh
 
 use_relative_paths: true
 
@@ -48,8 +49,7 @@ ignition:
     - - 5000
       - 5000
   type: point
-io:
-  data_in_path: ./data/mock/elmfire.data.in
+
 logging:
   file: logs/elmfire.log
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

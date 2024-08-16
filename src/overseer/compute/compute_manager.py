@@ -67,7 +67,7 @@ class LocalEnvironment(ComputeEnvironment):
         self.jobs: Dict[str, JobInfo] = {}
         self.logger = logger
 
-    def submit_job(self, command: str, resources: JobResources) -> str:
+    def submit_job(self, command: str, resources: JobResources, cwd: Path) -> str:
         job_id = str(uuid.uuid4())
         self.logger.info(f"Submitting local job {job_id}")
         
@@ -77,13 +77,32 @@ class LocalEnvironment(ComputeEnvironment):
             
             start_time = time.time()
             try:
-                result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-                job_info.status = JobStatus.COMPLETED
-                exit_code = result.returncode
-            except subprocess.CalledProcessError as e:
+                process = subprocess.Popen(
+                    command,
+                    shell=True,
+                    cwd=cwd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    universal_newlines=True
+                )
+                
+                for line in process.stdout:
+                    self.logger.info(f"Job {job_id} output: {line.strip()}")
+                
+                process.wait()
+                exit_code = process.returncode
+                
+                if exit_code == 0:
+                    job_info.status = JobStatus.COMPLETED
+                else:
+                    job_info.status = JobStatus.FAILED
+                    self.logger.error(f"Job {job_id} failed with exit code {exit_code}")
+            except Exception as e:
                 self.logger.error(f"Job {job_id} failed: {str(e)}")
                 job_info.status = JobStatus.FAILED
-                exit_code = e.returncode
+                exit_code = 1
             finally:
                 end_time = time.time()
                 job_info.metrics = JobMetrics(
@@ -125,90 +144,32 @@ class LocalEnvironment(ComputeEnvironment):
             return job_info.metrics
         raise ValueError(f"No metrics available for job {job_id}")
 
-class SlurmEnvironment(ComputeEnvironment):
-    def __init__(self, logger: OverseerLogger):
-        self.logger = logger
-
-    def submit_job(self, command: str, resources: JobResources) -> str:
-        self.logger.info("Submitting SLURM job")
-        slurm_script = self._generate_slurm_script(command, resources)
-        result = subprocess.run(['sbatch'], input=slurm_script, text=True, capture_output=True, check=True)
-        job_id = result.stdout.strip().split()[-1]
-        self.logger.info(f"Submitted SLURM job {job_id}")
-        return job_id
-
-    def check_job_status(self, job_id: str) -> JobStatus:
-        result = subprocess.run(['squeue', '-h', '-j', job_id, '-o', '%t'], capture_output=True, text=True)
-        slurm_status = result.stdout.strip()
-        if not slurm_status:
-            return JobStatus.COMPLETED
-        elif slurm_status == 'PD':
-            return JobStatus.PENDING
-        elif slurm_status == 'R':
-            return JobStatus.RUNNING
-        else:
-            return JobStatus.FAILED
-
-    def cancel_job(self, job_id: str) -> bool:
-        try:
-            subprocess.run(['scancel', job_id], check=True)
-            return True
-        except subprocess.CalledProcessError:
-            return False
-
-    def retrieve_results(self, job_id: str) -> Dict[str, Any]:
-        metrics = self.get_job_metrics(job_id)
-        return {
-            "job_id": job_id,
-            "status": self.check_job_status(job_id).value,
-            "metrics": asdict(metrics)
-        }
-
-    def get_job_metrics(self, job_id: str) -> JobMetrics:
-        result = subprocess.run(['sacct', '-j', job_id, '--format=Start,End,MaxRSS,ExitCode', '-n'], capture_output=True, text=True)
-        metrics_raw = result.stdout.strip().split()
-        return JobMetrics(
-            start_time=time.mktime(time.strptime(metrics_raw[0], "%Y-%m-%dT%H:%M:%S")),
-            end_time=time.mktime(time.strptime(metrics_raw[1], "%Y-%m-%dT%H:%M:%S")),
-            cpu_usage=0,  # Placeholder, implement actual CPU usage retrieval
-            memory_usage=float(metrics_raw[2][:-1]),  # Remove 'K' from MaxRSS
-            exit_code=int(metrics_raw[3].split(':')[0])
-        )
-
-    def _generate_slurm_script(self, command: str, resources: JobResources) -> str:
-        return f"""#!/bin/bash
-#SBATCH --job-name=elmfire_sim
-#SBATCH --output=elmfire_sim_%j.out
-#SBATCH --error=elmfire_sim_%j.err
-#SBATCH --time={resources.time_limit_hours}:00:00
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task={resources.cpus}
-#SBATCH --mem={resources.memory_gb}G
-{'#SBATCH --gres=gpu:1' if resources.gpu else ''}
-
-{command}
-"""
-
 
 class ComputeManager:
     def __init__(self, config: OverseerConfig):
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.environment = self._get_compute_environment()
+        self.sim_dir = Path(self.config.get('directories', {}).get('elmfire_sim_dir', ''))
+        self.start_script = self.sim_dir / self.config.get('directories', {}).get('start_script', '01-run.sh')
+        
+        if not self.start_script.exists():
+            raise FileNotFoundError(f"Start script not found: {self.start_script}")
+        
+        self.logger.info(f"Initialized ComputeManager with simulation directory: {self.sim_dir}")
+        self.logger.info(f"Using start script: {self.start_script}")
 
     def _get_compute_environment(self) -> ComputeEnvironment:
         env_type = self.config.get('compute_environment', 'local')
         if env_type == 'local':
             return LocalEnvironment(self.logger)
-        elif env_type == 'slurm':
-            return SlurmEnvironment(self.logger)
         else:
             raise ValueError(f"Unsupported compute environment: {env_type}")
 
-    def submit_simulation(self, input_dir: Path, elmfire_version: str) -> str:
-        command = f"elmfire_{elmfire_version} {input_dir}/elmfire.data"
+    def submit_simulation(self) -> str:
+        command = f"bash {self.start_script.name}"
         resources = JobResources(**self.config.get('compute_resources', {}))
-        job_id = self.environment.submit_job(command, resources)
+        job_id = self.environment.submit_job(command, resources, cwd=self.sim_dir)
         self.logger.info(f"Submitted simulation job {job_id}")
         return job_id
 
@@ -227,6 +188,7 @@ class ComputeManager:
         while True:
             status = self.check_simulation_status(job_id)
             if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
+                self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
                 return status
             time.sleep(check_interval)
 
@@ -236,3 +198,48 @@ class ComputeManager:
         self.logger.info(f"Request to add compute resources: {asdict(resources)}")
         # In a real implementation, you might update a resource pool or
         # communicate with a cluster management system
+
+
+def main():
+    # Initialize the configuration
+    config_path = Path(__file__).parent.parent / 'config' / 'elmfire_config.yaml'
+    config = OverseerConfig(config_path)
+
+    # Initialize the ComputeManager
+    try:
+        compute_manager = ComputeManager(config)
+    except FileNotFoundError as e:
+        print(f"Error initializing ComputeManager: {e}")
+        return
+
+    # Submit a simulation
+    job_id = compute_manager.submit_simulation()
+    print(f"Submitted simulation job with ID: {job_id}")
+
+    # Wait for the simulation to complete
+    final_status = compute_manager.wait_for_simulation(job_id)
+    print(f"Simulation completed with status: {final_status}")
+
+    # Retrieve and check the results
+    results = compute_manager.retrieve_simulation_results(job_id)
+    if results:
+        print("Simulation results:")
+        print(json.dumps(results, indent=2))
+        
+        # Check if the job completed successfully
+        if results.get('status') == JobStatus.COMPLETED.value:
+            print("Simulation completed successfully.")
+        else:
+            print(f"Simulation did not complete successfully. Status: {results.get('status')}")
+        
+        # Check if metrics are available
+        if 'metrics' in results:
+            print("Job metrics:")
+            print(json.dumps(results['metrics'], indent=2))
+        else:
+            print("No job metrics available.")
+    else:
+        print("No results retrieved for the simulation.")
+
+if __name__ == "__main__":
+    main()
