@@ -1,99 +1,144 @@
-Log file cleared and reinitialized on 2024-08-07 10:21:16.799343
-2024-08-07 10:21:16,823 - DataManager - INFO - ========================================
-2024-08-07 10:21:16,823 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:16.822962
-2024-08-07 10:21:16,823 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:16,851 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:16,852 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:16,853 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:16.822962
-2024-08-07 10:21:16,853 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,854 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,855 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:16,855 - DataManager - INFO - ========================================
-2024-08-07 10:21:16,867 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:16,867 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:16,869 - DataManager - INFO - State array: (0,)
-2024-08-07 10:21:16,882 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:16,882 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:16,882 - DataManager - INFO - State array: (0,)
-2024-08-07 10:21:16,883 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:16,974 - DataManager - INFO - ========================================
-2024-08-07 10:21:16,974 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:16.974855
-2024-08-07 10:21:16,974 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:16,982 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:16,982 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:16,983 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:16.974855
-2024-08-07 10:21:16,983 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,984 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,984 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:16,984 - DataManager - INFO - ========================================
-2024-08-07 10:21:16,985 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:16,985 - DataManager - INFO - State array: (100, 100, 6)
-2024-08-07 10:21:17,317 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:17,317 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:17,319 - DataManager - INFO - State array: (0,)
-2024-08-07 10:21:17,319 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:17,319 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:17,419 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,419 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.419361
-2024-08-07 10:21:17,419 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:17,426 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:17,426 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:17,429 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.419361
-2024-08-07 10:21:17,429 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,430 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,430 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:17,430 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,430 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:17,431 - DataManager - INFO - State array: (100, 100, 6)
-2024-08-07 10:21:17,527 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,527 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.527199
-2024-08-07 10:21:17,527 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:17,534 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:17,536 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:17,537 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.527199
-2024-08-07 10:21:17,537 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,538 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,538 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:17,538 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,539 - DataManager - INFO - Retrieved current state: 2024-08-07 10:21:17.527199
-2024-08-07 10:21:17,586 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.542683
-2024-08-07 10:21:17,586 - DataManager - INFO - Saving state to disk for episode 1, step 1
-2024-08-07 10:21:17,612 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_1\step_1\state.json
-2024-08-07 10:21:17,613 - DataManager - INFO - Loading state from disk for episode 1, step 0
-2024-08-07 10:21:17,613 - DataManager - WARNING - Failed to load state from disk for episode 1, step 0
-2024-08-07 10:21:17,627 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,627 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.627741
-2024-08-07 10:21:17,627 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:17,640 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:17,641 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:17,642 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.627741
-2024-08-07 10:21:17,642 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,645 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,645 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:17,645 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,751 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,751 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.751884
-2024-08-07 10:21:17,751 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:17,757 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:17,757 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:17,759 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.751884
-2024-08-07 10:21:17,759 - DataManager - INFO - Saving state to disk for episode 0, step 2
-2024-08-07 10:21:17,760 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_2\state.json
-2024-08-07 10:21:17,760 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:17,760 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,774 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:17,774 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:17,774 - DataManager - INFO - State array: (0,)
-2024-08-07 10:21:17,775 - DataManager - INFO - Retrieved current state: None
-2024-08-07 10:21:17,871 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,871 - DataManager - INFO - Updating state at timestamp: 2024-08-07 10:21:17.871822
-2024-08-07 10:21:17,872 - DataManager - INFO - Calculating state metrics
-2024-08-07 10:21:17,877 - DataManager - INFO - State metrics calculated and updated
-2024-08-07 10:21:17,879 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=0.0, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={}, fire_intensity=array([[0.]]))
-2024-08-07 10:21:17,880 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-07 10:21:17.871822
-2024-08-07 10:21:17,880 - DataManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,882 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,882 - DataManager - INFO - State updated and saved to disk
-2024-08-07 10:21:17,882 - DataManager - INFO - ========================================
-2024-08-07 10:21:17,883 - DataManager - INFO - Converting state to array
-2024-08-07 10:21:17,883 - DataManager - INFO - State array: (100, 100, 6)
+Log file cleared and reinitialized on 2024-08-08 16:49:08.973344
+2024-08-08 16:49:09,984 - DataManager - INFO - ========================================
+2024-08-08 16:49:09,984 - DataManager - INFO - Updating state at timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:09,984 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,094 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,095 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,126 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,127 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:10,157 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:10,158 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,158 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,158 - DataManager - INFO - DataManager: Attempting to get current state
+2024-08-08 16:49:10,159 - DataManager - INFO - DataManager: Current state retrieved, timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,161 - DataManager - INFO - DataManager: Attempting to get current state
+2024-08-08 16:49:10,161 - DataManager - WARNING - DataManager: Current state is None
+2024-08-08 16:49:10,264 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,264 - DataManager - INFO - Updating state at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,264 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,300 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,300 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,326 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,327 - DataManager - INFO - Saving state to disk for episode 3, step 1
+2024-08-08 16:49:10,355 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_3\step_1\state.json
+2024-08-08 16:49:10,355 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,355 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,355 - DataManager - INFO - DataManager: Attempting to get current state
+2024-08-08 16:49:10,356 - DataManager - INFO - DataManager: Current state retrieved, timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,356 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,356 - DataManager - INFO - Saving state to disk for episode 3, step 1
+2024-08-08 16:49:10,374 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_3\step_1\state.json
+2024-08-08 16:49:10,375 - DataManager - INFO - Loading state from disk for episode 0, step 1
+2024-08-08 16:49:10,399 - DataManager - INFO - Successfully loaded state from disk for episode 0, step 1
+2024-08-08 16:49:10,428 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,428 - DataManager - INFO - Updating state at timestamp: 2024-08-08 16:49:10.428477
+2024-08-08 16:49:10,428 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,455 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,455 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=0.0, performance_metrics={'cpu_usage': 50.0, 'memory_usage': 2000.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,478 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:10.428477
+2024-08-08 16:49:10,478 - DataManager - INFO - Saving state to disk for episode 4, step 1
+2024-08-08 16:49:10,509 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_4\step_1\state.json
+2024-08-08 16:49:10,510 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,510 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,511 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,511 - DataManager - INFO - Updating state at timestamp: 2024-08-08 17:49:10.510011
+2024-08-08 16:49:10,511 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,534 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,534 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=60.0, performance_metrics={'cpu_usage': 51.0, 'memory_usage': 2100.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,555 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 17:49:10.510011
+2024-08-08 16:49:10,555 - DataManager - INFO - Saving state to disk for episode 4, step 2
+2024-08-08 16:49:10,575 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_4\step_2\state.json
+2024-08-08 16:49:10,575 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,575 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,576 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,576 - DataManager - INFO - Updating state at timestamp: 2024-08-08 18:49:10.576048
+2024-08-08 16:49:10,576 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,603 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,604 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=120.0, performance_metrics={'cpu_usage': 52.0, 'memory_usage': 2200.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,624 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 18:49:10.576048
+2024-08-08 16:49:10,624 - DataManager - INFO - Saving state to disk for episode 4, step 3
+2024-08-08 16:49:10,643 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_4\step_3\state.json
+2024-08-08 16:49:10,643 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,643 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,644 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,644 - DataManager - INFO - Updating state at timestamp: 2024-08-08 19:49:10.644491
+2024-08-08 16:49:10,645 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,672 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,672 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=180.0, performance_metrics={'cpu_usage': 53.0, 'memory_usage': 2300.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,702 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 19:49:10.644491
+2024-08-08 16:49:10,702 - DataManager - INFO - Saving state to disk for episode 4, step 4
+2024-08-08 16:49:10,721 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_4\step_4\state.json
+2024-08-08 16:49:10,722 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,722 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,722 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,722 - DataManager - INFO - Updating state at timestamp: 2024-08-08 20:49:10.722929
+2024-08-08 16:49:10,722 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,757 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,757 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=240.0, performance_metrics={'cpu_usage': 54.0, 'memory_usage': 2400.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:10,779 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 20:49:10.722929
+2024-08-08 16:49:10,779 - DataManager - INFO - Saving state to disk for episode 4, step 5
+2024-08-08 16:49:10,795 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_4\step_5\state.json
+2024-08-08 16:49:10,795 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:10,795 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,795 - DataManager - INFO - Loading state from disk for episode 4, step 1
+2024-08-08 16:49:10,825 - DataManager - INFO - Successfully loaded state from disk for episode 4, step 1
+2024-08-08 16:49:10,973 - DataManager - INFO - ========================================
+2024-08-08 16:49:10,973 - DataManager - INFO - Updating state at timestamp: 2024-08-08 16:49:10.973064
+2024-08-08 16:49:10,973 - DataManager - INFO - Calculating state metrics
+2024-08-08 16:49:10,997 - DataManager - INFO - State metrics calculated and updated
+2024-08-08 16:49:10,998 - DataManager - INFO - State metrics after calculation: SimulationMetrics(burned_area=9000000, fire_perimeter_length=0.0, containment_percentage=0.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]]))
+2024-08-08 16:49:11,027 - DataManager - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:10.973064
+2024-08-08 16:49:11,027 - DataManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:11,049 - DataManager - INFO - Saved state to disk at path: data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:11,050 - DataManager - INFO - State updated and saved to disk
+2024-08-08 16:49:11,050 - DataManager - INFO - ========================================
+2024-08-08 16:49:11,050 - DataManager - INFO - DataManager: Attempting to get current state
+2024-08-08 16:49:11,051 - DataManager - INFO - DataManager: Current state retrieved, timestamp: 2024-08-08 16:49:10.973064

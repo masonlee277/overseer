@@ -1,29 +1,38 @@
-Log file cleared and reinitialized on 2024-08-07 10:21:16.803518
-2024-08-07 10:21:16,803 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
-2024-08-07 10:21:16,817 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
-2024-08-07 10:21:16,859 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
-2024-08-07 10:21:16,864 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
-2024-08-07 10:21:16,865 - ElmfireGymEnv - INFO - Resetting environment
-2024-08-07 10:21:16,869 - ElmfireGymEnv - INFO - Environment reset complete
-2024-08-07 10:21:16,869 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
-2024-08-07 10:21:16,871 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
-2024-08-07 10:21:16,877 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
-2024-08-07 10:21:16,877 - ElmfireGymEnv - INFO - Resetting environment
-2024-08-07 10:21:16,882 - ElmfireGymEnv - INFO - Environment reset complete
-2024-08-07 10:21:16,882 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
-2024-08-07 10:21:16,882 - ElmfireGymEnv - INFO - Taking step with action: [98 56  4  5]
-2024-08-07 10:21:16,883 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(98, 56), (98, 55), (98, 54), (98, 53), (98, 52)])
-2024-08-07 10:21:17,309 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
-2024-08-07 10:21:17,314 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
-2024-08-07 10:21:17,315 - ElmfireGymEnv - INFO - Resetting environment
-2024-08-07 10:21:17,319 - ElmfireGymEnv - INFO - Environment reset complete
-2024-08-07 10:21:17,319 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
-2024-08-07 10:21:17,319 - ElmfireGymEnv - INFO - Taking step with action: [20 17  6  3]
-2024-08-07 10:21:17,319 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(20, 17), (19, 17), (18, 17)])
-2024-08-07 10:21:17,763 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
-2024-08-07 10:21:17,770 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
-2024-08-07 10:21:17,770 - ElmfireGymEnv - INFO - Resetting environment
-2024-08-07 10:21:17,774 - ElmfireGymEnv - INFO - Environment reset complete
-2024-08-07 10:21:17,774 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
-2024-08-07 10:21:17,774 - ElmfireGymEnv - INFO - Taking step with action: [26 68  5 10]
-2024-08-07 10:21:17,775 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(26, 68), (25, 67), (24, 66), (23, 65), (22, 64), (21, 63), (20, 62), (19, 61), (18, 60), (17, 59)])
+Log file cleared and reinitialized on 2024-08-08 16:48:48.646385
+2024-08-08 16:48:48,648 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
+2024-08-08 16:48:48,720 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
+2024-08-08 16:48:48,940 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
+2024-08-08 16:48:48,956 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
+2024-08-08 16:48:48,959 - ElmfireGymEnv - INFO - Resetting environment
+2024-08-08 16:48:49,035 - ElmfireGymEnv - INFO - Environment reset complete
+2024-08-08 16:48:49,035 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
+2024-08-08 16:48:49,044 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
+2024-08-08 16:48:49,065 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
+2024-08-08 16:48:49,066 - ElmfireGymEnv - INFO - Resetting environment
+2024-08-08 16:48:49,138 - ElmfireGymEnv - INFO - Environment reset complete
+2024-08-08 16:48:49,139 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
+2024-08-08 16:48:49,140 - ElmfireGymEnv - INFO - Taking step with action: [78 98  0  1]
+2024-08-08 16:48:49,141 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(78, 98)])
+2024-08-08 16:48:49,474 - ElmfireGymEnv - INFO - Step complete. Reward: -1000.0, Terminated: False
+2024-08-08 16:48:49,487 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
+2024-08-08 16:48:49,504 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
+2024-08-08 16:48:49,506 - ElmfireGymEnv - INFO - Resetting environment
+2024-08-08 16:48:49,562 - ElmfireGymEnv - INFO - Environment reset complete
+2024-08-08 16:48:49,562 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
+2024-08-08 16:48:49,563 - ElmfireGymEnv - INFO - Taking step with action: [71 33  4  1]
+2024-08-08 16:48:49,564 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(71, 33)])
+2024-08-08 16:48:49,847 - ElmfireGymEnv - INFO - Step complete. Reward: -1000.0, Terminated: False
+2024-08-08 16:48:50,584 - ElmfireGymEnv - INFO - Initializing ElmfireGymEnv
+2024-08-08 16:48:50,596 - ElmfireGymEnv - INFO - ElmfireGymEnv initialized successfully
+2024-08-08 16:48:50,599 - ElmfireGymEnv - INFO - Resetting environment
+2024-08-08 16:48:50,636 - ElmfireGymEnv - INFO - Environment reset complete
+2024-08-08 16:48:50,636 - ElmfireGymEnv - INFO - Type of encoded state: <class 'numpy.ndarray'>
+2024-08-08 16:48:50,636 - ElmfireGymEnv - INFO - Taking step with action: [15 89  5  4]
+2024-08-08 16:48:50,636 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(15, 89), (14, 88), (13, 87), (12, 86)])
+2024-08-08 16:48:50,913 - ElmfireGymEnv - INFO - Step complete. Reward: -1000.0, Terminated: False
+2024-08-08 16:48:50,915 - ElmfireGymEnv - INFO - Taking step with action: [32 61  6  3]
+2024-08-08 16:48:50,915 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(32, 61), (31, 61), (30, 61)])
+2024-08-08 16:48:51,171 - ElmfireGymEnv - INFO - Step complete. Reward: -1000.0, Terminated: False
+2024-08-08 16:48:51,172 - ElmfireGymEnv - INFO - Taking step with action: [14  1  7  4]
+2024-08-08 16:48:51,172 - ElmfireGymEnv - INFO - Converted action: Action(fireline_coordinates=[(14, 1), (13, 2), (12, 3), (11, 4)])
+2024-08-08 16:48:51,457 - ElmfireGymEnv - INFO - Step complete. Reward: -1000.0, Terminated: False

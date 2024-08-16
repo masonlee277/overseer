@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-
+import traceback
 import rasterio
 import numpy as np
 import geopandas as gpd
@@ -53,7 +53,7 @@ class GeoSpatialManager:
             with rasterio.open(filepath) as src:
                 data = src.read(1)  # Assuming single band
                 metadata = src.meta
-            self.logger.info(f"Loaded GeoTIFF from {filepath}")
+            self.logger.info(f"Successfully loaded GeoTIFF from {filepath}")
             return data, metadata
         except Exception as e:
             self.logger.error(f"Failed to load GeoTIFF from {filepath}: {str(e)}")
@@ -390,7 +390,7 @@ class GeoSpatialManager:
 
     def calculate_state_metrics(self, state: SimulationState) -> SimulationMetrics:
         """
-        Calculate simulation metrics based on the current state.
+        Calculate simulation metrics based on the current simulation state.
 
         Args:
             state (SimulationState): The current simulation state.
@@ -398,52 +398,75 @@ class GeoSpatialManager:
         Returns:
             SimulationMetrics: Updated simulation metrics.
         """
+        metrics = SimulationMetrics(
+            burned_area=0.0,
+            fire_perimeter_length=0.0,
+            containment_percentage=0.0,
+            execution_time=state.metrics.execution_time,
+            performance_metrics=state.metrics.performance_metrics,
+            fire_intensity=np.zeros((1, 1))
+        )
+
         try:
-            #fix all these paths 
             time_of_arrival_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
             fire_intensity_path = fix_path(str(state.paths.output_paths.fire_intensity), add_tif=True)
             flame_length_path = fix_path(str(state.paths.output_paths.flame_length), add_tif=True)
             spread_rate_path = fix_path(str(state.paths.output_paths.spread_rate), add_tif=True)
 
-            self.logger.info(f"[calculate_state_metrics]")
-            self.logger.info(f"Time of arrival path: {time_of_arrival_path}")
-            self.logger.info(f"Fire intensity path: {fire_intensity_path}")
-            self.logger.info(f"Flame length path: {flame_length_path}")
-            self.logger.info(f"Spread rate path: {spread_rate_path}")
+            self.logger.info(f"[calculate_state_metrics] Paths:")
+            self.logger.info(f"Time of arrival: {time_of_arrival_path}")
+            self.logger.info(f"Fire intensity: {fire_intensity_path}")
+            self.logger.info(f"Flame length: {flame_length_path}")
+            self.logger.info(f"Spread rate: {spread_rate_path}")
 
-        
             # Load necessary data
-            time_of_arrival, _ = self.load_tiff(str(time_of_arrival_path))
-            fire_intensity, _ = self.load_tiff(str(fire_intensity_path))
-            flame_length, _ = self.load_tiff(str(flame_length_path))
-            spread_rate, _ = self.load_tiff(str(spread_rate_path))
+            for path, name in [
+                (time_of_arrival_path, "Time of arrival"),
+                (fire_intensity_path, "Fire intensity"),
+                (flame_length_path, "Flame length"),
+                (spread_rate_path, "Spread rate")
+            ]:
+                try:
+                    data, _ = self.load_tiff(str(path))
+                    if name == "Time of arrival":
+                        time_of_arrival = data
+                    elif name == "Fire intensity":
+                        fire_intensity = data
+                        metrics.fire_intensity = fire_intensity
+                except Exception as e:
+                    self.logger.warning(f"Error loading {name} data: {str(e)}")
+                    self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+                    self.logger.info(f"Continuing with other calculations...")
+                    continue
 
             # Calculate metrics
-            burned_area = np.sum(time_of_arrival > 0) * (self.resolution ** 2)  # in square meters
-            fire_perimeter_length = self.calculate_fire_perimeter(time_of_arrival)
-            containment_percentage = self.calculate_containment_percentage(time_of_arrival)
+            try:
+                metrics.burned_area = np.sum(time_of_arrival > 0) * (self.resolution ** 2)  # in square meters
+                self.logger.info(f"Calculated burned area: {metrics.burned_area}")
+            except Exception as e:
+                self.logger.warning(f"Error calculating burned area: {str(e)}")
+                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
 
-            return SimulationMetrics(
-                burned_area=burned_area,
-                fire_perimeter_length=fire_perimeter_length,
-                containment_percentage=containment_percentage,
-                execution_time=state.metrics.execution_time,
-                performance_metrics=state.metrics.performance_metrics,
-                fire_intensity=fire_intensity
-            )
+            try:
+                metrics.fire_perimeter_length = self.calculate_fire_perimeter(time_of_arrival)
+                self.logger.info(f"Calculated fire perimeter length: {metrics.fire_perimeter_length}")
+            except Exception as e:
+                self.logger.warning(f"Error calculating fire perimeter length: {str(e)}")
+                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+
+            try:
+                metrics.containment_percentage = self.calculate_containment_percentage(time_of_arrival)
+                self.logger.info(f"Calculated containment percentage: {metrics.containment_percentage}")
+            except Exception as e:
+                self.logger.warning(f"Error calculating containment percentage: {str(e)}")
+                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+
         except Exception as e:
-            self.logger.warning(f"Error calculating state metrics: {str(e)}")
-            self.logger.warning("Returning SimulationMetrics with all zeros")
-            self.logger.warning("This may indicate a problem with input data or calculation methods")
-            self.logger.warning("Please check the input files and calculation functions")
-            return SimulationMetrics(
-                burned_area=0.0,
-                fire_perimeter_length=0.0,
-                containment_percentage=0.0,
-                execution_time=0.0,
-                performance_metrics={},
-                fire_intensity=np.zeros((1, 1))
-            )
+            self.logger.error(f"Unexpected error in calculate_state_metrics: {str(e)}")
+            self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+
+        self.logger.info(f"Final metrics: {metrics}")
+        return metrics
 
     def calculate_fire_perimeter(self, time_of_arrival: np.ndarray) -> float:
         # Implement fire perimeter calculation

@@ -1,179 +1,202 @@
-Log file cleared and reinitialized on 2024-08-07 10:21:16.800355
-2024-08-07 10:21:16,852 - StateManager - INFO - --------------------
-2024-08-07 10:21:16,852 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:16,852 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:16,852 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,852 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,852 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:16.822962
-2024-08-07 10:21:16,853 - StateManager - INFO - --------------------
-2024-08-07 10:21:16,853 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,854 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,854 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:16.822962
-2024-08-07 10:21:16,867 - StateManager - INFO - Resetting StateManager
-2024-08-07 10:21:16,867 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:16,867 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:16,867 - StateManager - INFO - StateManager converting state to array: None
-2024-08-07 10:21:16,869 - StateManager - WARNING - No state available to convert to array.
-2024-08-07 10:21:16,881 - StateManager - INFO - Resetting StateManager
-2024-08-07 10:21:16,882 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:16,882 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:16,882 - StateManager - INFO - StateManager converting state to array: None
-2024-08-07 10:21:16,882 - StateManager - WARNING - No state available to convert to array.
-2024-08-07 10:21:16,883 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:16,982 - StateManager - INFO - --------------------
-2024-08-07 10:21:16,982 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:16,982 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:16,982 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,982 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,982 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:16.974855
-2024-08-07 10:21:16,983 - StateManager - INFO - --------------------
-2024-08-07 10:21:16,983 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:16,983 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:16,983 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:16.974855
-2024-08-07 10:21:16,986 - StateManager - INFO - Adding step to episode 0, step 2
-2024-08-07 10:21:16,986 - StateManager - INFO - Creating new episode with ID 0
-2024-08-07 10:21:16,986 - StateManager - INFO - Saving episode step to disk for episode 0, step 2
-2024-08-07 10:21:16,986 - StateManager - INFO - Saving episode step to data\episodes\episode_0\step_2
-2024-08-07 10:21:17,317 - StateManager - INFO - Resetting StateManager
-2024-08-07 10:21:17,317 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,319 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,319 - StateManager - INFO - StateManager converting state to array: None
-2024-08-07 10:21:17,319 - StateManager - WARNING - No state available to convert to array.
-2024-08-07 10:21:17,319 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,319 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,426 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,426 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:17,426 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:17,426 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,426 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,427 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.419361
-2024-08-07 10:21:17,429 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,429 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,429 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,429 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.419361
-2024-08-07 10:21:17,431 - StateManager - INFO - Adding step to episode 0, step 2
-2024-08-07 10:21:17,431 - StateManager - INFO - Creating new episode with ID 0
-2024-08-07 10:21:17,432 - StateManager - INFO - Saving episode step to disk for episode 0, step 2
-2024-08-07 10:21:17,432 - StateManager - INFO - Saving episode step to data\episodes\episode_0\step_2
-2024-08-07 10:21:17,476 - StateManager - INFO - Adding step to episode 1, step 1
-2024-08-07 10:21:17,476 - StateManager - INFO - Saving episode step to disk for episode 1, step 1
-2024-08-07 10:21:17,477 - StateManager - INFO - Saving episode step to data\episodes\episode_1\step_1
-2024-08-07 10:21:17,477 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.476595
-2024-08-07 10:21:17,477 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.476595
-2024-08-07 10:21:17,514 - StateManager - INFO - Retrieving current episode (ID: 1)
-2024-08-07 10:21:17,515 - StateManager - INFO - Current episode found. Total steps: 1
-2024-08-07 10:21:17,515 - StateManager - INFO - Episodes: {1: Episode(episode_id=1, steps=[EpisodeStep(step=1, state=SimulationState(timestamp=datetime.datetime(2024, 8, 7, 10, 21, 17, 476595), config=SimulationConfig(sections={'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': 'data\\mock\\inputs'}, 'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'}}), paths=SimulationPaths(input_paths=InputPaths(fuels_and_topography_directory=WindowsPath('data/mock/inputs'), asp_filename=WindowsPath('data/mock/inputs/asp.tif'), cbd_filename=WindowsPath('data/mock/inputs/cbd.tif'), cbh_filename=WindowsPath('data/mock/inputs/cbh.tif'), cc_filename=WindowsPath('data/mock/inputs/cc.tif'), ch_filename=WindowsPath('data/mock/inputs/ch.tif'), dem_filename=WindowsPath('data/mock/inputs/dem.tif'), fbfm_filename=WindowsPath('data/mock/inputs/fbfm40.tif'), slp_filename=WindowsPath('data/mock/inputs/slp.tif'), adj_filename=WindowsPath('data/mock/inputs/adj.tif'), phi_filename=WindowsPath('data/mock/inputs/new_phi.tif'), weather_directory=WindowsPath('data/mock/inputs'), ws_filename=WindowsPath('data/mock/inputs/ws.tif'), wd_filename=WindowsPath('data/mock/inputs/wd.tif'), m1_filename=WindowsPath('data/mock/inputs/m1.tif'), m10_filename=WindowsPath('data/mock/inputs/m10.tif'), m100_filename=WindowsPath('data/mock/inputs/m100.tif'), fire=WindowsPath('data/mock/inputs/fire.shp'), vegetation=WindowsPath('data/mock/inputs/veg.tif'), elevation=WindowsPath('data/mock/inputs/dem.tif'), wind=WindowsPath('data/mock/inputs/wind.tif'), fuel_moisture=WindowsPath('data/mock/inputs/fuel_moisture.tif')), output_paths=OutputPaths(time_of_arrival=WindowsPath('data/mock/outputs/time_of_arrival.tif'), fire_intensity=WindowsPath('data/mock/outputs/flin.tif'), flame_length=WindowsPath('data/mock/outputs/flame_length.tif'), spread_rate=WindowsPath('data/mock/outputs/spread_rate.tif'))), metrics=SimulationMetrics(burned_area=1000.0, fire_perimeter_length=500.0, containment_percentage=20.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[0.65546167, 0.83604251, 0.23257889, ..., 0.3361214 , 0.71976793,
-        0.19005687],
-       [0.63186717, 0.40833481, 0.3585754 , ..., 0.07904183, 0.01867796,
-        0.27662556],
-       [0.28817979, 0.00443848, 0.85503113, ..., 0.77070736, 0.23195623,
-        0.27224755],
-       ...,
-       [0.8639168 , 0.18777546, 0.29890177, ..., 0.60027939, 0.28417427,
-        0.63583984],
-       [0.16425839, 0.33101503, 0.2357038 , ..., 0.26386387, 0.15249688,
-        0.77893559],
-       [0.09547537, 0.08348746, 0.94872903, ..., 0.46031175, 0.353207  ,
-        0.30423472]])), save_path=WindowsPath('data/mock/save'), resources={'firefighters': 50, 'trucks': 10}, weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}), action=Action(fireline_coordinates=[(1, 1), (2, 2)]), reward=1.0, next_state=SimulationState(timestamp=datetime.datetime(2024, 8, 7, 10, 21, 17, 476595), config=SimulationConfig(sections={'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': 'data\\mock\\inputs'}, 'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'}}), paths=SimulationPaths(input_paths=InputPaths(fuels_and_topography_directory=WindowsPath('data/mock/inputs'), asp_filename=WindowsPath('data/mock/inputs/asp.tif'), cbd_filename=WindowsPath('data/mock/inputs/cbd.tif'), cbh_filename=WindowsPath('data/mock/inputs/cbh.tif'), cc_filename=WindowsPath('data/mock/inputs/cc.tif'), ch_filename=WindowsPath('data/mock/inputs/ch.tif'), dem_filename=WindowsPath('data/mock/inputs/dem.tif'), fbfm_filename=WindowsPath('data/mock/inputs/fbfm40.tif'), slp_filename=WindowsPath('data/mock/inputs/slp.tif'), adj_filename=WindowsPath('data/mock/inputs/adj.tif'), phi_filename=WindowsPath('data/mock/inputs/new_phi.tif'), weather_directory=WindowsPath('data/mock/inputs'), ws_filename=WindowsPath('data/mock/inputs/ws.tif'), wd_filename=WindowsPath('data/mock/inputs/wd.tif'), m1_filename=WindowsPath('data/mock/inputs/m1.tif'), m10_filename=WindowsPath('data/mock/inputs/m10.tif'), m100_filename=WindowsPath('data/mock/inputs/m100.tif'), fire=WindowsPath('data/mock/inputs/fire.shp'), vegetation=WindowsPath('data/mock/inputs/veg.tif'), elevation=WindowsPath('data/mock/inputs/dem.tif'), wind=WindowsPath('data/mock/inputs/wind.tif'), fuel_moisture=WindowsPath('data/mock/inputs/fuel_moisture.tif')), output_paths=OutputPaths(time_of_arrival=WindowsPath('data/mock/outputs/time_of_arrival.tif'), fire_intensity=WindowsPath('data/mock/outputs/flin.tif'), flame_length=WindowsPath('data/mock/outputs/flame_length.tif'), spread_rate=WindowsPath('data/mock/outputs/spread_rate.tif'))), metrics=SimulationMetrics(burned_area=1000.0, fire_perimeter_length=500.0, containment_percentage=20.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[0.65546167, 0.83604251, 0.23257889, ..., 0.3361214 , 0.71976793,
-        0.19005687],
-       [0.63186717, 0.40833481, 0.3585754 , ..., 0.07904183, 0.01867796,
-        0.27662556],
-       [0.28817979, 0.00443848, 0.85503113, ..., 0.77070736, 0.23195623,
-        0.27224755],
-       ...,
-       [0.8639168 , 0.18777546, 0.29890177, ..., 0.60027939, 0.28417427,
-        0.63583984],
-       [0.16425839, 0.33101503, 0.2357038 , ..., 0.26386387, 0.15249688,
-        0.77893559],
-       [0.09547537, 0.08348746, 0.94872903, ..., 0.46031175, 0.353207  ,
-        0.30423472]])), save_path=WindowsPath('data/mock/save'), resources={'firefighters': 50, 'trucks': 10}, weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}), done=False)], total_reward=1.0, total_steps=1)}
-2024-08-07 10:21:17,527 - StateManager - INFO - Resetting StateManager
-2024-08-07 10:21:17,536 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,536 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:17,536 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:17,536 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,536 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,536 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.527199
-2024-08-07 10:21:17,537 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,537 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,538 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,538 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.527199
-2024-08-07 10:21:17,539 - StateManager - INFO - Returning current state with 1 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,543 - StateManager - INFO - Adding step to episode 1, step 1
-2024-08-07 10:21:17,544 - StateManager - INFO - Saving episode step to disk for episode 1, step 1
-2024-08-07 10:21:17,544 - StateManager - INFO - Saving episode step to data\episodes\episode_1\step_1
-2024-08-07 10:21:17,545 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.542683
-2024-08-07 10:21:17,545 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.542683
-2024-08-07 10:21:17,584 - StateManager - INFO - Retrieving current episode (ID: 1)
-2024-08-07 10:21:17,584 - StateManager - INFO - Current episode found. Total steps: 1
-2024-08-07 10:21:17,586 - StateManager - INFO - Episodes: {1: Episode(episode_id=1, steps=[EpisodeStep(step=1, state=SimulationState(timestamp=datetime.datetime(2024, 8, 7, 10, 21, 17, 542683), config=SimulationConfig(sections={'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': 'data\\mock\\inputs'}, 'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'}}), paths=SimulationPaths(input_paths=InputPaths(fuels_and_topography_directory=WindowsPath('data/mock/inputs'), asp_filename=WindowsPath('data/mock/inputs/asp.tif'), cbd_filename=WindowsPath('data/mock/inputs/cbd.tif'), cbh_filename=WindowsPath('data/mock/inputs/cbh.tif'), cc_filename=WindowsPath('data/mock/inputs/cc.tif'), ch_filename=WindowsPath('data/mock/inputs/ch.tif'), dem_filename=WindowsPath('data/mock/inputs/dem.tif'), fbfm_filename=WindowsPath('data/mock/inputs/fbfm40.tif'), slp_filename=WindowsPath('data/mock/inputs/slp.tif'), adj_filename=WindowsPath('data/mock/inputs/adj.tif'), phi_filename=WindowsPath('data/mock/inputs/new_phi.tif'), weather_directory=WindowsPath('data/mock/inputs'), ws_filename=WindowsPath('data/mock/inputs/ws.tif'), wd_filename=WindowsPath('data/mock/inputs/wd.tif'), m1_filename=WindowsPath('data/mock/inputs/m1.tif'), m10_filename=WindowsPath('data/mock/inputs/m10.tif'), m100_filename=WindowsPath('data/mock/inputs/m100.tif'), fire=WindowsPath('data/mock/inputs/fire.shp'), vegetation=WindowsPath('data/mock/inputs/veg.tif'), elevation=WindowsPath('data/mock/inputs/dem.tif'), wind=WindowsPath('data/mock/inputs/wind.tif'), fuel_moisture=WindowsPath('data/mock/inputs/fuel_moisture.tif')), output_paths=OutputPaths(time_of_arrival=WindowsPath('data/mock/outputs/time_of_arrival.tif'), fire_intensity=WindowsPath('data/mock/outputs/flin.tif'), flame_length=WindowsPath('data/mock/outputs/flame_length.tif'), spread_rate=WindowsPath('data/mock/outputs/spread_rate.tif'))), metrics=SimulationMetrics(burned_area=1000.0, fire_perimeter_length=500.0, containment_percentage=20.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[0.02300926, 0.50369126, 0.30150539, ..., 0.62933996, 0.01352986,
-        0.30959266],
-       [0.56104311, 0.31303706, 0.48976131, ..., 0.11204184, 0.56536847,
-        0.81880645],
-       [0.6796277 , 0.12773531, 0.9498505 , ..., 0.777399  , 0.29084226,
-        0.68253473],
-       ...,
-       [0.3865811 , 0.52776992, 0.35592372, ..., 0.15098974, 0.22775655,
-        0.69612612],
-       [0.4851931 , 0.98100535, 0.0931103 , ..., 0.07415063, 0.93827446,
-        0.26759757],
-       [0.10278787, 0.17415733, 0.51870881, ..., 0.13492585, 0.41884682,
-        0.92666184]])), save_path=WindowsPath('data/mock/save'), resources={'firefighters': 50, 'trucks': 10}, weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}), action=Action(fireline_coordinates=[]), reward=0.0, next_state=SimulationState(timestamp=datetime.datetime(2024, 8, 7, 10, 21, 17, 542683), config=SimulationConfig(sections={'INPUTS': {'FUELS_AND_TOPOGRAPHY_DIRECTORY': 'data\\mock\\inputs'}, 'TIME_CONTROL': {'SIMULATION_TSTOP': '3600'}}), paths=SimulationPaths(input_paths=InputPaths(fuels_and_topography_directory=WindowsPath('data/mock/inputs'), asp_filename=WindowsPath('data/mock/inputs/asp.tif'), cbd_filename=WindowsPath('data/mock/inputs/cbd.tif'), cbh_filename=WindowsPath('data/mock/inputs/cbh.tif'), cc_filename=WindowsPath('data/mock/inputs/cc.tif'), ch_filename=WindowsPath('data/mock/inputs/ch.tif'), dem_filename=WindowsPath('data/mock/inputs/dem.tif'), fbfm_filename=WindowsPath('data/mock/inputs/fbfm40.tif'), slp_filename=WindowsPath('data/mock/inputs/slp.tif'), adj_filename=WindowsPath('data/mock/inputs/adj.tif'), phi_filename=WindowsPath('data/mock/inputs/new_phi.tif'), weather_directory=WindowsPath('data/mock/inputs'), ws_filename=WindowsPath('data/mock/inputs/ws.tif'), wd_filename=WindowsPath('data/mock/inputs/wd.tif'), m1_filename=WindowsPath('data/mock/inputs/m1.tif'), m10_filename=WindowsPath('data/mock/inputs/m10.tif'), m100_filename=WindowsPath('data/mock/inputs/m100.tif'), fire=WindowsPath('data/mock/inputs/fire.shp'), vegetation=WindowsPath('data/mock/inputs/veg.tif'), elevation=WindowsPath('data/mock/inputs/dem.tif'), wind=WindowsPath('data/mock/inputs/wind.tif'), fuel_moisture=WindowsPath('data/mock/inputs/fuel_moisture.tif')), output_paths=OutputPaths(time_of_arrival=WindowsPath('data/mock/outputs/time_of_arrival.tif'), fire_intensity=WindowsPath('data/mock/outputs/flin.tif'), flame_length=WindowsPath('data/mock/outputs/flame_length.tif'), spread_rate=WindowsPath('data/mock/outputs/spread_rate.tif'))), metrics=SimulationMetrics(burned_area=1000.0, fire_perimeter_length=500.0, containment_percentage=20.0, execution_time=120.0, performance_metrics={'cpu_usage': 80.0, 'memory_usage': 4000.0}, fire_intensity=array([[0.02300926, 0.50369126, 0.30150539, ..., 0.62933996, 0.01352986,
-        0.30959266],
-       [0.56104311, 0.31303706, 0.48976131, ..., 0.11204184, 0.56536847,
-        0.81880645],
-       [0.6796277 , 0.12773531, 0.9498505 , ..., 0.777399  , 0.29084226,
-        0.68253473],
-       ...,
-       [0.3865811 , 0.52776992, 0.35592372, ..., 0.15098974, 0.22775655,
-        0.69612612],
-       [0.4851931 , 0.98100535, 0.0931103 , ..., 0.07415063, 0.93827446,
-        0.26759757],
-       [0.10278787, 0.17415733, 0.51870881, ..., 0.13492585, 0.41884682,
-        0.92666184]])), save_path=WindowsPath('data/mock/save'), resources={'firefighters': 50, 'trucks': 10}, weather={'temperature': 25.0, 'wind_speed': 10.0, 'wind_direction': 180.0}), done=False)], total_reward=0.0, total_steps=1)}
-2024-08-07 10:21:17,587 - StateManager - INFO - Saving state to disk for episode 1, step 1
-2024-08-07 10:21:17,587 - StateManager - INFO - Saving state to data\episodes\episode_1\step_1\state.json
-2024-08-07 10:21:17,587 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.542683
-2024-08-07 10:21:17,613 - StateManager - INFO - Loading state from disk for episode 1, step 0
-2024-08-07 10:21:17,613 - StateManager - INFO - Trying loading state from data\episodes\episode_1\step_0\state.json
-2024-08-07 10:21:17,613 - StateManager - WARNING - State file not found: data\episodes\episode_1\step_0\state.json
-2024-08-07 10:21:17,641 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,641 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:17,641 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:17,641 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,641 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,642 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.627741
-2024-08-07 10:21:17,642 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,644 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,644 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,644 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.627741
-2024-08-07 10:21:17,757 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,757 - StateManager - INFO - Updating state for episode 0, step 2
-2024-08-07 10:21:17,757 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:17,758 - StateManager - INFO - Saving state to disk for episode 0, step 2
-2024-08-07 10:21:17,758 - StateManager - INFO - Saving state to data\episodes\episode_0\step_2\state.json
-2024-08-07 10:21:17,758 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.751884
-2024-08-07 10:21:17,759 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,759 - StateManager - INFO - Saving state to disk for episode 0, step 2
-2024-08-07 10:21:17,759 - StateManager - INFO - Saving state to data\episodes\episode_0\step_2\state.json
-2024-08-07 10:21:17,759 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.751884
-2024-08-07 10:21:17,774 - StateManager - INFO - Resetting StateManager
-2024-08-07 10:21:17,774 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,774 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,774 - StateManager - INFO - StateManager converting state to array: None
-2024-08-07 10:21:17,774 - StateManager - WARNING - No state available to convert to array.
-2024-08-07 10:21:17,775 - StateManager - INFO - Returning current state with 0 and episodes:  self.episodes.keys()
-2024-08-07 10:21:17,879 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,879 - StateManager - INFO - Updating state for episode 0, step 1
-2024-08-07 10:21:17,879 - StateManager - INFO - Episodes keys: dict_keys([])
-2024-08-07 10:21:17,879 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,879 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,879 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.871822
-2024-08-07 10:21:17,880 - StateManager - INFO - --------------------
-2024-08-07 10:21:17,880 - StateManager - INFO - Saving state to disk for episode 0, step 1
-2024-08-07 10:21:17,880 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
-2024-08-07 10:21:17,882 - StateManager - INFO - Serializing state with timestamp: 2024-08-07 10:21:17.871822
-2024-08-07 10:21:17,883 - StateManager - INFO - Adding step to episode 0, step 2
-2024-08-07 10:21:17,883 - StateManager - INFO - Creating new episode with ID 0
-2024-08-07 10:21:17,884 - StateManager - INFO - Saving episode step to disk for episode 0, step 2
-2024-08-07 10:21:17,884 - StateManager - INFO - Saving episode step to data\episodes\episode_0\step_2
+Log file cleared and reinitialized on 2024-08-08 16:49:08.974416
+2024-08-08 16:49:09,916 - StateManager - INFO - Clearing all episode data
+2024-08-08 16:49:09,983 - StateManager - INFO - Cleared data\episodes
+2024-08-08 16:49:09,983 - StateManager - WARNING - data\states does not exist
+2024-08-08 16:49:10,095 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,095 - StateManager - INFO - Updating state for episode 0, step 1
+2024-08-08 16:49:10,095 - StateManager - INFO - Creating new episode with ID 0
+2024-08-08 16:49:10,097 - StateManager - INFO - Episodes keys: dict_keys([0])
+2024-08-08 16:49:10,098 - StateManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:10,099 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:10,099 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,126 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,127 - StateManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:10,127 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:10,128 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,159 - StateManager - INFO - StateManager: Getting current state. Episode: 0, Step: 1
+2024-08-08 16:49:10,159 - StateManager - INFO - StateManager: Returning current state, timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,159 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:10,159 - StateManager - INFO - Creating new episode with ID 1
+2024-08-08 16:49:10,161 - StateManager - INFO - StateManager: Getting current state. Episode: 1, Step: 0
+2024-08-08 16:49:10,161 - StateManager - WARNING - StateManager: Current state is None
+2024-08-08 16:49:10,168 - StateManager - INFO - Creating new episode with ID 2
+2024-08-08 16:49:10,170 - StateManager - INFO - Adding step to episode 2, step 1
+2024-08-08 16:49:10,170 - StateManager - INFO - Saving episode step to disk for episode 2, step 1
+2024-08-08 16:49:10,170 - StateManager - INFO - Saving episode step to data\episodes\episode_2\step_1
+2024-08-08 16:49:10,171 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.166356
+2024-08-08 16:49:10,172 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.166356
+2024-08-08 16:49:10,255 - StateManager - INFO - Retrieving current episode (ID: 2)
+2024-08-08 16:49:10,255 - StateManager - INFO - Current episode found. Total steps: 1
+2024-08-08 16:49:10,255 - StateManager - INFO - Episodes: dict_keys([0, 1, 2])
+2024-08-08 16:49:10,262 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:10,262 - StateManager - INFO - Creating new episode with ID 3
+2024-08-08 16:49:10,300 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,300 - StateManager - INFO - Updating state for episode 3, step 1
+2024-08-08 16:49:10,301 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3])
+2024-08-08 16:49:10,301 - StateManager - INFO - Saving state to disk for episode 3, step 1
+2024-08-08 16:49:10,301 - StateManager - INFO - Saving state to data\episodes\episode_3\step_1\state.json
+2024-08-08 16:49:10,302 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,326 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,327 - StateManager - INFO - Saving state to disk for episode 3, step 1
+2024-08-08 16:49:10,327 - StateManager - INFO - Saving state to data\episodes\episode_3\step_1\state.json
+2024-08-08 16:49:10,328 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,355 - StateManager - INFO - StateManager: Getting current state. Episode: 3, Step: 1
+2024-08-08 16:49:10,355 - StateManager - INFO - StateManager: Returning current state, timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,356 - StateManager - INFO - Saving state to disk for episode 3, step 1
+2024-08-08 16:49:10,356 - StateManager - INFO - Saving state to data\episodes\episode_3\step_1\state.json
+2024-08-08 16:49:10,357 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,375 - StateManager - INFO - Loading state from disk for episode 0, step 1
+2024-08-08 16:49:10,375 - StateManager - INFO - Trying loading state from data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:10,427 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:10,427 - StateManager - INFO - Creating new episode with ID 4
+2024-08-08 16:49:10,455 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,455 - StateManager - INFO - Updating state for episode 4, step 1
+2024-08-08 16:49:10,455 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3, 4])
+2024-08-08 16:49:10,455 - StateManager - INFO - Saving state to disk for episode 4, step 1
+2024-08-08 16:49:10,456 - StateManager - INFO - Saving state to data\episodes\episode_4\step_1\state.json
+2024-08-08 16:49:10,457 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.428477
+2024-08-08 16:49:10,478 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,478 - StateManager - INFO - Saving state to disk for episode 4, step 1
+2024-08-08 16:49:10,479 - StateManager - INFO - Saving state to data\episodes\episode_4\step_1\state.json
+2024-08-08 16:49:10,479 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.428477
+2024-08-08 16:49:10,534 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,534 - StateManager - INFO - Updating state for episode 4, step 2
+2024-08-08 16:49:10,534 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3, 4])
+2024-08-08 16:49:10,534 - StateManager - INFO - Saving state to disk for episode 4, step 2
+2024-08-08 16:49:10,535 - StateManager - INFO - Saving state to data\episodes\episode_4\step_2\state.json
+2024-08-08 16:49:10,535 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:10.510011
+2024-08-08 16:49:10,555 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,555 - StateManager - INFO - Saving state to disk for episode 4, step 2
+2024-08-08 16:49:10,556 - StateManager - INFO - Saving state to data\episodes\episode_4\step_2\state.json
+2024-08-08 16:49:10,557 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:10.510011
+2024-08-08 16:49:10,604 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,604 - StateManager - INFO - Updating state for episode 4, step 3
+2024-08-08 16:49:10,604 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3, 4])
+2024-08-08 16:49:10,604 - StateManager - INFO - Saving state to disk for episode 4, step 3
+2024-08-08 16:49:10,604 - StateManager - INFO - Saving state to data\episodes\episode_4\step_3\state.json
+2024-08-08 16:49:10,605 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:10.576048
+2024-08-08 16:49:10,624 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,624 - StateManager - INFO - Saving state to disk for episode 4, step 3
+2024-08-08 16:49:10,625 - StateManager - INFO - Saving state to data\episodes\episode_4\step_3\state.json
+2024-08-08 16:49:10,626 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:10.576048
+2024-08-08 16:49:10,672 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,672 - StateManager - INFO - Updating state for episode 4, step 4
+2024-08-08 16:49:10,672 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3, 4])
+2024-08-08 16:49:10,672 - StateManager - INFO - Saving state to disk for episode 4, step 4
+2024-08-08 16:49:10,673 - StateManager - INFO - Saving state to data\episodes\episode_4\step_4\state.json
+2024-08-08 16:49:10,674 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 19:49:10.644491
+2024-08-08 16:49:10,701 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,702 - StateManager - INFO - Saving state to disk for episode 4, step 4
+2024-08-08 16:49:10,703 - StateManager - INFO - Saving state to data\episodes\episode_4\step_4\state.json
+2024-08-08 16:49:10,703 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 19:49:10.644491
+2024-08-08 16:49:10,757 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,757 - StateManager - INFO - Updating state for episode 4, step 5
+2024-08-08 16:49:10,757 - StateManager - INFO - Episodes keys: dict_keys([0, 1, 2, 3, 4])
+2024-08-08 16:49:10,757 - StateManager - INFO - Saving state to disk for episode 4, step 5
+2024-08-08 16:49:10,758 - StateManager - INFO - Saving state to data\episodes\episode_4\step_5\state.json
+2024-08-08 16:49:10,759 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 20:49:10.722929
+2024-08-08 16:49:10,778 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,779 - StateManager - INFO - Saving state to disk for episode 4, step 5
+2024-08-08 16:49:10,779 - StateManager - INFO - Saving state to data\episodes\episode_4\step_5\state.json
+2024-08-08 16:49:10,780 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 20:49:10.722929
+2024-08-08 16:49:10,795 - StateManager - INFO - Loading state from disk for episode 4, step 1
+2024-08-08 16:49:10,796 - StateManager - INFO - Trying loading state from data\episodes\episode_4\step_1\state.json
+2024-08-08 16:49:10,851 - StateManager - INFO - Creating new episode with ID 5
+2024-08-08 16:49:10,852 - StateManager - INFO - Adding step to episode 5, step 1
+2024-08-08 16:49:10,853 - StateManager - INFO - Saving episode step to disk for episode 5, step 1
+2024-08-08 16:49:10,853 - StateManager - INFO - Saving episode step to data\episodes\episode_5\step_1
+2024-08-08 16:49:10,853 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.852497
+2024-08-08 16:49:10,853 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.852497
+2024-08-08 16:49:10,859 - StateManager - INFO - Adding step to episode 5, step 2
+2024-08-08 16:49:10,859 - StateManager - INFO - Saving episode step to disk for episode 5, step 2
+2024-08-08 16:49:10,860 - StateManager - INFO - Saving episode step to data\episodes\episode_5\step_2
+2024-08-08 16:49:10,860 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:10.859514
+2024-08-08 16:49:10,860 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:10.859514
+2024-08-08 16:49:10,866 - StateManager - INFO - Adding step to episode 5, step 3
+2024-08-08 16:49:10,866 - StateManager - INFO - Saving episode step to disk for episode 5, step 3
+2024-08-08 16:49:10,867 - StateManager - INFO - Saving episode step to data\episodes\episode_5\step_3
+2024-08-08 16:49:10,867 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:10.866524
+2024-08-08 16:49:10,867 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:10.866524
+2024-08-08 16:49:10,873 - StateManager - INFO - Retrieving current episode (ID: 5)
+2024-08-08 16:49:10,873 - StateManager - INFO - Current episode found. Total steps: 3
+2024-08-08 16:49:10,873 - StateManager - INFO - Episodes: dict_keys([0, 1, 2, 3, 4, 5])
+2024-08-08 16:49:10,873 - StateManager - INFO - Loading episode from disk for episode 5
+2024-08-08 16:49:10,874 - StateManager - INFO - Data directory contents: ['configs', 'episodes', 'intermediate', 'logs', 'metrics', 'mock', 'rl_metrics', 'simulations']
+2024-08-08 16:49:10,874 - StateManager - INFO - Episodes directory contents: ['episode_0', 'episode_1', 'episode_2', 'episode_3', 'episode_4', 'episode_5']
+2024-08-08 16:49:10,874 - StateManager - INFO - Episode directory: data\episodes\episode_5
+2024-08-08 16:49:10,874 - StateManager - INFO - Episode directory found for episode 5
+2024-08-08 16:49:10,874 - StateManager - INFO - Episode directory contents: ['metadata.json', 'step_1', 'step_2', 'step_3']
+2024-08-08 16:49:10,875 - StateManager - INFO - Processing step directory: data\episodes\episode_5\step_1
+2024-08-08 16:49:10,875 - StateManager - INFO - Looking for step file: data\episodes\episode_5\step_1\episode_step.json
+2024-08-08 16:49:10,875 - StateManager - INFO - Step file found: data\episodes\episode_5\step_1\episode_step.json
+2024-08-08 16:49:10,902 - StateManager - INFO - Loaded step 1 for episode 5
+2024-08-08 16:49:10,902 - StateManager - INFO - Processing step directory: data\episodes\episode_5\step_2
+2024-08-08 16:49:10,902 - StateManager - INFO - Looking for step file: data\episodes\episode_5\step_2\episode_step.json
+2024-08-08 16:49:10,903 - StateManager - INFO - Step file found: data\episodes\episode_5\step_2\episode_step.json
+2024-08-08 16:49:10,929 - StateManager - INFO - Loaded step 2 for episode 5
+2024-08-08 16:49:10,929 - StateManager - INFO - Processing step directory: data\episodes\episode_5\step_3
+2024-08-08 16:49:10,929 - StateManager - INFO - Looking for step file: data\episodes\episode_5\step_3\episode_step.json
+2024-08-08 16:49:10,930 - StateManager - INFO - Step file found: data\episodes\episode_5\step_3\episode_step.json
+2024-08-08 16:49:10,956 - StateManager - INFO - Loaded step 3 for episode 5
+2024-08-08 16:49:10,957 - StateManager - INFO - Loaded 3 steps for episode 5
+2024-08-08 16:49:10,957 - StateManager - INFO - Episode 5 loaded with 3 steps
+2024-08-08 16:49:10,957 - StateManager - INFO - Generating summary for episode 5
+2024-08-08 16:49:10,964 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:10,964 - StateManager - INFO - Creating new episode with ID 6
+2024-08-08 16:49:10,965 - StateManager - INFO - Clearing all episode data
+2024-08-08 16:49:10,972 - StateManager - INFO - Cleared data\episodes
+2024-08-08 16:49:10,972 - StateManager - WARNING - data\states does not exist
+2024-08-08 16:49:10,999 - StateManager - INFO - --------------------
+2024-08-08 16:49:10,999 - StateManager - INFO - Updating state for episode 0, step 1
+2024-08-08 16:49:10,999 - StateManager - INFO - Creating new episode with ID 0
+2024-08-08 16:49:11,002 - StateManager - INFO - Episodes keys: dict_keys([0])
+2024-08-08 16:49:11,002 - StateManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:11,003 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:11,003 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.973064
+2024-08-08 16:49:11,027 - StateManager - INFO - --------------------
+2024-08-08 16:49:11,027 - StateManager - INFO - Saving state to disk for episode 0, step 1
+2024-08-08 16:49:11,028 - StateManager - INFO - Saving state to data\episodes\episode_0\step_1\state.json
+2024-08-08 16:49:11,029 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:10.973064
+2024-08-08 16:49:11,050 - StateManager - INFO - StateManager: Getting current state. Episode: 0, Step: 1
+2024-08-08 16:49:11,051 - StateManager - INFO - StateManager: Returning current state, timestamp: 2024-08-08 16:49:10.973064
+2024-08-08 16:49:11,226 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:11,226 - StateManager - INFO - Creating new episode with ID 1
+2024-08-08 16:49:11,228 - StateManager - INFO - Creating new episode with ID 2
+2024-08-08 16:49:11,230 - StateManager - INFO - Adding step to episode 2, step 1
+2024-08-08 16:49:11,231 - StateManager - INFO - Saving episode step to disk for episode 2, step 1
+2024-08-08 16:49:11,231 - StateManager - INFO - Saving episode step to data\episodes\episode_2\step_1
+2024-08-08 16:49:11,231 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.230258
+2024-08-08 16:49:11,232 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.230258
+2024-08-08 16:49:11,282 - StateManager - INFO - Adding step to episode 2, step 2
+2024-08-08 16:49:11,282 - StateManager - INFO - Saving episode step to disk for episode 2, step 2
+2024-08-08 16:49:11,282 - StateManager - INFO - Saving episode step to data\episodes\episode_2\step_2
+2024-08-08 16:49:11,283 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:11.282807
+2024-08-08 16:49:11,283 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:11.282807
+2024-08-08 16:49:11,330 - StateManager - INFO - Adding step to episode 2, step 3
+2024-08-08 16:49:11,330 - StateManager - INFO - Saving episode step to disk for episode 2, step 3
+2024-08-08 16:49:11,330 - StateManager - INFO - Saving episode step to data\episodes\episode_2\step_3
+2024-08-08 16:49:11,331 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:11.329532
+2024-08-08 16:49:11,333 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:11.329532
+2024-08-08 16:49:11,389 - StateManager - INFO - Creating new episode with ID 3
+2024-08-08 16:49:11,391 - StateManager - INFO - Adding step to episode 3, step 1
+2024-08-08 16:49:11,391 - StateManager - INFO - Saving episode step to disk for episode 3, step 1
+2024-08-08 16:49:11,392 - StateManager - INFO - Saving episode step to data\episodes\episode_3\step_1
+2024-08-08 16:49:11,392 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.391420
+2024-08-08 16:49:11,392 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.391420
+2024-08-08 16:49:11,444 - StateManager - INFO - Adding step to episode 3, step 2
+2024-08-08 16:49:11,444 - StateManager - INFO - Saving episode step to disk for episode 3, step 2
+2024-08-08 16:49:11,446 - StateManager - INFO - Saving episode step to data\episodes\episode_3\step_2
+2024-08-08 16:49:11,447 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:11.442467
+2024-08-08 16:49:11,448 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 17:49:11.442467
+2024-08-08 16:49:11,498 - StateManager - INFO - Adding step to episode 3, step 3
+2024-08-08 16:49:11,499 - StateManager - INFO - Saving episode step to disk for episode 3, step 3
+2024-08-08 16:49:11,499 - StateManager - INFO - Saving episode step to data\episodes\episode_3\step_3
+2024-08-08 16:49:11,500 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:11.497644
+2024-08-08 16:49:11,502 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 18:49:11.497644
+2024-08-08 16:49:11,580 - StateManager - INFO - Resetting StateManager
+2024-08-08 16:49:11,580 - StateManager - INFO - Creating new episode with ID 4
+2024-08-08 16:49:11,584 - StateManager - INFO - Adding step to episode 4, step 1
+2024-08-08 16:49:11,584 - StateManager - INFO - Saving episode step to disk for episode 4, step 1
+2024-08-08 16:49:11,584 - StateManager - INFO - Saving episode step to data\episodes\episode_4\step_1
+2024-08-08 16:49:11,585 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.583272
+2024-08-08 16:49:11,586 - StateManager - INFO - Serializing state with timestamp: 2024-08-08 16:49:11.583272

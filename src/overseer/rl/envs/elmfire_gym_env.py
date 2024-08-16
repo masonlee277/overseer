@@ -54,38 +54,32 @@ class ElmfireGymEnv(gym.Env):
         self.current_step = 0
         
         self.logger.info("ElmfireGymEnv initialized successfully")
-        
+            
     def reset(self, seed=None, options=None) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment to its initial state.
         """
         super().reset(seed=seed)
         self.logger.info("Resetting environment")
+        
+        # Initialize/reset ConfigManager
         self.config_manager.initialize()
+        
+        # Create an initial SimulationState
+        initial_state = self.sim_manager.create_initial_state()
+        
+        # Reset DataManager and update with initial state
         self.data_manager.reset()
-        
-        initial_state = self.sim_manager.get_state()
-        
+        self.data_manager.update_state(initial_state)
+
         self.current_episode += 1
         self.current_step = 0
         
-        # Create an EpisodeStep for the initial state
-        episode_step = EpisodeStep(
-            step=self.current_step,
-            state=initial_state,
-            action=None,  # No action taken yet
-            reward=0.0,
-            next_state=initial_state,
-            done=False
-        )
-        
-        #encoded_state = self.state_encoder.encode(self.data_manager.get_current_state().get_raw_data())
         encoded_state = self.data_manager.state_to_array()
         self.logger.info("Environment reset complete")
-        #log the type of the encoded state
         self.logger.info(f"Type of encoded state: {type(encoded_state)}")
-        return encoded_state
-    
+        return encoded_state, {}  # Return empty dict as info
+        
 
     def step(self, action: Any) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         self.logger.info(f"Taking step with action: {action}")
@@ -96,7 +90,7 @@ class ElmfireGymEnv(gym.Env):
 
         # Create an EpisodeStep for the current action
         current_state = self.data_manager.get_current_state()
-        
+        assert current_state is not None, "Current state is None"
         # Apply the action and get simulation results
         next_state, done = self.sim_manager.apply_action(action_obj)
 

@@ -79,8 +79,8 @@ class RewardManager:
             self.logger.info(f"Calculated reward: {reward}")
             return reward
         except Exception as e:
-            self.logger.error(f"Error calculating reward: {str(e)}")
-            return 0.0  # Return a default reward in case of error
+            self.logger.errReturnor(f"Error calculating reward: {str(e)}")
+            return 0.0  #  a default reward in case of error
 
 def main():
     # Setup logging

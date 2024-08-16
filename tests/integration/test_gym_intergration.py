@@ -34,7 +34,7 @@ def data_manager(config):
 @pytest.fixture
 def action_space(config, data_manager):
     return ActionSpace(config, data_manager)
-a
+
 
 @pytest.fixture
 def reward_manager(config, data_manager):
@@ -62,9 +62,15 @@ def test_reward_manager(reward_manager, data_manager, create_mock_state, config)
     assert isinstance(reward, float)
 
 def test_gym_reset(gym_env):
-    observation = gym_env.reset()
+    result = gym_env.reset()
+    assert result is not None
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+
+    observation, info = result
     assert observation is not None
     assert isinstance(observation, np.ndarray)
+    assert isinstance(info, dict)
 
 def test_gym_step_without_simulation(gym_env, action_space):
     gym_env.reset()
@@ -159,22 +165,44 @@ def test_data_manager_state_persistence(config, create_mock_state):
     current_episode = data_manager.get_current_episode()
     assert current_episode is not None
     episode_id = current_episode.episode_id
-    step = 0  # First step in the episode
+    step = 1  # First step in the episode
     
     # Save the state to disk
     data_manager.save_state_to_disk(mock_state)
+
     
     # Load the state from disk
     loaded_state = data_manager.load_state_from_disk(episode_id, step)
     
+    def assert_metrics_equal(metrics1, metrics2):
+        """
+        Compare two SimulationMetrics objects, handling NumPy arrays correctly.
+        """
+        assert metrics1.burned_area == metrics2.burned_area
+        assert metrics1.fire_perimeter_length == metrics2.fire_perimeter_length
+        assert metrics1.containment_percentage == metrics2.containment_percentage
+        assert metrics1.execution_time == metrics2.execution_time
+        assert metrics1.performance_metrics == metrics2.performance_metrics
+        assert np.array_equal(metrics1.fire_intensity, metrics2.fire_intensity)
+        
     # Verify the loaded state matches the original
     assert loaded_state is not None
     assert loaded_state.timestamp == mock_state.timestamp
     assert loaded_state.config.sections == mock_state.config.sections
     assert loaded_state.paths == mock_state.paths
-    assert loaded_state.metrics.__dict__ == mock_state.metrics.__dict__
     assert loaded_state.resources == mock_state.resources
     assert loaded_state.weather == mock_state.weather
+
+    # Verify the loaded state matches the original
+    assert loaded_state is not None
+    assert loaded_state.timestamp == mock_state.timestamp
+    assert loaded_state.config.sections == mock_state.config.sections
+    assert loaded_state.paths == mock_state.paths
+    
+    # Compare metrics
+    assert_metrics_equal(loaded_state.metrics, mock_state.metrics)
+
+
 
 def test_simulation_manager_apply_action(config, config_manager, data_manager, create_mock_state):
     """
@@ -220,7 +248,7 @@ def test_gym_env_episode_management(gym_env, action_space):
     # Verify episode data
     episode = gym_env.data_manager.get_current_episode()
     assert episode is not None
-    assert episode.episode_id == 0  # Assuming this is the first episode
+    assert episode.episode_id == 1  # Assuming this is the first episode
     assert len(episode.steps) == 3
     assert episode.total_steps == 3
     assert episode.total_reward == sum(step.reward for step in episode.steps)

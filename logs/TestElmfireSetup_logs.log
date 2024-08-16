@@ -1,89 +1,75 @@
-Log file cleared and reinitialized on 2024-08-06 12:37:14.421907
-2024-08-06 12:37:14,427 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,427 - TestElmfireSetup - INFO - Testing config manager initialization
-2024-08-06 12:37:14,430 - TestElmfireSetup - INFO - Config manager initialization successful
-2024-08-06 12:37:14,431 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,432 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,434 - TestElmfireSetup - INFO - Testing config manager get_config method
-2024-08-06 12:37:14,434 - TestElmfireSetup - INFO - Config manager get_config method successful
-2024-08-06 12:37:14,434 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,435 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,438 - TestElmfireSetup - INFO - Testing config manager update_config method
-2024-08-06 12:37:14,438 - TestElmfireSetup - INFO - Config manager update_config method successful
-2024-08-06 12:37:14,438 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,439 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,442 - TestElmfireSetup - INFO - Testing config manager reset_config method
-2024-08-06 12:37:14,442 - TestElmfireSetup - INFO - Config manager reset_config method successful
-2024-08-06 12:37:14,442 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,443 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,445 - TestElmfireSetup - INFO - Testing config manager update from simulation state
-2024-08-06 12:37:14,445 - TestElmfireSetup - INFO - Config manager update from simulation state successful
-2024-08-06 12:37:14,447 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,448 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,454 - TestElmfireSetup - INFO - Testing config manager generate_elmfire_data_in method
-2024-08-06 12:37:14,455 - TestElmfireSetup - INFO - Config manager generate_elmfire_data_in method successful
-2024-08-06 12:37:14,457 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,458 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,461 - TestElmfireSetup - INFO - Testing config manager in a complex scenario
-2024-08-06 12:37:14,464 - TestElmfireSetup - INFO - Config manager complex scenario test successful
-2024-08-06 12:37:14,464 - TestElmfireSetup - INFO - Config manager complex scenario test completed
-2024-08-06 12:37:14,464 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,466 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,467 - TestElmfireSetup - INFO - Testing data manager state operations
-2024-08-06 12:37:14,498 - TestElmfireSetup - INFO - State update and retrieval successful
-2024-08-06 12:37:14,498 - TestElmfireSetup - INFO - State history retrieval successful
-2024-08-06 12:37:14,498 - TestElmfireSetup - INFO - Data manager reset successful
-2024-08-06 12:37:14,498 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,506 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,507 - TestElmfireSetup - INFO - Testing data manager episode operations
-2024-08-06 12:37:14,507 - TestElmfireSetup - INFO - New episode started
-2024-08-06 12:37:14,538 - TestElmfireSetup - INFO - Step added to current episode
-2024-08-06 12:37:14,542 - TestElmfireSetup - INFO - Current episode retrieval and verification successful
-2024-08-06 12:37:14,543 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,544 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,544 - TestElmfireSetup - INFO - Testing data manager with real data
-2024-08-06 12:37:14,544 - TestElmfireSetup - INFO - Updating state at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,579 - TestElmfireSetup - INFO - Current state retrieved at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,579 - TestElmfireSetup - INFO - Saving state to disk at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,600 - TestElmfireSetup - INFO - Loading state from disk for timestamp: 2024-08-06T12:37:14.544174
-2024-08-06 12:37:14,630 - TestElmfireSetup - INFO - Retrieved state from disk at timestamp: 2024-08-06 12:37:14.544174
-2024-08-06 12:37:14,630 - TestElmfireSetup - INFO - All assertions passed for state saving and retrieval
-2024-08-06 12:37:14,630 - TestElmfireSetup - INFO - State history verified
-2024-08-06 12:37:14,631 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,632 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,632 - TestElmfireSetup - INFO - Testing saving and retrieving multiple states
-2024-08-06 12:37:14,643 - TestElmfireSetup - INFO - Saved state 0
-2024-08-06 12:37:14,654 - TestElmfireSetup - INFO - Saved state 1
-2024-08-06 12:37:14,664 - TestElmfireSetup - INFO - Saved state 2
-2024-08-06 12:37:14,678 - TestElmfireSetup - INFO - Saved state 3
-2024-08-06 12:37:14,688 - TestElmfireSetup - INFO - Saved state 4
-2024-08-06 12:37:14,700 - TestElmfireSetup - INFO - Successfully verified state 0
-2024-08-06 12:37:14,712 - TestElmfireSetup - INFO - Successfully verified state 1
-2024-08-06 12:37:14,727 - TestElmfireSetup - INFO - Successfully verified state 2
-2024-08-06 12:37:14,738 - TestElmfireSetup - INFO - Successfully verified state 3
-2024-08-06 12:37:14,748 - TestElmfireSetup - INFO - Successfully verified state 4
-2024-08-06 12:37:14,748 - TestElmfireSetup - INFO - State history length: 5
-2024-08-06 12:37:14,748 - TestElmfireSetup - INFO - State history verified
-2024-08-06 12:37:14,749 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,751 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,751 - TestElmfireSetup - INFO - Testing episode management
-2024-08-06 12:37:14,752 - TestElmfireSetup - INFO - Started new episode
-2024-08-06 12:37:14,763 - TestElmfireSetup - INFO - Added step 0 to episode
-2024-08-06 12:37:14,773 - TestElmfireSetup - INFO - Added step 1 to episode
-2024-08-06 12:37:14,785 - TestElmfireSetup - INFO - Added step 2 to episode
-2024-08-06 12:37:14,785 - TestElmfireSetup - INFO - Current episode verified
-2024-08-06 12:37:14,818 - TestElmfireSetup - INFO - Loaded episode verified
-2024-08-06 12:37:14,818 - TestElmfireSetup - INFO - Episode summary verified
-2024-08-06 12:37:14,818 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,824 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,824 - TestElmfireSetup - INFO - Testing data manager reset and state persistence
-2024-08-06 12:37:14,888 - TestElmfireSetup - INFO - Data manager reset and state persistence test completed
-2024-08-06 12:37:14,889 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:14,889 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:14,889 - TestElmfireSetup - INFO - Testing data manager with multiple episodes
-2024-08-06 12:37:15,113 - TestElmfireSetup - INFO - Multiple episodes test completed
-2024-08-06 12:37:15,114 - TestElmfireSetup - INFO - Config Manager Integration test completed
-2024-08-06 12:37:15,114 - TestElmfireSetup - INFO - Starting Config Manager Integration test
-2024-08-06 12:37:15,115 - TestElmfireSetup - INFO - Testing data manager edge cases
-2024-08-06 12:37:15,169 - TestElmfireSetup - INFO - Edge cases test completed
-2024-08-06 12:37:15,169 - TestElmfireSetup - INFO - Config Manager Integration test completed
+Log file cleared and reinitialized on 2024-08-08 16:49:08.975419
+2024-08-08 16:49:08,976 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:08,978 - TestElmfireSetup - INFO - Testing config manager initialization
+2024-08-08 16:49:08,984 - TestElmfireSetup - INFO - Config manager initialization successful
+2024-08-08 16:49:08,986 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:08,988 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:08,993 - TestElmfireSetup - INFO - Testing config manager get_config method
+2024-08-08 16:49:08,993 - TestElmfireSetup - INFO - Config manager get_config method successful
+2024-08-08 16:49:08,995 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:08,997 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,002 - TestElmfireSetup - INFO - Testing config manager update_config method
+2024-08-08 16:49:09,003 - TestElmfireSetup - INFO - Config manager update_config method successful
+2024-08-08 16:49:09,003 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:09,005 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,010 - TestElmfireSetup - INFO - Testing config manager reset_config method
+2024-08-08 16:49:09,669 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:09,672 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,680 - TestElmfireSetup - INFO - Testing config manager update from simulation state
+2024-08-08 16:49:09,680 - TestElmfireSetup - INFO - Config manager update from simulation state successful
+2024-08-08 16:49:09,683 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:09,685 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,711 - TestElmfireSetup - INFO - Testing config manager generate_elmfire_data_in method
+2024-08-08 16:49:09,733 - TestElmfireSetup - INFO - Config manager generate_elmfire_data_in method successful
+2024-08-08 16:49:09,737 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:09,745 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,754 - TestElmfireSetup - INFO - Testing config manager in a complex scenario
+2024-08-08 16:49:09,773 - TestElmfireSetup - INFO - Config manager complex scenario test successful
+2024-08-08 16:49:09,907 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:09,910 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:09,914 - TestElmfireSetup - INFO - Testing data manager state operations
+2024-08-08 16:49:10,159 - TestElmfireSetup - INFO - State update and retrieval successful
+2024-08-08 16:49:10,159 - TestElmfireSetup - INFO - State history retrieval successful
+2024-08-08 16:49:10,162 - TestElmfireSetup - INFO - Data manager reset successful
+2024-08-08 16:49:10,163 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:10,166 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:10,168 - TestElmfireSetup - INFO - Testing data manager episode operations
+2024-08-08 16:49:10,170 - TestElmfireSetup - INFO - New episode started
+2024-08-08 16:49:10,254 - TestElmfireSetup - INFO - Step added to current episode
+2024-08-08 16:49:10,255 - TestElmfireSetup - INFO - Current episode retrieval and verification successful
+2024-08-08 16:49:10,257 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:10,260 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:10,260 - TestElmfireSetup - INFO - Testing data manager with real data
+2024-08-08 16:49:10,264 - TestElmfireSetup - INFO - Updating state at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,356 - TestElmfireSetup - INFO - Current state retrieved at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,356 - TestElmfireSetup - INFO - Saving state to disk at timestamp: 2024-08-08 16:49:10.261674
+2024-08-08 16:49:10,375 - TestElmfireSetup - INFO - Loading state from disk for timestamp: 2024-08-08T16:49:10.261674
+2024-08-08 16:49:10,399 - TestElmfireSetup - INFO - Retrieved state from disk at timestamp: 2024-08-08 16:49:09.911620
+2024-08-08 16:49:10,424 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:10,426 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:10,426 - TestElmfireSetup - INFO - Testing saving and retrieving multiple states
+2024-08-08 16:49:10,510 - TestElmfireSetup - INFO - Saved state 0
+2024-08-08 16:49:10,575 - TestElmfireSetup - INFO - Saved state 1
+2024-08-08 16:49:10,643 - TestElmfireSetup - INFO - Saved state 2
+2024-08-08 16:49:10,722 - TestElmfireSetup - INFO - Saved state 3
+2024-08-08 16:49:10,795 - TestElmfireSetup - INFO - Saved state 4
+2024-08-08 16:49:10,849 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:10,850 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:10,851 - TestElmfireSetup - INFO - Testing episode management
+2024-08-08 16:49:10,852 - TestElmfireSetup - INFO - Started new episode
+2024-08-08 16:49:10,859 - TestElmfireSetup - INFO - Added step 0 to episode
+2024-08-08 16:49:10,866 - TestElmfireSetup - INFO - Added step 1 to episode
+2024-08-08 16:49:10,873 - TestElmfireSetup - INFO - Added step 2 to episode
+2024-08-08 16:49:10,873 - TestElmfireSetup - INFO - Current episode verified
+2024-08-08 16:49:10,957 - TestElmfireSetup - INFO - Loaded episode verified
+2024-08-08 16:49:10,957 - TestElmfireSetup - INFO - Episode summary verified
+2024-08-08 16:49:10,960 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:10,962 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:10,964 - TestElmfireSetup - INFO - Testing data manager reset and state persistence
+2024-08-08 16:49:11,222 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:11,224 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:11,225 - TestElmfireSetup - INFO - Testing data manager with multiple episodes
+2024-08-08 16:49:11,572 - TestElmfireSetup - INFO - Config Manager Integration test completed
+2024-08-08 16:49:11,577 - TestElmfireSetup - INFO - Starting Config Manager Integration test
+2024-08-08 16:49:11,580 - TestElmfireSetup - INFO - Testing data manager edge cases
+2024-08-08 16:49:11,661 - TestElmfireSetup - INFO - Config Manager Integration test completed

@@ -154,10 +154,13 @@ class DataManager:
         self.logger.info("=" * 40)
 
     def get_current_state(self) -> Optional[SimulationState]:
-        state = self.state_manager.get_current_state()
-        self.logger.info(f"Retrieved current state: {'None' if state is None else state.timestamp}")
-        return state
-
+        self.logger.info("DataManager: Attempting to get current state")
+        current_state = self.state_manager.get_current_state()
+        if current_state is None:
+            self.logger.warning("DataManager: Current state is None")
+        else:
+            self.logger.info(f"DataManager: Current state retrieved, timestamp: {current_state.timestamp}")
+        return current_state
 
     def state_to_array(self, state: Optional[SimulationState] = None) -> np.ndarray:
         """
@@ -221,6 +224,12 @@ class DataManager:
             next_state=next_state,
             done=done
         )
+        #assert none of fields are None and add fail messages
+        assert step.state is not None, "State is None"
+        assert step.action is not None, "Action is None"    
+        assert step.reward is not None, "Reward is None"
+        assert step.next_state is not None, "Next state is None"
+        assert step.done is not None, "Done is None"
         self.state_manager.add_step(step)
 
 
