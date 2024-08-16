@@ -6,6 +6,7 @@ from pathlib import Path
 import time
 import os
 import sys
+import io
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -49,9 +50,10 @@ class JobInfo:
 
 
 
-class LocalEnvironment():
-    def __init__(self, logger):
-        self.jobs: Dict[str, Dict[str, Any]] = {}  # Initialize the jobs dictionary
+class LocalEnvironment:
+    def __init__(self, logger, log_simulation_output: bool = False):
+        self.jobs: Dict[str, Dict[str, Any]] = {}
+        self.log_simulation_output = log_simulation_output
 
         if logger:
             self.logger = logger
@@ -108,13 +110,15 @@ class LocalEnvironment():
         
         return job_id
 
+
     def _capture_output(self, job_id: str) -> None:
         job = self.jobs[job_id]
         process = job["process"]
         output_buffer = job["output"]
 
         for line in iter(process.stdout.readline, ''):
-            self.logger.info(f"Job {job_id} output: {line.strip()}")
+            if self.log_simulation_output:
+                self.logger.info(f"Job {job_id} output: {line.strip()}")
             output_buffer.write(line)
 
         process.stdout.close()
@@ -122,15 +126,15 @@ class LocalEnvironment():
     def retrieve_results(self, job_id: str) -> Dict[str, Any]:
         self.logger.debug(f"Retrieving results for job {job_id}")
         job = self.jobs[job_id]
+        duration = round((job["end_time"] - job["start_time"]), 1) if job["end_time"] else None
         return {
             "status": job["status"].value,
-            "start_time": job["start_time"],
-            "end_time": job["end_time"],
+            "duration": duration,
             "cpu_usage": sum(job["cpu_usage"]) / len(job["cpu_usage"]) if job["cpu_usage"] else 0,
             "memory_usage": sum(job["memory_usage"]) / len(job["memory_usage"]) if job["memory_usage"] else 0,
-            "exit_code": job["process"].returncode if job["process"] else None,
-            "output": job["output"].getvalue()
+            "exit_code": job["process"].returncode if job["process"] else None
         }
+
 
     def _monitor_job(self, job_id: str) -> None:
         job = self.jobs[job_id]
@@ -186,6 +190,8 @@ class ComputeManager:
     def __init__(self, config: OverseerConfig):
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
+        self.log_simulation_output = self.config.get('log_simulation_output', False)
+
         self.environment = self._get_compute_environment()
         self.sim_dir = Path(self.config.get('directories', {}).get('elmfire_sim_dir', ''))
         self.start_script = self.sim_dir / self.config.get('directories', {}).get('start_script', '01-run.sh')
@@ -199,7 +205,7 @@ class ComputeManager:
     def _get_compute_environment(self):
         env_type = self.config.get('compute_environment', 'local')
         if env_type == 'local':
-            return LocalEnvironment(self.logger)
+            return LocalEnvironment(self.logger, self.log_simulation_output)
         else:
             raise ValueError(f"Unsupported compute environment: {env_type}")
 
@@ -224,7 +230,7 @@ class ComputeManager:
         self.logger.info(f"Retrieved results for job {job_id}: {json.dumps(results, indent=2)}")
         return results
 
-    def wait_for_simulation(self, job_id: str, check_interval: int = 60) -> JobStatus:
+    def wait_for_simulation(self, job_id: str, check_interval: int = 2) -> JobStatus:
         while True:
             status = self.check_simulation_status(job_id)
             if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
