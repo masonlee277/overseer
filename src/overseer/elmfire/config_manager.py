@@ -324,24 +324,27 @@ class ElmfireConfigManager:
         fuel_files = ['fbfm40.tif', 'cbd.tif', 'cbh.tif', 'ch.tif', 'cc.tif']
         
         self.logger.info("=" * 50)
-        self.logger.info(f"[_update_fuel_files]Current ELMFIRE config: {self.elmfire_config}")
+        self.logger.info(f"[_update_fuel_files] Current ELMFIRE config: {self.elmfire_config}")
         self.logger.info("=" * 50)
 
         self.clean_config()  # Clean the configuration before using it
         
         # Get the base simulation directory
-        sim_dir = Path(self.config.get('elmfire_sim_dir', ''))
+        sim_dir = Path(self.elmfire_config.get('directories', {}).get('elmfire_sim_dir', ''))
+        self.logger.info(f"Base simulation directory from config: {sim_dir}")
 
-        # if not sim_dir.is_absolute():
-        #     self.logger.info(f"Simulation directory is not absolute: {sim_dir}")
-        #     sim_dir = Path(os.getcwd()) / sim_dir
-        self.logger.info(f"Simulation directory is now absolute: {sim_dir}")
+        if not sim_dir.is_absolute():
+            self.logger.info(f"Simulation directory is not absolute: {sim_dir}")
+            sim_dir = Path(os.getcwd()) / sim_dir
+            self.logger.info(f"Converted to absolute path: {sim_dir}")
 
-        # Get the relative fuels directory path from the config
-        relative_fuels_dir = Path(self.elmfire_config.get('INPUTS', {}).get('FUELS_AND_TOPOGRAPHY_DIRECTORY', ''))
+        # Get the relative inputs directory path from the config
+        relative_inputs_dir = Path(self.elmfire_config.get('directories', {}).get('inputs', ''))
+        self.logger.info(f"Relative inputs directory from config: {relative_inputs_dir}")
         
         # Combine to get the absolute fuels directory path
-        fuels_dir = (sim_dir / relative_fuels_dir).resolve()
+        fuels_dir = (sim_dir / relative_inputs_dir).resolve()
+        self.logger.info(f"Absolute fuels directory path: {fuels_dir}")
         
         self.logger.info(f"Attempting to update fuel files in directory: {fuels_dir}")
         
