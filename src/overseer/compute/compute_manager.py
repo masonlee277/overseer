@@ -12,6 +12,8 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
 import psutil
+import threading
+
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
 
@@ -68,7 +70,9 @@ class LocalEnvironment():
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True
+                text=True,
+                bufsize=1,
+                universal_newlines=True
             )
             
             self.jobs[job_id] = {
@@ -83,7 +87,9 @@ class LocalEnvironment():
             self.logger.debug(f"Job {job_id} started with PID {process.pid}")
             
             # Start monitoring the process
-            self._monitor_job(job_id)
+            threading.Thread(target=self._monitor_job, args=(job_id,), daemon=True).start()
+            # Start capturing and streaming the output
+            threading.Thread(target=self._stream_output, args=(job_id,), daemon=True).start()
         except Exception as e:
             self.logger.error(f"Error submitting job {job_id}: {str(e)}")
             self.jobs[job_id] = {
@@ -96,6 +102,13 @@ class LocalEnvironment():
             }
         
         return job_id
+
+    def _stream_output(self, job_id: str) -> None:
+        process = self.jobs[job_id]["process"]
+        for line in iter(process.stdout.readline, ''):
+            if line:
+                self.logger.info(f"Job {job_id} output: {line.strip()}")
+        process.stdout.close()
 
     def _monitor_job(self, job_id: str) -> None:
         process = self.jobs[job_id]["process"]
