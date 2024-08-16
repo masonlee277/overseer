@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
 from datetime import datetime
 import numpy as np
@@ -65,24 +65,6 @@ class SimulationManager:
         self.sim_paths = self.config_manager.get_simulation_paths()
         self.logger.info(f"Simulation paths: {self.sim_paths}")
         return sim_config
-
-    def apply_action(self, action: Action) -> SimulationState:
-        """Apply an action to the simulation and run it."""
-        self.logger.info(f"Applying action: {action}")
-        self.config_manager.apply_action(action)
-        self.logger.info(f"Action applied, running simulation")
-        results = self.run_simulation()
-        self.logger.info("=" * 50)
-        self.logger.info(f"[apply action] Simulation results")
-
-        self.logger.info(f"Simulation results: {results}")
-        self.logger.info("=" * 50)
-
-        #check if the simulation is complete
-        done = self.check_simulation_complete(results)
-        if results is None: #log warnning
-            self.logger.warning("[apply_action] Simulation results are None")
-        return results, done
     
 
     # def run_simulation(self, sim_config: SimulationConfig = None) -> SimulationState:
@@ -106,24 +88,83 @@ class SimulationManager:
 
     #     self.data_manager.update_state(mock_state)
     #     return mock_state
-    
-    def run_simulation(self, sim_config: SimulationConfig = None) -> SimulationState:
-        self.logger.info("Running ELMFIRE simulation")
-        if sim_config is None:
-            sim_config = self.sim_config
+
+    def run_simulation(self, action: Optional[Action] = None) -> Tuple[SimulationState, float]:
+        """
+        Run an ELMFIRE simulation, optionally applying an action before the run.
+
+        This method orchestrates the entire simulation process:
+        1. Applies the given action to the current state (if provided)
+        2. Prepares the simulation configuration
+        3. Submits the simulation job to the ComputeManager
+        4. Waits for the simulation to complete
+        5. Processes the simulation results
+        6. Updates the simulation state in the DataManager
+        7. Calculates the reward based on the new state
+        8. Determines if the simulation/episode is complete
+
+        Args:
+            action (Optional[Action]): The action to apply before running the simulation.
+                                       If None, the simulation runs with the current configuration.
+
+        Returns:
+            Tuple[SimulationState, float, bool]:
+                - SimulationState: The new state after the simulation run
+                - bool: Whether the simulation/episode is complete
+
+        Raises:
+            Exception: If there's an error during the simulation process
+        """
+        self.logger.info("Starting ELMFIRE simulation run")
         
-        # Run the simulation using ComputeManager
-        result = self.compute_manager.submit_simulation()
-        self.logger.info(f"Simulation finished with job ID: {result.job_id}")
-        if result.status == JobStatus.COMPLETED:
-            # Create a SimulationState from the result
-            state = self._create_simulation_state_from_result(result, sim_config)
-            self.data_manager.update_state(state)
-            return state
-        else:
-            self.logger.error(f"Simulation failed with status: {result.status}")
-            print('failed the simulation')
-            return None
+        try:
+            # Apply action if provided
+            if action:
+                self.logger.info(f"Applying action to current state: {action}")
+                self.config_manager.apply_action(action)
+            else:
+                self.logger.info("No action provided, running simulation with current configuration")
+
+            # Prepare simulation configuration
+            sim_config = self.config_manager.get_config_for_simulation()
+            self.logger.debug(f"Prepared simulation configuration: {sim_config}")
+
+            # Submit simulation to ComputeManager
+            self.logger.info("Submitting simulation to ComputeManager")
+            sim_result = self.compute_manager.submit_simulation()
+            
+            if sim_result.status != JobStatus.COMPLETED:
+                self.logger.error(f"Simulation failed with status: {sim_result.status}")
+                self.logger.error(f"Error message: {sim_result.error_message}")
+                raise Exception(f"Simulation failed: {sim_result.error_message}")
+
+            self.logger.info(f"Simulation completed successfully. Job ID: {sim_result.job_id}")
+            self.logger.debug(f"Simulation results: {sim_result}")
+
+            # Convert SimulationResult to SimulationState
+            self.logger.info("Converting simulation result to SimulationState")
+            new_state = self.data_manager.simresult_to_simstate(sim_result)
+            
+            if new_state is None:
+                self.logger.error("Failed to convert SimulationResult to SimulationState")
+                raise Exception("Failed to create new SimulationState")
+
+            self.logger.debug(f"New SimulationState created: {new_state}")
+
+            # Update state in DataManager
+            self.logger.info("Updating state in DataManager")
+            self.data_manager.update_state(new_state)
+
+            # Check if simulation is complete
+            done = self.check_simulation_complete(new_state)
+            self.logger.info(f"Simulation complete: {done}")
+
+            return new_state, done
+
+        except Exception as e:
+            self.logger.error(f"Error during simulation run: {str(e)}")
+            raise
+
 
     def _create_simulation_state_from_result(self, result: SimulationResult, sim_config: SimulationConfig) -> SimulationState:
         # Implement this method to create a SimulationState from the SimulationResult
@@ -320,19 +361,25 @@ class SimulationManager:
         return initial_state
     
 
-def main():
-    # Import necessary modules
-    from overseer.config.config import OverseerConfig
-    from overseer.elmfire.config_manager import ElmfireConfigManager
-    from overseer.data.data_manager import DataManager
+from overseer.config.config import OverseerConfig
+from overseer.elmfire.config_manager import ElmfireConfigManager
+from overseer.data.data_manager import DataManager
+from overseer.compute.compute_manager import ComputeManager
+from overseer.rl.spaces.action_space import ActionSpace
+from overseer.core.models import Action
 
+def main():
     # Initialize components
     config = OverseerConfig()
     data_manager = DataManager(config)
-    config_manager = ElmfireConfigManager(config,data_manager)
+    config_manager = ElmfireConfigManager(config, data_manager)
+    compute_manager = ComputeManager(config)
 
     # Create SimulationManager instance
-    sim_manager = SimulationManager(config, config_manager, data_manager)
+    sim_manager = SimulationManager(config, config_manager, data_manager, compute_manager)
+
+    # Create ActionSpace
+    action_space = ActionSpace(config, data_manager)
 
     # Print simulation parameters
     print("Simulation Parameters Summary:")
@@ -341,6 +388,19 @@ def main():
     # Print simulation summary
     print("\nSimulation Summary:")
     sim_manager.print_simulation_summary()
+
+    # Generate a random action
+    random_action = action_space.sample_action()
+    print(f"\nRandom Action Generated: {random_action}")
+
+    # Run simulation with the random action
+    try:
+        new_state, done = sim_manager.run_simulation(random_action)
+        print(f"\nSimulation Results:")
+        print(f"New State: {new_state}")
+        print(f"Done: {done}")
+    except Exception as e:
+        print(f"Error during simulation: {str(e)}")
 
 if __name__ == "__main__":
     main()

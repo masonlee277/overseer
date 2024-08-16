@@ -17,7 +17,7 @@ from overseer.config.config import OverseerConfig
 from overseer.data.geospatial_manager import GeoSpatialManager
 from overseer.data.state_manager import StateManager
 from overseer.core.models import (
-    SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics,
+    SimulationResult, SimulationState, SimulationConfig, SimulationPaths, SimulationMetrics,
     InputPaths, OutputPaths, Action, EpisodeStep, Episode
 )
 
@@ -233,6 +233,73 @@ class DataManager:
         self.state_manager.add_step(step)
 
 
+
+    def simresult_to_simstate(self, sim_result: SimulationResult) -> SimulationState:
+        self.logger.info(f"Converting SimulationResult to SimulationState for job {sim_result.job_id}")
+
+        # Get the current state to use as a base
+        current_state = self.get_current_state()
+        if current_state is None:
+            self.logger.error("No current state available. Cannot convert SimulationResult to SimulationState.")
+            return None
+
+        # Get the simulation directory and output directory
+        sim_dir = Path(self.config.get('directories', {}).get('elmfire_sim_dir', ''))
+        output_dir = sim_dir / self.config.get('directories', {}).get('outputs', 'outputs')
+        self.logger.debug(f"Simulation directory: {sim_dir}")
+        self.logger.debug(f"Output directory: {output_dir}")
+
+        # Update the output paths
+        flin_file = list(output_dir.glob("flin_*.tif"))
+        toa_file = list(output_dir.glob("time_of_arrival_*.tif"))
+
+        self.logger.debug(f"Found {len(flin_file)} fire intensity files and {len(toa_file)} time of arrival files")
+
+        if not flin_file or not toa_file:
+            self.logger.error(f"Required output files not found in {output_dir}")
+            return None
+
+        new_output_paths = OutputPaths(
+            time_of_arrival=toa_file[0],
+            fire_intensity=flin_file[0],
+            flame_length=current_state.paths.output_paths.flame_length,
+            spread_rate=current_state.paths.output_paths.spread_rate
+        )
+        self.logger.debug(f"New output paths: {new_output_paths}")
+
+        new_paths = SimulationPaths(
+            input_paths=current_state.paths.input_paths,
+            output_paths=new_output_paths
+        )
+
+        # Create a new SimulationState with updated paths
+        new_state = SimulationState(
+            timestamp=datetime.now(),
+            config=current_state.config,
+            paths=new_paths,
+            metrics=current_state.metrics,
+            save_path=current_state.save_path,
+            resources=current_state.resources,
+            weather=current_state.weather
+        )
+        self.logger.debug(f"Created new SimulationState with timestamp: {new_state.timestamp}")
+
+        # Calculate new metrics
+        self.logger.info("Calculating new state metrics")
+        new_state = self.calculate_state_metrics(new_state)
+
+        # Update the state with information from SimulationResult
+        new_state.metrics.execution_time = sim_result.duration
+        new_state.metrics.performance_metrics = {
+            'cpu_usage': sim_result.cpu_usage,
+            'memory_usage': sim_result.memory_usage
+        }
+        self.logger.debug(f"Updated metrics: execution_time={new_state.metrics.execution_time}, "
+                          f"cpu_usage={new_state.metrics.performance_metrics['cpu_usage']}, "
+                          f"memory_usage={new_state.metrics.performance_metrics['memory_usage']}")
+
+        self.logger.info(f"Successfully converted SimulationResult to SimulationState for job {sim_result.job_id}")
+        return new_state
 
     def calculate_state_metrics(self, state: SimulationState) -> SimulationState:
         """

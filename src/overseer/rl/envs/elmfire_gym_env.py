@@ -41,8 +41,6 @@ class ElmfireGymEnv(gym.Env):
         )
         #####################################
 
-
-
         self.reward_manager = RewardManager(self.config, self.data_manager)
         
         self.observation_space = ObservationSpace(self.config).space
@@ -96,7 +94,7 @@ class ElmfireGymEnv(gym.Env):
 
 
 
-        
+
         # Encode the next state
         #encoded_next_state = self.state_encoder.encode(next_state.get_raw_data())
         #convert next state to array
