@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any
 from datetime import datetime
+import os
 from overseer.config.config import OverseerConfig
 
 class OverseerLogger:
@@ -27,8 +28,13 @@ class OverseerLogger:
         self._initialized = True
         self.config = OverseerConfig()
         self.loggers: Dict[str, logging.Logger] = {}
-        self.log_dir: Path = self.config.log_dir
+        
+        # Hardcode the log directory based on the project structure
+        project_root = Path(__file__).resolve().parents[2]  # Assuming logging.py is in src/overseer/utils
+        self.log_dir: Path = project_root / 'logs'
+        
         self._create_log_directory()
+        print(f"Logs will be stored in: {self.log_dir.absolute()}")
 
     def _create_log_directory(self) -> None:
         """Create the log directory if it doesn't exist."""
@@ -72,6 +78,8 @@ class OverseerLogger:
 
         logger.addHandler(file_handler)
         self.loggers[name] = logger
+
+        print(f"Logger '{name}' initialized. Log file: {log_file.absolute()}")
 
     def log(self, name: str, level: str, message: str, **kwargs: Any) -> None:
         """

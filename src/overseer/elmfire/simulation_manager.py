@@ -295,3 +295,29 @@ class SimulationManager:
         self.data_manager.reset()
         self.data_manager.update_state(initial_state)
         return initial_state
+    
+
+def main():
+    # Import necessary modules
+    from overseer.config.config import OverseerConfig
+    from overseer.elmfire.config_manager import ElmfireConfigManager
+    from overseer.data.data_manager import DataManager
+
+    # Initialize components
+    config = OverseerConfig()
+    data_manager = DataManager(config)
+    config_manager = ElmfireConfigManager(config,data_manager)
+
+    # Create SimulationManager instance
+    sim_manager = SimulationManager(config, config_manager, data_manager)
+
+    # Print simulation parameters
+    print("Simulation Parameters Summary:")
+    sim_manager.print_simulation_params()
+
+    # Print simulation summary
+    print("\nSimulation Summary:")
+    sim_manager.print_simulation_summary()
+
+if __name__ == "__main__":
+    main()
