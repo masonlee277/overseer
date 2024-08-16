@@ -76,6 +76,10 @@ class ElmfireDataInHandler:
         self.config = config
         self.logger = logger
         self.elmfire_data_in: Dict[str, Dict[str, Any]] = {}
+        self.input_dir = None
+        self.output_dir = None
+        self.data_in_path = None
+
         self._load_config()
         self.load_elmfire_data_in()  # Add this line to load the data immediately
     
@@ -84,7 +88,7 @@ class ElmfireDataInHandler:
         self.logger.info("Setting up file paths")
 
         # Get the base directory
-        self.elmfire_base = Path(yaml_config['directories']['elmfire_base'])
+        self.elmfire_base = Path(yaml_config['directories']['elmfire_sim_dir'])
 
         # Set up other directories
         self.input_dir = self.elmfire_base / yaml_config['directories']['inputs']
@@ -204,70 +208,36 @@ class ElmfireDataInHandler:
             self.logger.error(f"Failed to load elmfire.data.in: {str(e)}")
             raise
 
-
     def get_input_paths(self) -> InputPaths:
         """
         Create an InputPaths object from the current elmfire.data.in configuration.
         """
         inputs = self.elmfire_data_in.get('INPUTS', {})
+        
         return InputPaths(
-            fuels_and_topography_directory=inputs.get('FUELS_AND_TOPOGRAPHY_DIRECTORY', '').strip("'"),
-            asp_filename=inputs.get('ASP_FILENAME', '').strip("'"),
-            cbd_filename=inputs.get('CBD_FILENAME', '').strip("'"),
-            cbh_filename=inputs.get('CBH_FILENAME', '').strip("'"),
-            cc_filename=inputs.get('CC_FILENAME', '').strip("'"),
-            ch_filename=inputs.get('CH_FILENAME', '').strip("'"),
-            dem_filename=inputs.get('DEM_FILENAME', '').strip("'"),
-            fbfm_filename=inputs.get('FBFM_FILENAME', '').strip("'"),
-            slp_filename=inputs.get('SLP_FILENAME', '').strip("'"),
-            adj_filename=inputs.get('ADJ_FILENAME', '').strip("'"),
-            phi_filename=inputs.get('PHI_FILENAME', '').strip("'"),
-            weather_directory=inputs.get('WEATHER_DIRECTORY', '').strip("'"),
-            ws_filename=inputs.get('WS_FILENAME', '').strip("'"),
-            wd_filename=inputs.get('WD_FILENAME', '').strip("'"),
-            m1_filename=inputs.get('M1_FILENAME', '').strip("'"),
-            m10_filename=inputs.get('M10_FILENAME', '').strip("'"),
-            m100_filename=inputs.get('M100_FILENAME', '').strip("'"),
-            fire='',  # You'll need to set these based on your specific requirements
-            vegetation='',
-            elevation='',
-            wind='',
-            fuel_moisture=''
+            fuels_and_topography_directory=str(self.input_dir),
+            asp_filename=self._get_input_filename('ASP_FILENAME'),
+            cbd_filename=self._get_input_filename('CBD_FILENAME'),
+            cbh_filename=self._get_input_filename('CBH_FILENAME'),
+            cc_filename=self._get_input_filename('CC_FILENAME'),
+            ch_filename=self._get_input_filename('CH_FILENAME'),
+            dem_filename=self._get_input_filename('DEM_FILENAME'),
+            fbfm_filename=self._get_input_filename('FBFM_FILENAME'),
+            slp_filename=self._get_input_filename('SLP_FILENAME'),
+            adj_filename=self._get_input_filename('ADJ_FILENAME'),
+            phi_filename=self._get_input_filename('PHI_FILENAME'),
+            weather_directory=str(self.input_dir),
+            ws_filename=self._get_input_filename('WS_FILENAME'),
+            wd_filename=self._get_input_filename('WD_FILENAME'),
+            m1_filename=self._get_input_filename('M1_FILENAME'),
+            m10_filename=self._get_input_filename('M10_FILENAME'),
+            m100_filename=self._get_input_filename('M100_FILENAME'),
         )
 
-    def get_input_output_paths(self) -> Tuple[InputPaths, OutputPaths]:
-        inputs = self.elmfire_data_in.get('INPUTS', {})
-        outputs = self.elmfire_data_in.get('OUTPUTS', {})
+    def _get_input_filename(self, key: str) -> str:
+        """Helper method to get input filename from elmfire.data.in"""
+        return self.elmfire_data_in.get('INPUTS', {}).get(key, '').strip("'")
 
-        input_paths = InputPaths(
-            fuels_and_topography_directory=inputs.get('FUELS_AND_TOPOGRAPHY_DIRECTORY', '').strip("'"),
-            asp_filename=inputs.get('ASP_FILENAME', '').strip("'"),
-            cbd_filename=inputs.get('CBD_FILENAME', '').strip("'"),
-            cbh_filename=inputs.get('CBH_FILENAME', '').strip("'"),
-            cc_filename=inputs.get('CC_FILENAME', '').strip("'"),
-            ch_filename=inputs.get('CH_FILENAME', '').strip("'"),
-            dem_filename=inputs.get('DEM_FILENAME', '').strip("'"),
-            fbfm_filename=inputs.get('FBFM_FILENAME', '').strip("'"),
-            slp_filename=inputs.get('SLP_FILENAME', '').strip("'"),
-            adj_filename=inputs.get('ADJ_FILENAME', '').strip("'"),
-            phi_filename=inputs.get('PHI_FILENAME', '').strip("'"),
-            weather_directory=inputs.get('WEATHER_DIRECTORY', '').strip("'"),
-            ws_filename=inputs.get('WS_FILENAME', '').strip("'"),
-            wd_filename=inputs.get('WD_FILENAME', '').strip("'"),
-            m1_filename=inputs.get('M1_FILENAME', '').strip("'"),
-            m10_filename=inputs.get('M10_FILENAME', '').strip("'"),
-            m100_filename=inputs.get('M100_FILENAME', '').strip("'"),
-            fire=inputs.get('FIRE_FILENAME', '').strip("'"),
-            vegetation=inputs.get('VEGETATION_FILENAME', '').strip("'"),
-            elevation=inputs.get('ELEVATION_FILENAME', '').strip("'"),
-            wind=inputs.get('WIND_FILENAME', '').strip("'"),
-            fuel_moisture=inputs.get('FUEL_MOISTURE_FILENAME', '').strip("'")
-        )
-
-        output_paths = self.get_output_paths()
-
-        return input_paths, output_paths
-    
     def get_output_paths(self) -> OutputPaths:
         """
         Create an OutputPaths object from the current elmfire.data.in configuration.
@@ -277,17 +247,14 @@ class ElmfireDataInHandler:
         if not outputs:
             self.logger.warning("OUTPUTS section not found in elmfire.data.in")
         
-        output_dir = outputs.get('OUTPUTS_DIRECTORY', '').strip("'")
-        if not output_dir:
-            self.logger.warning("OUTPUTS_DIRECTORY not specified in elmfire.data.in")
-        
+        output_dir = str(self.output_dir)
         self.logger.debug(f"Output directory: {output_dir}")
         
         output_paths = OutputPaths(
-            time_of_arrival=f"{output_dir}/time_of_arrival",
-            fire_intensity=f"{output_dir}/fire_intensity",
-            flame_length=f"{output_dir}/flame_length",
-            spread_rate=f"{output_dir}/spread_rate"
+            time_of_arrival=str(Path(output_dir) / "time_of_arrival"),
+            fire_intensity=str(Path(output_dir) / "fire_intensity"),
+            flame_length=str(Path(output_dir) / "flame_length"),
+            spread_rate=str(Path(output_dir) / "spread_rate")
         )
         
         for attr, path in output_paths.__dict__.items():
@@ -297,6 +264,12 @@ class ElmfireDataInHandler:
                 self.logger.debug(f"{attr.upper()} path: {path}")
         
         return output_paths
+
+    def get_input_output_paths(self) -> Tuple[InputPaths, OutputPaths]:
+        """
+        Get both input and output paths.
+        """
+        return self.get_input_paths(), self.get_output_paths()
 
     
 
@@ -376,42 +349,44 @@ class ElmfireDataInHandler:
         Returns:
             bool: True if all required files exist, False otherwise.
         """
-        inputs = self.elmfire_data_in.get('INPUTS', {})
-        fuels_dir = Path(self.base_path) / inputs.get('FUELS_AND_TOPOGRAPHY_DIRECTORY', '').strip("'")
-        weather_dir = Path(self.base_path) / inputs.get('WEATHER_DIRECTORY', '').strip("'")
-
+        self.logger.info(f"Validating input files in directory: {self.input_dir}")
+        input_paths = self.get_input_paths()
+        
         required_files = [
-            (fuels_dir / inputs.get('ASP_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('CBD_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('CBH_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('CC_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('CH_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('DEM_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('FBFM40_FILENAME', '').strip("'")),
-            (fuels_dir / inputs.get('SLP_FILENAME', '').strip("'")),
-            (weather_dir / inputs.get('WS_FILENAME', '').strip("'")),
-            (weather_dir / inputs.get('WD_FILENAME', '').strip("'")),
-            (weather_dir / inputs.get('M1_FILENAME', '').strip("'")),
-            (weather_dir / inputs.get('M10_FILENAME', '').strip("'")),
-            (weather_dir / inputs.get('M100_FILENAME', '').strip("'")),
+            (self.input_dir / input_paths.asp_filename),
+            (self.input_dir / input_paths.cbd_filename),
+            (self.input_dir / input_paths.cbh_filename),
+            (self.input_dir / input_paths.cc_filename),
+            (self.input_dir / input_paths.ch_filename),
+            (self.input_dir / input_paths.dem_filename),
+            (self.input_dir / input_paths.fbfm_filename),
+            (self.input_dir / input_paths.slp_filename),
+            (self.input_dir / input_paths.adj_filename),
+            (self.input_dir / input_paths.phi_filename),
+            (self.input_dir / input_paths.ws_filename),
+            (self.input_dir / input_paths.wd_filename),
+            (self.input_dir / input_paths.m1_filename),
+            (self.input_dir / input_paths.m10_filename),
+            (self.input_dir / input_paths.m100_filename),
         ]
 
         all_files_exist = True
+        missing_files = []
         for file_path in required_files:
             if not file_path.exists():
                 self.logger.error(f"Required input file not found: {file_path}")
                 all_files_exist = False
+                missing_files.append(str(file_path))
             else:
                 self.logger.debug(f"Found required input file: {file_path}")
 
         if all_files_exist:
             self.logger.info("All required input files are present.")
         else:
-            self.logger.warning("Some required input files are missing.")
+            self.logger.warning(f"Some required input files are missing: {', '.join(missing_files)}")
+            self.logger.info(f"Searched for files in: {self.input_dir}")
 
         return all_files_exist
-
-    
     def save_elmfire_data_in(self) -> None:
         """
         Save the current elmfire.data.in configuration back to file.

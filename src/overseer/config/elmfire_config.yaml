@@ -15,7 +15,7 @@ data_management:
   storage_type: file
 
 directories:
-  elmfire_base: /teamspace/studios/this_studio/elmfire/tutorials/00-test
+  elmfire_sim_dir: /teamspace/studios/this_studio/elmfire/tutorials/00-test
   inputs: inputs
   outputs: outputs
   data_in: elmfire.data.in
@@ -29,6 +29,8 @@ environment:
   elmfire_base_dir: C:/Users/mason/Desktop/misc/overseer/elmfire
   elmfire_install_dir: C:/Users/mason/Desktop/misc/overseer/elmfire/build/linux/bin
   elmfire_scratch_base: C:/Users/mason/Desktop/misc/overseer/elmfire/scratch
+
+
 fuel:
   moisture_100hr: 8
   moisture_10hr: 7

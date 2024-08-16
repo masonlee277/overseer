@@ -23,11 +23,7 @@ class InputPaths:
     m1_filename: Path
     m10_filename: Path
     m100_filename: Path
-    fire: Path
-    vegetation: Path
-    elevation: Path
-    wind: Path
-    fuel_moisture: Path
+
 
 @dataclass
 class OutputPaths:
