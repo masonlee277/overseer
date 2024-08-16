@@ -141,7 +141,7 @@ class ElmfireDataInHandler:
         Returns:
             str: The cleaned value.
         """
-        # Remove comments
+        # Remove comments and trim whitespace
         value = re.sub(r'!.*$', '', value).strip()
 
         # Handle boolean values
@@ -172,7 +172,9 @@ class ElmfireDataInHandler:
         """
         if value is not None:
             cleaned_value = self.clean_value(str(value))
-            self.elmfire_data_in.setdefault(section, {})[key] = cleaned_value
+            if section not in self.elmfire_data_in:
+                self.elmfire_data_in[section] = {}
+            self.elmfire_data_in[section][key] = cleaned_value
             self.logger.info(f"Set parameter in elmfire.data.in: [{section}] {key} = {cleaned_value}")
         else:
             self.logger.warning(f"Attempted to set parameter with None value: [{section}] {key}")
