@@ -4,6 +4,9 @@ import uuid
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 import time
+import os
+import sys
+
 from abc import ABC, abstractmethod
 from enum import Enum
 from dataclasses import dataclass, asdict
@@ -42,39 +45,21 @@ class JobInfo:
     resources: JobResources
     metrics: Optional[JobMetrics] = None
 
-class ComputeEnvironment(ABC):
-    @abstractmethod
-    def submit_job(self, command: str, resources: JobResources) -> str:
-        pass
 
-    @abstractmethod
-    def check_job_status(self, job_id: str) -> JobStatus:
-        pass
 
-    @abstractmethod
-    def cancel_job(self, job_id: str) -> bool:
-        pass
-
-    @abstractmethod
-    def retrieve_results(self, job_id: str) -> Dict[str, Any]:
-        pass
-
-    @abstractmethod
-    def get_job_metrics(self, job_id: str) -> JobMetrics:
-        pass
-
-class LocalEnvironment(ComputeEnvironment):
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        
-        self.jobs: Dict[str, Dict[str, Any]] = {}
-
-    def submit_job(self, job_id: str, command: str) -> None:
+class LocalEnvironment():
+    def __init__(self, logger):
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = OverseerLogger.getLogger(__name__)
+            self.logger.setLevel(OverseerLogger.DEBUG)
+            handler = OverseerLogger.StreamHandler()
+            formatter = OverseerLogger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+    def submit_job(self, command: str) -> str:
+        job_id = str(uuid.uuid4())
         self.logger.info(f"Submitting job {job_id} with command: {command}")
         
         try:
@@ -109,7 +94,8 @@ class LocalEnvironment(ComputeEnvironment):
                 "cpu_usage": [],
                 "memory_usage": [],
             }
-
+        
+        return job_id
 
     def _monitor_job(self, job_id: str) -> None:
         process = self.jobs[job_id]["process"]
@@ -199,7 +185,7 @@ class ComputeManager:
         self.logger.info(f"Initialized ComputeManager with simulation directory: {self.sim_dir}")
         self.logger.info(f"Using start script: {self.start_script}")
 
-    def _get_compute_environment(self) -> ComputeEnvironment:
+    def _get_compute_environment(self):
         env_type = self.config.get('compute_environment', 'local')
         if env_type == 'local':
             return LocalEnvironment(self.logger)
@@ -207,11 +193,14 @@ class ComputeManager:
             raise ValueError(f"Unsupported compute environment: {env_type}")
 
     def submit_simulation(self) -> str:
-        command = f"bash {self.start_script.name}"
+        command = f"cd {self.sim_dir} && bash {self.start_script.name}"
+        self.logger.info(f"Preparing to submit simulation with command: {command}")
+        
         resources = JobResources(**self.config.get('compute_resources', {}))
-        job_id = self.environment.submit_job(command, resources, cwd=self.sim_dir)
+        job_id = self.environment.submit_job(command)
         self.logger.info(f"Submitted simulation job {job_id}")
         return job_id
+    
 
     def check_simulation_status(self, job_id: str) -> JobStatus:
         return self.environment.check_job_status(job_id)
@@ -241,45 +230,64 @@ class ComputeManager:
 
 
 def main():
-    # Initialize the configuration
-    config_path = Path(__file__).parent.parent / 'config' / 'elmfire_config.yaml'
-    config = OverseerConfig(config_path)
-
-    # Initialize the ComputeManager
+    logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
+    
     try:
-        compute_manager = ComputeManager(config)
-    except FileNotFoundError as e:
-        print(f"Error initializing ComputeManager: {e}")
-        return
+        # Initialize the configuration
+        config_path = Path(__file__).parent.parent / 'config' / 'elmfire_config.yaml'
+        config = OverseerConfig(config_path)
+        logger.info(f"Configuration loaded from {config_path}")
 
-    # Submit a simulation
-    job_id = compute_manager.submit_simulation()
-    print(f"Submitted simulation job with ID: {job_id}")
+        # Initialize the ComputeManager
+        try:
+            compute_manager = ComputeManager(config)
+            logger.info("ComputeManager initialized successfully")
+        except FileNotFoundError as e:
+            logger.error(f"Error initializing ComputeManager: {e}")
+            sys.exit(1)
 
-    # Wait for the simulation to complete
-    final_status = compute_manager.wait_for_simulation(job_id)
-    print(f"Simulation completed with status: {final_status}")
+        # Submit a simulation
+        try:
+            job_id = compute_manager.submit_simulation()
+            logger.info(f"Submitted simulation job with ID: {job_id}")
+        except Exception as e:
+            logger.error(f"Error submitting simulation: {e}")
+            sys.exit(1)
 
-    # Retrieve and check the results
-    results = compute_manager.retrieve_simulation_results(job_id)
-    if results:
-        print("Simulation results:")
-        print(json.dumps(results, indent=2))
-        
-        # Check if the job completed successfully
-        if results.get('status') == JobStatus.COMPLETED.value:
-            print("Simulation completed successfully.")
-        else:
-            print(f"Simulation did not complete successfully. Status: {results.get('status')}")
-        
-        # Check if metrics are available
-        if 'metrics' in results:
-            print("Job metrics:")
-            print(json.dumps(results['metrics'], indent=2))
-        else:
-            print("No job metrics available.")
-    else:
-        print("No results retrieved for the simulation.")
+        # Wait for the simulation to complete
+        try:
+            final_status = compute_manager.wait_for_simulation(job_id)
+            logger.info(f"Simulation completed with status: {final_status}")
+        except Exception as e:
+            logger.error(f"Error waiting for simulation to complete: {e}")
+            sys.exit(1)
+
+        # Retrieve and check the results
+        try:
+            results = compute_manager.retrieve_simulation_results(job_id)
+            if results:
+                logger.info("Simulation results retrieved successfully")
+                logger.debug(f"Results: {json.dumps(results, indent=2)}")
+                
+                if results.get('status') == JobStatus.COMPLETED.value:
+                    logger.info("Simulation completed successfully")
+                else:
+                    logger.warning(f"Simulation did not complete successfully. Status: {results.get('status')}")
+                
+                if 'metrics' in results:
+                    logger.info("Job metrics available")
+                    logger.debug(f"Metrics: {json.dumps(results['metrics'], indent=2)}")
+                else:
+                    logger.warning("No job metrics available")
+            else:
+                logger.warning("No results retrieved for the simulation")
+        except Exception as e:
+            logger.error(f"Error retrieving simulation results: {e}")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.critical(f"Unexpected error in main function: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
