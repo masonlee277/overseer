@@ -549,8 +549,9 @@ def main():
     """
     Main function for testing the ElmfireDataInHandler.
 
-    This function demonstrates the basic usage of the ElmfireDataInHandler class,
-    including loading, modifying, saving, and reloading the elmfire.data.in file.
+    This function demonstrates the usage of the ElmfireDataInHandler class,
+    including loading, modifying, saving, and validating the elmfire.data.in file.
+    It uses assertions to ensure the expected behavior.
     """
     from overseer.config.config import OverseerConfig
     from overseer.utils.logging import OverseerLogger
@@ -564,55 +565,51 @@ def main():
 
     # Test loading elmfire.data.in
     handler.load_elmfire_data_in()
+    assert handler.elmfire_data_in, "Failed to load elmfire.data.in"
 
-    print("1. Original elmfire.data.in file contents:")
-    handler.print_input_file()
+    print("1. Original elmfire.data.in file loaded successfully.")
 
-    print("\n2. Internal data structure after loading:")
-    handler.print_internal_structure()
-
-    # Make some changes
+    # Test setting parameters
     handler.set_parameter('INPUTS', 'FUELS_AND_TOPOGRAPHY_DIRECTORY', '/new/path/to/fuels')
     handler.set_parameter('OUTPUTS', 'DUMP_SPREAD_RATE', '.TRUE.')
     handler.set_parameter('TIME_CONTROL', 'SIMULATION_TSTOP', '43200.0')
 
-    print("\n3. Internal data structure after first set of changes:")
-    handler.print_internal_structure()
+    assert handler.get_parameter('INPUTS', 'FUELS_AND_TOPOGRAPHY_DIRECTORY') == "'/new/path/to/fuels'", "Failed to set FUELS_AND_TOPOGRAPHY_DIRECTORY"
+    assert handler.get_parameter('OUTPUTS', 'DUMP_SPREAD_RATE') == '.TRUE.', "Failed to set DUMP_SPREAD_RATE"
+    assert handler.get_parameter('TIME_CONTROL', 'SIMULATION_TSTOP') == '43200.0', "Failed to set SIMULATION_TSTOP"
 
-    # Save changes
+    print("2. Parameters set successfully.")
+
+    # Test saving changes
     handler.save_elmfire_data_in()
 
     # Reload the file to ensure changes were saved
     handler.load_elmfire_data_in()
 
-    print("\n4. Reloaded data structure to verify changes:")
-    handler.print_internal_structure()
+    assert handler.get_parameter('INPUTS', 'FUELS_AND_TOPOGRAPHY_DIRECTORY') == "'/new/path/to/fuels'", "Failed to save and reload FUELS_AND_TOPOGRAPHY_DIRECTORY"
+    assert handler.get_parameter('OUTPUTS', 'DUMP_SPREAD_RATE') == '.TRUE.', "Failed to save and reload DUMP_SPREAD_RATE"
+    assert handler.get_parameter('TIME_CONTROL', 'SIMULATION_TSTOP') == '43200.0', "Failed to save and reload SIMULATION_TSTOP"
 
-    # Make more changes
-    handler.set_parameter('COMPUTATIONAL_DOMAIN', 'COMPUTATIONAL_DOMAIN_CELLSIZE', '60')
-    handler.set_parameter('SIMULATOR', 'NUM_IGNITIONS', '2')
-    
-    # Update from YAML config
-    yaml_config = config.get_config()
-    handler.update_from_yaml(yaml_config)
+    print("3. Changes saved and reloaded successfully.")
 
-    print("\n5. Internal data structure after second set of changes and YAML update:")
-    handler.print_internal_structure()
+    # Test getting input and output paths
+    input_paths, output_paths = handler.get_input_output_paths()
+    assert input_paths.fuels_and_topography_directory == '/new/path/to/fuels', "Incorrect fuels_and_topography_directory"
+    assert output_paths.time_of_arrival, "Missing time_of_arrival in output paths"
 
-    # Save changes again
-    handler.save_elmfire_data_in()
+    print("4. Input and output paths retrieved successfully.")
 
-    # Final reload and print
-    handler.load_elmfire_data_in()
-    
-    print("\n6. Final elmfire.data.in file contents:")
-    handler.print_input_file()
+    # Test validating input files
+    validation_result = handler.validate_input_files()
+    print(f"5. Input file validation result: {validation_result}")
 
-    print("\n7. Final internal data structure:")
-    handler.print_internal_structure()
+    # Test validating structure
+    structure_valid = handler.validate_structure()
+    assert structure_valid, "elmfire.data.in structure is invalid"
 
-    # Validate structure
-    print(f"\n8. elmfire.data.in structure is valid: {handler.validate_structure()}")
+    print("6. elmfire.data.in structure is valid.")
+
+    print("\nAll tests passed successfully!")
 
 if __name__ == "__main__":
     main()
