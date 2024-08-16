@@ -12,11 +12,11 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
 import psutil
-import threading
+import threading 
+
 
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
-
 class JobStatus(Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
@@ -51,6 +51,8 @@ class JobInfo:
 
 class LocalEnvironment():
     def __init__(self, logger):
+        self.jobs: Dict[str, Dict[str, Any]] = {}  # Initialize the jobs dictionary
+
         if logger:
             self.logger = logger
         else:
@@ -60,6 +62,7 @@ class LocalEnvironment():
             formatter = OverseerLogger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
+            
     def submit_job(self, command: str) -> str:
         job_id = str(uuid.uuid4())
         self.logger.info(f"Submitting job {job_id} with command: {command}")
@@ -82,14 +85,15 @@ class LocalEnvironment():
                 "end_time": None,
                 "cpu_usage": [],
                 "memory_usage": [],
+                "output": io.StringIO()
             }
             
             self.logger.debug(f"Job {job_id} started with PID {process.pid}")
             
             # Start monitoring the process
             threading.Thread(target=self._monitor_job, args=(job_id,), daemon=True).start()
-            # Start capturing and streaming the output
-            threading.Thread(target=self._stream_output, args=(job_id,), daemon=True).start()
+            # Start capturing the output
+            threading.Thread(target=self._capture_output, args=(job_id,), daemon=True).start()
         except Exception as e:
             self.logger.error(f"Error submitting job {job_id}: {str(e)}")
             self.jobs[job_id] = {
@@ -99,19 +103,38 @@ class LocalEnvironment():
                 "end_time": time.time(),
                 "cpu_usage": [],
                 "memory_usage": [],
+                "output": io.StringIO(f"Failed to start: {str(e)}")
             }
         
         return job_id
 
-    def _stream_output(self, job_id: str) -> None:
-        process = self.jobs[job_id]["process"]
+    def _capture_output(self, job_id: str) -> None:
+        job = self.jobs[job_id]
+        process = job["process"]
+        output_buffer = job["output"]
+
         for line in iter(process.stdout.readline, ''):
-            if line:
-                self.logger.info(f"Job {job_id} output: {line.strip()}")
+            self.logger.info(f"Job {job_id} output: {line.strip()}")
+            output_buffer.write(line)
+
         process.stdout.close()
 
+    def retrieve_results(self, job_id: str) -> Dict[str, Any]:
+        self.logger.debug(f"Retrieving results for job {job_id}")
+        job = self.jobs[job_id]
+        return {
+            "status": job["status"].value,
+            "start_time": job["start_time"],
+            "end_time": job["end_time"],
+            "cpu_usage": sum(job["cpu_usage"]) / len(job["cpu_usage"]) if job["cpu_usage"] else 0,
+            "memory_usage": sum(job["memory_usage"]) / len(job["memory_usage"]) if job["memory_usage"] else 0,
+            "exit_code": job["process"].returncode if job["process"] else None,
+            "output": job["output"].getvalue()
+        }
+
     def _monitor_job(self, job_id: str) -> None:
-        process = self.jobs[job_id]["process"]
+        job = self.jobs[job_id]
+        process = job["process"]
         
         while process.poll() is None:
             try:
@@ -119,8 +142,8 @@ class LocalEnvironment():
                 cpu_percent = proc.cpu_percent(interval=1)
                 memory_percent = proc.memory_percent()
                 
-                self.jobs[job_id]["cpu_usage"].append(cpu_percent)
-                self.jobs[job_id]["memory_usage"].append(memory_percent)
+                job["cpu_usage"].append(cpu_percent)
+                job["memory_usage"].append(memory_percent)
                 
                 self.logger.debug(f"Job {job_id} - CPU: {cpu_percent}%, Memory: {memory_percent}%")
                 
@@ -132,31 +155,6 @@ class LocalEnvironment():
                 self.logger.error(f"Error monitoring job {job_id}: {str(e)}")
         
         self._finalize_job(job_id)
-
-    def _monitor_job(self, job_id: str) -> None:
-        process = self.jobs[job_id]["process"]
-        
-        while process.poll() is None:
-            try:
-                proc = psutil.Process(process.pid)
-                cpu_percent = proc.cpu_percent(interval=1)
-                memory_percent = proc.memory_percent()
-                
-                self.jobs[job_id]["cpu_usage"].append(cpu_percent)
-                self.jobs[job_id]["memory_usage"].append(memory_percent)
-                
-                self.logger.debug(f"Job {job_id} - CPU: {cpu_percent}%, Memory: {memory_percent}%")
-                
-                time.sleep(1)
-            except psutil.NoSuchProcess:
-                self.logger.warning(f"Process for job {job_id} no longer exists")
-                break
-            except Exception as e:
-                self.logger.error(f"Error monitoring job {job_id}: {str(e)}")
-        
-        self._finalize_job(job_id)
-
-
 
     def _finalize_job(self, job_id: str) -> None:
         job = self.jobs[job_id]
@@ -168,21 +166,21 @@ class LocalEnvironment():
         self.logger.info(f"Job {job_id} finished with status {job['status'].value}")
         self.logger.debug(f"Job {job_id} exit code: {process.returncode}")
 
-    def get_job_status(self, job_id: str) -> JobStatus:
-        self.logger.debug(f"Getting status for job {job_id}")
+    def check_job_status(self, job_id: str) -> JobStatus:
+        self.logger.debug(f"Checking status for job {job_id}")
         return self.jobs[job_id]["status"]
 
-    def get_job_metrics(self, job_id: str) -> JobMetrics:
-        self.logger.debug(f"Getting metrics for job {job_id}")
+    def cancel_job(self, job_id: str) -> bool:
+        self.logger.info(f"Attempting to cancel job {job_id}")
         job = self.jobs[job_id]
-        
-        return JobMetrics(
-            start_time=job["start_time"],
-            end_time=job["end_time"] or time.time(),
-            cpu_usage=sum(job["cpu_usage"]) / len(job["cpu_usage"]) if job["cpu_usage"] else 0,
-            memory_usage=sum(job["memory_usage"]) / len(job["memory_usage"]) if job["memory_usage"] else 0,
-            exit_code=job["process"].returncode if job["process"] else -1
-        )   
+        if job["process"] and job["status"] == JobStatus.RUNNING:
+            job["process"].terminate()
+            job["status"] = JobStatus.CANCELLED
+            self.logger.info(f"Job {job_id} cancelled")
+            return True
+        return False
+
+
 
 class ComputeManager:
     def __init__(self, config: OverseerConfig):
