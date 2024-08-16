@@ -13,14 +13,15 @@ data_management:
   data_directory: data/
   state_history_limit: 1000
   storage_type: file
+
 directories:
-  base_directory: .
-  fuels_and_topography: ./data/mock/inputs
-  install_directory: ./install
-  outputs: ./data/mock/outputs
-  scratch: ./scratch
-  scratch_base: ./scratch
-  weather: ./data/mock/inputs
+  elmfire_base: /teamspace/studios/this_studio/elmfire/tutorials/00-test
+  inputs: inputs
+  outputs: outputs
+  data_in: elmfire.data.in
+
+use_relative_paths: true
+
 elmfire: *id001
 elmfire_relative_path: ../elmfire
 environment:
@@ -42,35 +43,35 @@ geospatial:
   spot_fire_probability_threshold: 0.5
 ignition:
   coordinates:
-  - - 5000
-    - 5000
+    - - 5000
+      - 5000
   type: point
 io:
   data_in_path: ./data/mock/elmfire.data.in
 logging:
   file: logs/elmfire.log
-  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   level: INFO
 output_control:
   metrics_to_track:
-  - burned_area
-  - fire_intensity
-  - resources_deployed
-  - wind_speed
-  - wind_direction
+    - burned_area
+    - fire_intensity
+    - resources_deployed
+    - wind_speed
+    - wind_direction
   save_intermediate_state_interval: 10
 performance_metrics:
-- total_burned_area
-- average_containment_time
-- resource_efficiency
-- cost_effectiveness
+  - total_burned_area
+  - average_containment_time
+  - resource_efficiency
+  - cost_effectiveness
 project_name: ELMFIRE Simulation
 reinforcement_learning:
   action_space:
     constructable_vegetation_types:
-    - 1
-    - 2
-    - 3
+      - 1
+      - 2
+      - 3
     max_construction_slope: 30
     max_fireline_distance: 10
     max_fireline_length: 10
@@ -104,15 +105,15 @@ reinforcement_learning:
     target_update_frequency: 1000
 resources:
   types:
-  - effectiveness: 0.8
-    max_count: 100
-    name: firefighter
-  - effectiveness: 1.2
-    max_count: 20
-    name: firetruck
-  - effectiveness: 2.0
-    max_count: 5
-    name: aircraft
+    - effectiveness: 0.8
+      max_count: 100
+      name: firefighter
+    - effectiveness: 1.2
+      max_count: 20
+      name: firetruck
+    - effectiveness: 2.0
+      max_count: 5
+      name: aircraft
 simulation:
   cell_size: 30
   dt: 3600
@@ -136,17 +137,17 @@ time_control:
 use_relative_paths: true
 validation:
   required_directories:
-  - base_directory
-  - install_directory
-  - scratch_base
+    - base_directory
+    - install_directory
+    - scratch_base
   required_files:
-  - elmfire.data.in
-version: '2024.0326'
+    - elmfire.data.in
+version: "2024.0326"
 visualization:
   plot_types:
-  - fire_progression
-  - resource_allocation
-  - risk_map
+    - fire_progression
+    - resource_allocation
+    - risk_map
   update_interval: 3600
 weather:
   relative_humidity: 30

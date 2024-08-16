@@ -81,27 +81,20 @@ class ElmfireDataInHandler:
     
     def _load_config(self):
         yaml_config = self.config.get_config()
-        self.logger.info("Loading configuration values:")
-        self.logger.info(f"Full YAML config: {yaml_config}")
+        self.logger.info("Setting up file paths")
 
-        self.use_relative_paths = yaml_config.get('use_relative_paths', False)
-        
-        if self.use_relative_paths:
-            # Use paths relative to the Overseer project root
-            overseer_root = Path(__file__).resolve().parent.parent.parent.parent
-            self.base_path = overseer_root
-        else:
-            # Use paths relative to the ELMFIRE directory
-            elmfire_relative_path = yaml_config.get('elmfire_relative_path', '../elmfire')
-            self.base_path = Path(__file__).resolve().parent.parent.parent / elmfire_relative_path
+        # Get the base directory
+        self.elmfire_base = Path(yaml_config['directories']['elmfire_base'])
 
-        self.logger.info(f"Base path for file operations: {self.base_path}")
+        # Set up other directories
+        self.input_dir = self.elmfire_base / yaml_config['directories']['inputs']
+        self.output_dir = self.elmfire_base / yaml_config['directories']['outputs']
+        self.data_in_path = self.elmfire_base / yaml_config['directories']['data_in']
 
-        # Set data_in_path
-        data_in_relative_path = yaml_config.get('io', {}).get('data_in_path', 'elmfire.data.in')
-        self.data_in_path = self.base_path / data_in_relative_path
-        self.logger.info(f"Set data_in_path to: {self.data_in_path}")
-
+        self.logger.info(f"ELMFIRE base directory: {self.elmfire_base}")
+        self.logger.info(f"Input directory: {self.input_dir}")
+        self.logger.info(f"Output directory: {self.output_dir}")
+        self.logger.info(f"data.in file path: {self.data_in_path}")
 
     def update_from_yaml(self, yaml_config: Dict[str, Any]) -> None:
         """
