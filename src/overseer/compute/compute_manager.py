@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
+import psutil
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
 
@@ -63,87 +64,126 @@ class ComputeEnvironment(ABC):
         pass
 
 class LocalEnvironment(ComputeEnvironment):
-    def __init__(self, logger: OverseerLogger):
-        self.jobs: Dict[str, JobInfo] = {}
-        self.logger = logger
-
-    def submit_job(self, command: str, resources: JobResources, cwd: Path) -> str:
-        job_id = str(uuid.uuid4())
-        self.logger.info(f"Submitting local job {job_id}")
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
         
-        def run_job():
-            job_info = JobInfo(id=job_id, status=JobStatus.RUNNING, submit_time=time.time(), resources=resources)
-            self.jobs[job_id] = job_info
+        self.jobs: Dict[str, Dict[str, Any]] = {}
+
+    def submit_job(self, job_id: str, command: str) -> None:
+        self.logger.info(f"Submitting job {job_id} with command: {command}")
+        
+        try:
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True
+            )
             
-            start_time = time.time()
-            try:
-                process = subprocess.Popen(
-                    command,
-                    shell=True,
-                    cwd=cwd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    bufsize=1,
-                    universal_newlines=True
-                )
-                
-                for line in process.stdout:
-                    self.logger.info(f"Job {job_id} output: {line.strip()}")
-                
-                process.wait()
-                exit_code = process.returncode
-                
-                if exit_code == 0:
-                    job_info.status = JobStatus.COMPLETED
-                else:
-                    job_info.status = JobStatus.FAILED
-                    self.logger.error(f"Job {job_id} failed with exit code {exit_code}")
-            except Exception as e:
-                self.logger.error(f"Job {job_id} failed: {str(e)}")
-                job_info.status = JobStatus.FAILED
-                exit_code = 1
-            finally:
-                end_time = time.time()
-                job_info.metrics = JobMetrics(
-                    start_time=start_time,
-                    end_time=end_time,
-                    cpu_usage=0,  # Placeholder, implement actual CPU usage tracking
-                    memory_usage=0,  # Placeholder, implement actual memory usage tracking
-                    exit_code=exit_code
-                )
-
-        ThreadPoolExecutor().submit(run_job)
-        return job_id
-
-    def check_job_status(self, job_id: str) -> JobStatus:
-        job_info = self.jobs.get(job_id)
-        return job_info.status if job_info else JobStatus.FAILED
-
-    def cancel_job(self, job_id: str) -> bool:
-        job_info = self.jobs.get(job_id)
-        if job_info and job_info.status == JobStatus.RUNNING:
-            # Implement job cancellation logic here
-            job_info.status = JobStatus.CANCELLED
-            return True
-        return False
-
-    def retrieve_results(self, job_id: str) -> Dict[str, Any]:
-        job_info = self.jobs.get(job_id)
-        if job_info and job_info.status == JobStatus.COMPLETED:
-            return {
-                "job_id": job_info.id,
-                "status": job_info.status.value,
-                "metrics": asdict(job_info.metrics) if job_info.metrics else None
+            self.jobs[job_id] = {
+                "process": process,
+                "status": JobStatus.RUNNING,
+                "start_time": time.time(),
+                "end_time": None,
+                "cpu_usage": [],
+                "memory_usage": [],
             }
-        return {}
+            
+            self.logger.debug(f"Job {job_id} started with PID {process.pid}")
+            
+            # Start monitoring the process
+            self._monitor_job(job_id)
+        except Exception as e:
+            self.logger.error(f"Error submitting job {job_id}: {str(e)}")
+            self.jobs[job_id] = {
+                "process": None,
+                "status": JobStatus.FAILED,
+                "start_time": time.time(),
+                "end_time": time.time(),
+                "cpu_usage": [],
+                "memory_usage": [],
+            }
+
+
+    def _monitor_job(self, job_id: str) -> None:
+        process = self.jobs[job_id]["process"]
+        
+        while process.poll() is None:
+            try:
+                proc = psutil.Process(process.pid)
+                cpu_percent = proc.cpu_percent(interval=1)
+                memory_percent = proc.memory_percent()
+                
+                self.jobs[job_id]["cpu_usage"].append(cpu_percent)
+                self.jobs[job_id]["memory_usage"].append(memory_percent)
+                
+                self.logger.debug(f"Job {job_id} - CPU: {cpu_percent}%, Memory: {memory_percent}%")
+                
+                time.sleep(1)
+            except psutil.NoSuchProcess:
+                self.logger.warning(f"Process for job {job_id} no longer exists")
+                break
+            except Exception as e:
+                self.logger.error(f"Error monitoring job {job_id}: {str(e)}")
+        
+        self._finalize_job(job_id)
+
+    def _monitor_job(self, job_id: str) -> None:
+        process = self.jobs[job_id]["process"]
+        
+        while process.poll() is None:
+            try:
+                proc = psutil.Process(process.pid)
+                cpu_percent = proc.cpu_percent(interval=1)
+                memory_percent = proc.memory_percent()
+                
+                self.jobs[job_id]["cpu_usage"].append(cpu_percent)
+                self.jobs[job_id]["memory_usage"].append(memory_percent)
+                
+                self.logger.debug(f"Job {job_id} - CPU: {cpu_percent}%, Memory: {memory_percent}%")
+                
+                time.sleep(1)
+            except psutil.NoSuchProcess:
+                self.logger.warning(f"Process for job {job_id} no longer exists")
+                break
+            except Exception as e:
+                self.logger.error(f"Error monitoring job {job_id}: {str(e)}")
+        
+        self._finalize_job(job_id)
+
+
+
+    def _finalize_job(self, job_id: str) -> None:
+        job = self.jobs[job_id]
+        process = job["process"]
+        
+        job["end_time"] = time.time()
+        job["status"] = JobStatus.COMPLETED if process.returncode == 0 else JobStatus.FAILED
+        
+        self.logger.info(f"Job {job_id} finished with status {job['status'].value}")
+        self.logger.debug(f"Job {job_id} exit code: {process.returncode}")
+
+    def get_job_status(self, job_id: str) -> JobStatus:
+        self.logger.debug(f"Getting status for job {job_id}")
+        return self.jobs[job_id]["status"]
 
     def get_job_metrics(self, job_id: str) -> JobMetrics:
-        job_info = self.jobs.get(job_id)
-        if job_info and job_info.metrics:
-            return job_info.metrics
-        raise ValueError(f"No metrics available for job {job_id}")
-
+        self.logger.debug(f"Getting metrics for job {job_id}")
+        job = self.jobs[job_id]
+        
+        return JobMetrics(
+            start_time=job["start_time"],
+            end_time=job["end_time"] or time.time(),
+            cpu_usage=sum(job["cpu_usage"]) / len(job["cpu_usage"]) if job["cpu_usage"] else 0,
+            memory_usage=sum(job["memory_usage"]) / len(job["memory_usage"]) if job["memory_usage"] else 0,
+            exit_code=job["process"].returncode if job["process"] else -1
+        )   
 
 class ComputeManager:
     def __init__(self, config: OverseerConfig):
