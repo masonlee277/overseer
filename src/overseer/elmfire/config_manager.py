@@ -330,7 +330,7 @@ class ElmfireConfigManager:
         self.clean_config()  # Clean the configuration before using it
         
         # Get the base simulation directory
-        sim_dir = Path(self.elmfire_config.get('directories', {}).get('elmfire_sim_dir', ''))
+        sim_dir = Path(self.config.get('directories', {}).get('elmfire_sim_dir', ''))
         self.logger.info(f"Base simulation directory from config: {sim_dir}")
 
         if not sim_dir.is_absolute():
