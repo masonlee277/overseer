@@ -178,6 +178,7 @@ class ComputeManager:
     def _get_compute_environment(self):
         env_type = self.config.get('compute_environment', 'local')
         if env_type == 'local':
+            self.logger.info("Using local environment")
             return LocalEnvironment(self.logger, self.log_simulation_output)
         else:
             raise ValueError(f"Unsupported compute environment: {env_type}")

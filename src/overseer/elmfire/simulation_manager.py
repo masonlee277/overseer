@@ -42,7 +42,7 @@ class SimulationManager:
         self.config_manager = config_manager
         self.data_manager = data_manager
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
-        self.compute_manager = ComputeManager(self.config.get('compute_config', {}))
+        self.compute_manager = ComputeManager(config) ## local compute manager by defualt
         self.logger.info("SimulationManger Initialized with simulation configuration")
         self.sim_config = None
         self.sim_paths = None
@@ -376,7 +376,7 @@ def main():
     compute_manager = ComputeManager(config)
 
     # Create SimulationManager instance
-    sim_manager = SimulationManager(config, config_manager, data_manager, compute_manager)
+    sim_manager = SimulationManager(config, config_manager, data_manager)
 
     # Create ActionSpace
     action_space = ActionSpace(config, data_manager)
