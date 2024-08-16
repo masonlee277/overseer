@@ -245,6 +245,11 @@ class ComputeManager:
         # In a real implementation, you might update a resource pool or
         # communicate with a cluster management system
 
+    def set_log_simulation_output(self, value: bool):
+        self.log_simulation_output = value
+        if isinstance(self.environment, LocalEnvironment):
+            self.environment.log_simulation_output = value
+        self.logger.info(f"Simulation output logging set to: {value}")
 
 def main():
     logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
