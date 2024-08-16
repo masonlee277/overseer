@@ -576,6 +576,11 @@ def main():
     handler.set_parameter('OUTPUTS', 'DUMP_SPREAD_RATE', '.TRUE.')
     handler.set_parameter('TIME_CONTROL', 'SIMULATION_TSTOP', '43200.0')
 
+    #print the parameters
+    print(handler.get_parameter('INPUTS', 'FUELS_AND_TOPOGRAPHY_DIRECTORY'))
+    print(handler.get_parameter('OUTPUTS', 'DUMP_SPREAD_RATE'))
+    print(handler.get_parameter('TIME_CONTROL', 'SIMULATION_TSTOP'))
+    
     assert handler.get_parameter('INPUTS', 'FUELS_AND_TOPOGRAPHY_DIRECTORY') == "'/new/path/to/fuels'", "Failed to set FUELS_AND_TOPOGRAPHY_DIRECTORY"
     assert handler.get_parameter('OUTPUTS', 'DUMP_SPREAD_RATE') == '.TRUE.', "Failed to set DUMP_SPREAD_RATE"
     assert handler.get_parameter('TIME_CONTROL', 'SIMULATION_TSTOP') == '43200.0', "Failed to set SIMULATION_TSTOP"
