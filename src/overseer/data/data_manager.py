@@ -198,7 +198,7 @@ class DataManager:
             self.logger.info("Using phi file to create zero array")
             
             # Get the absolute path of the phi file
-            phi_path = InputPaths.get_absolute_path(state.paths.input_paths, state.paths.input_paths.phi_filename)
+            phi_path = InputPaths.get_absolute_path(state.paths.input_paths, 'phi_filename')
             self.logger.info(f"[state_to_array] Phi file absolute path: {phi_path}")
             
             try:
