@@ -25,7 +25,7 @@ directories:
   start_script: 01-run.sh
 
 use_relative_paths: true
-save
+
 elmfire: *id001
 elmfire_relative_path: ../elmfire
 environment:

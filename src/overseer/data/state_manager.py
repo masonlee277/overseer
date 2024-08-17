@@ -47,7 +47,7 @@ class StateManager:
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
-        self.outputs_to_copy = config.get('data_management.outputs_to_copy', [])
+        self.outputs_to_copy = config.get('data_management.copy_outputs_to_steps', [])
 
         self.current_state: Optional[SimulationState] = None
         self.state_history: List[SimulationState] = []
