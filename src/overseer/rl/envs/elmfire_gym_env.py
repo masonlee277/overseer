@@ -139,21 +139,8 @@ class ElmfireGymEnv(gym.Env):
             "burned_area": current_state.metrics.burned_area,
             "fire_perimeter_length": current_state.metrics.fire_perimeter_length,
             "containment_percentage": current_state.metrics.containment_percentage,
-            "execution_time": current_state.metrics.execution_time,
-            "fire_growth_rate": self.data_manager.get_fire_growth_rate(3600),
-            "resources_used": sum(current_state.resources.values()),
-            "current_wind_speed": current_state.weather.get('wind_speed', 0),
-            "current_wind_direction": current_state.weather.get('wind_direction', 0),
         }
 
-    def get_episode_data(self, episode: int) -> List[Dict[str, Any]]:
-        self.logger.info(f"Retrieving data for episode {episode}")
-        return self.data_manager.get_episode_data(episode)
-
-    def get_rl_metrics(self, episode: int) -> Dict[str, float]:
-        self.logger.info(f"Retrieving RL metrics for episode {episode}")
-        return self.data_manager.get_rl_metrics(episode)
-    
     def close(self):
         self.logger.info("Closing ElmfireGymEnv and cleaning up resources")
         self.data_manager.reset()
@@ -182,10 +169,35 @@ def main():
 
     try:
         logger.info("Initializing ElmfireGymEnv")
+
+        logger.info("Initializing ElmfireGymEnv")
         env = ElmfireGymEnv(config_path)
         
+        # Test reset functionality
+        logger.info("Testing reset functionality")
+        observation, _ = env.reset()
+        logger.info(f"Initial observation shape: {observation.shape}")
+        
+        # Test action space
+        logger.info("Testing action space")
+        sample_action = env.action_space.sample()
+        logger.info(f"Sample action: {sample_action}")
+        
+        # Test observation space
+        logger.info("Testing observation space")
+        logger.info(f"Observation space: {env.observation_space}")
+        
+        # Test single step
+        logger.info("Testing single step")
+        next_observation, reward, terminated, info = env.step(sample_action)
+        logger.info(f"Step result - Reward: {reward}, Terminated: {terminated}")
+        logger.info(f"Info: {info}")
+        
+
+        
+        # Test RL metrics retrieval
         num_episodes = 5
-        max_steps_per_episode = 100
+        max_steps_per_episode = 5
 
         for episode in range(num_episodes):
             logger.info(f"Starting Episode {episode + 1}")
@@ -198,12 +210,12 @@ def main():
                     logger.debug(f"Episode {episode + 1}, Step {step + 1}: Sampled action = {action}")
                     
                     try:
-                        observation, reward, terminated, truncated, info = env.step(action)
+                        observation, reward, terminated, info = env.step(action)
                         episode_reward += reward
                         
                         logger.info(f"Episode {episode + 1}, Step {step + 1}: Reward = {reward}, Info = {info}")
                         
-                        if terminated or truncated:
+                        if terminated:
                             logger.info(f"Episode {episode + 1} finished after {step + 1} steps")
                             break
                     except Exception as step_error:
@@ -214,10 +226,10 @@ def main():
                 logger.info(f"Episode {episode + 1} total reward: {episode_reward}")
                 
                 # Get and print episode data and RL metrics
-                episode_data = env.get_episode_data(episode)
-                rl_metrics = env.get_rl_metrics(episode)
-                logger.info(f"Episode {episode + 1} data: {episode_data}")
-                logger.info(f"Episode {episode + 1} RL metrics: {rl_metrics}")
+                # episode_data = env.get_episode_data(episode)
+                # rl_metrics = env.get_rl_metrics(episode)
+                # logger.info(f"Episode {episode + 1} data: {episode_data}")
+                # logger.info(f"Episode {episode + 1} RL metrics: {rl_metrics}")
             
             except Exception as episode_error:
                 logger.error(f"Error during episode {episode + 1}")
