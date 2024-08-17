@@ -9,10 +9,13 @@ advanced_geospatial:
   viewshed_generation_enabled: true
 center_lat: 37.44
 center_lon: -120.281
+
+
 data_management:
   data_directory: data/
   state_history_limit: 1000
   storage_type: file
+  copy_outputs_to_steps: true  # Add this line
 
 directories:
   elmfire_sim_dir: /teamspace/studios/this_studio/elmfire/tutorials/00-test
@@ -22,7 +25,7 @@ directories:
   start_script: 01-run.sh
 
 use_relative_paths: true
-
+save
 elmfire: *id001
 elmfire_relative_path: ../elmfire
 environment:
@@ -46,15 +49,15 @@ fuel:
   moisture_live_woody: 90
 fuel_source: landfire
 fuel_version: 2.2.0
+
+
+
 geospatial:
   fire_intensity_threshold: 100
   high_risk_threshold: 0.7
   spot_fire_probability_threshold: 0.5
-ignition:
-  coordinates:
-    - - 5000
-      - 5000
-  type: point
+
+
 
 output_control:
   metrics_to_track:
@@ -131,6 +134,8 @@ spatial:
     ymax: 10000
     ymin: 0
   resolution: 30
+
+
 system:
   gpu_acceleration: false
   min_memory: 8GB

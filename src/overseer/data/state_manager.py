@@ -47,6 +47,8 @@ class StateManager:
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
+        self.outputs_to_copy = config.get('data_management.outputs_to_copy', [])
+
         self.current_state: Optional[SimulationState] = None
         self.state_history: List[SimulationState] = []
         self.episodes: Dict[int, Episode] = {}
@@ -278,7 +280,7 @@ class StateManager:
 
     def _save_state_to_disk(self, state: SimulationState) -> Path:
         """
-        Save a state to disk.
+        Save a state to disk and copy output files if configured.
 
         Args:
             state (SimulationState): The state to save
@@ -298,10 +300,32 @@ class StateManager:
             with open(state_file, 'w') as f:
                 json.dump(self._serialize_state(state), f, default=self._json_serializer, indent=2)
             self.logger.debug(f"State saved to {state_file}")
+
+            # Copy output files if configured
+            if self.copy_outputs_to_steps:
+                self._copy_output_files(state, step_dir)
+
             return state_file
         except OSError as e:
             self.logger.error(f"Failed to save state to disk: {e}")
             raise
+
+    def _copy_output_files(self, state: SimulationState, step_dir: Path):
+        """Copy specified output files to the step folder."""
+        output_dir = step_dir / "outputs"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        for output_type in self.outputs_to_copy:
+            source_path = getattr(state.paths.output_paths, output_type, None)
+            if source_path:
+                dest_path = output_dir / source_path.name
+                try:
+                    shutil.copy2(source_path, dest_path)
+                    self.logger.info(f"Copied {output_type} file to {dest_path}")
+                except Exception as e:
+                    self.logger.error(f"Failed to copy {output_type} file: {str(e)}")
+
+                    
 
     def _get_episode_directory(self, episode_id: int) -> Path:
         return self.data_dir / "episodes" / f"episode_{episode_id}"

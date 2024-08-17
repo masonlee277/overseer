@@ -136,6 +136,8 @@ class DataManager:
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
+        self.outputs_to_copy = config.get('data_management.outputs_to_copy', [])
+
         self.geospatial_manager = GeoSpatialManager(self.config)
         self.state_manager = StateManager(self.config)
         self.rl_metrics: Dict[int, List[Dict[str, float]]] = {}
@@ -245,7 +247,7 @@ class DataManager:
             output_dir = Path(sim_paths.output_paths.time_of_arrival).parent
             flin_file = list(output_dir.glob("flin_*.tif"))
             toa_file = list(output_dir.glob("time_of_arrival_*.tif"))
-            
+
             self.logger.debug(f"Found {len(flin_file)} fire intensity files and {len(toa_file)} time of arrival files")
 
             if not flin_file or not toa_file:
@@ -290,6 +292,8 @@ class DataManager:
             # Calculate new metrics
             self.logger.info("Calculating new state metrics")
             new_state = self.calculate_state_metrics(new_state)
+
+
 
             self.logger.info(f"Successfully converted SimulationResult to SimulationState for job {sim_result.job_id}")
             return new_state
@@ -345,30 +349,9 @@ class DataManager:
         return self.geospatial_manager.calculate_fire_growth_rate(toa_path, time_interval)
 
 
-    def get_resource_efficiency(self) -> float:
-        """Calculate the resource efficiency based on the current state."""
-        current_state = self.get_current_state()
-        if current_state is None:
-            return 0.0
-        total_resources = sum(current_state.resources.values())
-        containment_percentage = current_state.metrics.containment_percentage
-        return containment_percentage / total_resources if total_resources > 0 else 0.0
-
-    def get_high_risk_areas(self) -> Optional[np.ndarray]:
-        """Identify high-risk areas based on the current state."""
-        current_state = self.get_current_state()
-        if current_state is None:
-            return None
-        return self.geospatial_manager.identify_high_risk_areas(
-            current_state.metrics.fire_intensity,
-            current_state.paths.input_paths.elevation,
-            current_state.paths.input_paths.fuel_moisture
-        )
-
     def reset(self) -> None:
         """Reset the state manager."""
         self.state_manager.reset()
-        
 
     def cleanup_old_data(self, max_episodes: int) -> None:
         """Remove old simulation data to free up storage space."""
@@ -376,7 +359,6 @@ class DataManager:
 
     def clear_all_data(self):
         self.state_manager.clear_all_data()
-
 
     def load_state_from_disk(self, episode_id: int, step: int) -> Optional[SimulationState]:
         self.logger.info(f"Loading state from disk for episode {episode_id}, step {step}")
