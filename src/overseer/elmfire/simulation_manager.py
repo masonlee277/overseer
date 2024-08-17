@@ -127,9 +127,11 @@ class SimulationManager:
             else:
                 self.logger.info("No action provided, running simulation with current configuration")
 
-            # Prepare simulation configuration
+            # Prepare simulation configuration and paths
             sim_config = self.config_manager.get_config_for_simulation()
+            sim_paths = self.config_manager.get_simulation_paths()
             self.logger.debug(f"Prepared simulation configuration: {sim_config}")
+            self.logger.debug(f"Prepared simulation paths: {sim_paths}")
 
             # Submit simulation to ComputeManager
             self.logger.info("Submitting simulation to ComputeManager")
@@ -145,7 +147,12 @@ class SimulationManager:
 
             # Convert SimulationResult to SimulationState
             self.logger.info("Converting simulation result to SimulationState")
-            new_state = self.data_manager.simresult_to_simstate(sim_result)
+            new_state = self.data_manager.simresult_to_simstate(
+                sim_result=sim_result,
+                sim_config=sim_config,
+                sim_paths=sim_paths,
+                timestamp=datetime.now()
+            )
             
             if new_state is None:
                 self.logger.error("Failed to convert SimulationResult to SimulationState")
@@ -162,6 +169,13 @@ class SimulationManager:
             self.logger.info(f"Simulation complete: {done}")
 
             return new_state, done
+
+        except Exception as e:
+            self.logger.error(f"Error during simulation run: {str(e)}")
+            self.logger.error("Full traceback:")
+            self.logger.error(traceback.format_exc())
+            raise
+
 
         except Exception as e:
             self.logger.error(f"Error during simulation run: {str(e)}")

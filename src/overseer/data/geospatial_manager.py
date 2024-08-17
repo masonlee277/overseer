@@ -410,21 +410,21 @@ class GeoSpatialManager:
         try:
             time_of_arrival_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
             fire_intensity_path = fix_path(str(state.paths.output_paths.fire_intensity), add_tif=True)
-            flame_length_path = fix_path(str(state.paths.output_paths.flame_length), add_tif=True)
-            spread_rate_path = fix_path(str(state.paths.output_paths.spread_rate), add_tif=True)
+            # flame_length_path = fix_path(str(state.paths.output_paths.flame_length), add_tif=True)
+            # spread_rate_path = fix_path(str(state.paths.output_paths.spread_rate), add_tif=True)
 
             self.logger.info(f"[calculate_state_metrics] Paths:")
             self.logger.info(f"Time of arrival: {time_of_arrival_path}")
             self.logger.info(f"Fire intensity: {fire_intensity_path}")
-            self.logger.info(f"Flame length: {flame_length_path}")
-            self.logger.info(f"Spread rate: {spread_rate_path}")
+            # self.logger.info(f"Flame length: {flame_length_path}")
+            # self.logger.info(f"Spread rate: {spread_rate_path}")
 
             # Load necessary data
             for path, name in [
                 (time_of_arrival_path, "Time of arrival"),
                 (fire_intensity_path, "Fire intensity"),
-                (flame_length_path, "Flame length"),
-                (spread_rate_path, "Spread rate")
+                # (flame_length_path, "Flame length"),
+                # (spread_rate_path, "Spread rate")
             ]:
                 try:
                     data, _ = self.load_tiff(str(path))
