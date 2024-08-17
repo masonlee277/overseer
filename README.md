@@ -1,114 +1,103 @@
-# 🔥 Overseer: Advanced ELMFIRE Simulation & RL Framework
-
-![Overseer Logo](path/to/logo.png)
+# 🔥 Overseer: Advanced ELMFIRE Simulation & RL Framework for Wildfire Suppression
 
 ## 📚 Overview
 
-Overseer is a cutting-edge Python framework that enhances the ELMFIRE (Eulerian Level Set Model of FIRE spread) simulator with advanced reinforcement learning capabilities. Designed to revolutionize wildfire suppression strategies, Overseer combines intelligent simulation, deep analysis, and powerful visualizations.
+Overseer is a cutting-edge, open-source Python framework that enhances the ELMFIRE (Eulerian Level Set Model of FIRE spread) simulator with advanced reinforcement learning capabilities. Designed to revolutionize wildfire suppression strategies, Overseer serves as a comprehensive toolkit for:
 
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://overseer-docs.readthedocs.io/)
+1. Understanding and optimizing initial attack suppression plans
+2. Developing safe and optimal wildfire control strategies
+3. Providing an extensible platform for the wildfire research community
 
-## 🌟 Key Features
+By integrating reinforcement learning with ELMFIRE simulations, Overseer aims to:
 
-- 🧠 Reinforcement Learning Integration
-- 🌍 Advanced Geospatial Analysis
-- 🔄 Dynamic ELMFIRE Simulation Management
-- 📊 Real-time Data Visualization
-- 🛠 Flexible Configuration System
+- Improve the effectiveness of wildfire suppression activities
+- Operationalize wildfire models for real-world applications
+- Foster innovation in RL-based approaches to wildfire management
 
-## 🏗 Architecture
+Overseer provides a robust, modular foundation that allows researchers and practitioners to build upon and extend its capabilities, driving forward the state-of-the-art in wildfire suppression technology.
 
-Overseer employs a modular, component-based architecture, leveraging key design patterns for maximum flexibility and extensibility.
+## 🏗 Architecture and Design Decisions
 
-### 🧩 Core Components
+Overseer's architecture is built on a modular, component-based design that prioritizes flexibility, extensibility, and performance. Here's an overview of the major components and their interactions:
 
-1. **Configuration Management** 🔧
+### 1. Configuration Management (`overseer/config/`)
 
-   - Utilizes the Singleton pattern for global access to configuration settings
-   - Manages ELMFIRE-specific configurations and system-wide settings
+- **OverseerConfig**: Centralized configuration handling using YAML files
+- Manages both ELMFIRE-specific and system-wide settings
+- Implements runtime configuration validation
 
-2. **Data Handling** 📊
+### 2. Data Handling (`overseer/data/`)
 
-   - Implements the Facade pattern for simplified data operations
-   - Manages simulation states, geospatial data, and analysis results
+- **DataManager**: Unified interface for all data operations
+- **StateManager**: Efficient management of simulation state history
+- Supports both file-based and database storage backends
+- Implements data models for representing simulation states, actions, and results
 
-3. **ELMFIRE Integration** 🔥
+### 3. ELMFIRE Integration (`overseer/elmfire/`)
 
-   - Uses the Strategy pattern for flexible simulation execution
-   - Interfaces with ELMFIRE for running fire spread simulations
+- **SimulationManager**: Handles ELMFIRE execution and I/O management
+- **ConfigManager**: Dynamically updates ELMFIRE input files (e.g., elmfire.data.in)
+- Implements parallel simulation capabilities for performance optimization
+- Runs simulations for 30-minute intervals per action, allowing for fine-grained control
 
-4. **Reinforcement Learning Environment** 🤖
+### 4. Reinforcement Learning Environment (`overseer/rl/`)
 
-   - Implements the Observer pattern for RL agent interactions
-   - Provides a Gym-compatible environment for training and evaluation
+- **ElmfireGymEnv**: OpenAI Gym-compatible environment for RL agent interaction
+- Custom action space representing suppression activities (e.g., firebreak creation, resource deployment)
+- Observation space encapsulating fire state, weather conditions, and terrain information
+- Supports both online and offline RL algorithms, including DecisionDiffuser for offline learning
 
-5. **Geospatial Analysis** 🗺️
-   - Employs the Decorator pattern for extensible geospatial operations
-   - Handles complex geospatial data processing and visualization
+### 5. Geospatial Analysis (`overseer/analytics/`)
 
-## 🔄 Workflow and Logic Flow
+- **GeoSpatialManager**: Handles complex geospatial operations and analysis
+- Utilizes GeoPandas and Rasterio for efficient spatial data processing
+- Implements advanced analysis techniques (e.g., fire intensity calculation, risk area identification)
 
-1. **Initialization** 🚀
+### 6. Visualization (`overseer/visualization/`)
 
-   - Load configuration settings
+- Real-time and post-simulation visualization capabilities
+- Generates fire progression animations, risk assessment maps, and resource allocation reports
+
+## 🔄 Workflow and Interaction with ELMFIRE
+
+1. **Initialization**:
+
+   - Load configuration settings from YAML files
    - Set up logging and data management systems
    - Initialize ELMFIRE simulation parameters
 
-2. **Simulation Loop** 🔁
+2. **Simulation Loop**:
 
    - Reset environment to initial state
-   - For each step:
-     - Get action from RL agent
-     - Apply action to ELMFIRE simulation
-     - Run ELMFIRE simulation step
-     - Process simulation results
-     - Calculate reward and next observation
-     - Update RL agent
+   - For each 30-minute interval:
+     - Get action from RL agent (e.g., firebreak locations, resource deployments)
+     - Update ELMFIRE input files via ConfigManager
+     - Run ELMFIRE simulation for 30 minutes using SimulationManager
+     - Process simulation results with DataManager and GeoSpatialManager
+     - Calculate reward based on fire suppression effectiveness and resource utilization
+     - Generate next observation for the RL agent
+     - Update RL agent (if using online learning)
 
-3. **Data Processing** 💾
+3. **Data Processing and Analysis**:
 
-   - Store simulation results and agent actions
-   - Perform geospatial analysis on fire spread data
-   - Generate performance metrics and visualizations
+   - Store simulation results and agent actions in DataManager
+   - Perform geospatial analysis on fire spread data using GeoSpatialManager
+   - Generate performance metrics (e.g., area burned, suppression cost, structures saved)
+   - Update visualizations for real-time monitoring
 
-4. **Analysis and Visualization** 📈
-   - Analyze agent performance and fire suppression effectiveness
-   - Generate fire progression visualizations
-   - Produce risk assessment maps and resource allocation reports
+4. **Post-Simulation Analysis**:
+   - Generate comprehensive reports on suppression strategy effectiveness
+   - Produce risk assessment maps and resource allocation recommendations
+   - Analyze RL agent performance and learning progress
 
-## 🛠️ Implementation Details
+By chaining together multiple 30-minute simulations and allowing the RL agent to make decisions at each interval, Overseer creates a dynamic and responsive environment for developing and testing wildfire suppression strategies. This approach allows for:
 
-### Configuration Management
+- Fine-grained control over suppression activities
+- Realistic representation of evolving fire conditions
+- Evaluation of long-term suppression strategies
+- Adaptation to changing weather and fire behavior
 
-- Uses YAML for configuration files
-- Implements `OverseerConfig` class for centralized config management
-- Validates configuration settings on load
-
-### Data Handling
-
-- Utilizes `DataManager` for centralized data operations
-- Implements efficient state history management with customizable limits
-- Supports various data storage backends (file-based, database)
-
-### ELMFIRE Integration
-
-- `SimulationManager` class handles ELMFIRE execution
-- Manages ELMFIRE input/output files
-- Implements parallel simulation capabilities for performance
-
-### Reinforcement Learning
-
-- `ElmfireGymEnv` provides a Gym-compatible environment
-- Implements custom action and observation spaces
-- Supports various RL algorithms through modular design
-
-### Geospatial Analysis
-
-- `GeoSpatialManager` handles complex geospatial operations
-- Utilizes libraries like GeoPandas and Rasterio for efficient processing
-- Implements advanced analysis techniques (e.g., risk area identification)
+The modular design of Overseer enables researchers and practitioners to easily extend its capabilities, implement new RL algorithms, or integrate additional data sources and analysis techniques. This flexibility makes Overseer a powerful tool for advancing the field of wildfire management and operationalizing RL-based approaches to real-world wildfire challenges.
 
 ## 🔧 Installation
 
@@ -119,11 +108,13 @@ Overseer employs a modular, component-based architecture, leveraging key design 
    cd overseer
    ```
 
-2. Create a virtual environment:
+2. Create a conda/mamba environment:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   conda create -n overseer python=3.9
+   conda activate overseer
+   conda install --file requirements.txt
+   pip install -e .
    ```
 
 3. Install the package and dependencies:
