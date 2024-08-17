@@ -7,6 +7,7 @@ import time
 import os
 import sys
 import io
+import traceback 
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -156,6 +157,11 @@ class LocalEnvironment:
             self.logger.info(f"Job {job_id} cancelled")
             return True
         return False
+    
+    def get_job_output(self, job_id: str) -> str:
+        if job_id in self.job_outputs:
+            return self.job_outputs[job_id]
+        return ""
 
 
 
@@ -206,6 +212,14 @@ class ComputeManager:
             if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
                 self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
                 results = self.retrieve_simulation_results(job_id)
+                
+                # Check for errors in the simulation output
+                if isinstance(self.environment, LocalEnvironment):
+                    error = self.detect_simulation_error(self.environment.get_job_output(job_id))
+                    if error:
+                        results.status = JobStatus.FAILED
+                        results.error_message = error
+                
                 return results
             
             current_time = time.time()
@@ -240,6 +254,82 @@ class ComputeManager:
         if isinstance(self.environment, LocalEnvironment):
             self.environment.log_simulation_output = value
         self.logger.info(f"Simulation output logging set to: {value}")
+
+    def build_elmfire(self) -> bool:
+        print("Building ELMFIRE...")
+        self.logger.info("Starting ELMFIRE build process")
+
+        elmfire_base_dir = self.config.get('environment', {}).get('elmfire_base_dir')
+        if not elmfire_base_dir:
+            self.logger.error("ELMFIRE_BASE_DIR not set in configuration")
+            return False
+
+        build_command = f"cd {elmfire_base_dir}/build/linux && ./make_gnu.sh"
+        self.logger.debug(f"Build command: {build_command}")
+
+        try:
+            process = subprocess.Popen(
+                build_command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+
+            # Capture and log the output
+            for line in iter(process.stdout.readline, ''):
+                self.logger.info(f"ELMFIRE build: {line.strip()}")
+
+            process.stdout.close()
+            return_code = process.wait()
+
+            if return_code == 0:
+                self.logger.info("ELMFIRE build completed successfully")
+                print("ELMFIRE build completed successfully")
+                return True
+            else:
+                self.logger.error(f"ELMFIRE build failed with return code {return_code}")
+                print(f"ELMFIRE build failed with return code {return_code}")
+                return False
+
+        except Exception as e:
+            #log full traceback
+            self.logger.error(f"Error during simulation run: {str(e)}")
+            self.logger.error("Full traceback:")
+            self.logger.error(traceback.format_exc())
+            print(f"Error during ELMFIRE build: {str(e)}")
+            return False
+
+    def detect_simulation_error(self, output: str) -> Optional[str]:
+        """
+        Detect if an error occurred in the simulation based on the output.
+        
+        Args:
+            output (str): The simulation output text.
+        
+        Returns:
+            Optional[str]: Error message if an error is detected, None otherwise.
+        """
+        error_patterns = [
+            r"ERROR.*?:",
+            r"FAILURE:",
+            r"Traceback \(most recent call last\):",
+            r"RuntimeError:",
+            r"No such file or directory",
+            r"Problem opening.*?",
+        ]
+
+        for pattern in error_patterns:
+            match = re.search(pattern, output, re.IGNORECASE | re.MULTILINE)
+            if match:
+                error_line = match.group(0)
+                context = output[max(0, match.start() - 100):min(len(output), match.end() + 100)]
+                return f"Error detected: {error_line}\nContext:\n{context}"
+
+        return None
+        
 def main():
     logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
     
