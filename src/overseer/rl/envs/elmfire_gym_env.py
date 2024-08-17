@@ -90,9 +90,7 @@ class ElmfireGymEnv(gym.Env):
         current_state = self.data_manager.get_current_state()
         assert current_state is not None, "Current state is None"
         # Apply the action and get simulation results
-        next_state, done = self.sim_manager.apply_action(action_obj)
-
-
+        next_state, done = self.sim_manager.run_simulation(action_obj)
 
 
         # Encode the next state
@@ -173,3 +171,40 @@ class ElmfireGymEnv(gym.Env):
         """
         return []  # Return a list of seeds used in this env's random number generators
     
+
+
+def main():
+    config_path = "src\overseer\config\elmfire_config.yaml"
+    env = ElmfireGymEnv(config_path)
+    
+    num_episodes = 5
+    max_steps_per_episode = 100
+
+    for episode in range(num_episodes):
+        print(f"Starting Episode {episode + 1}")
+        observation, _ = env.reset()
+        episode_reward = 0
+        
+        for step in range(max_steps_per_episode):
+            action = env.action_space.sample()  # Random action
+            observation, reward, terminated, truncated, info = env.step(action)
+            episode_reward += reward
+            
+            print(f"Step {step + 1}: Reward = {reward}, Info = {info}")
+            
+            if terminated or truncated:
+                print(f"Episode {episode + 1} finished after {step + 1} steps")
+                break
+        
+        print(f"Episode {episode + 1} total reward: {episode_reward}")
+        
+        # Get and print episode data and RL metrics
+        episode_data = env.get_episode_data(episode)
+        rl_metrics = env.get_rl_metrics(episode)
+        print(f"Episode {episode + 1} data: {episode_data}")
+        print(f"Episode {episode + 1} RL metrics: {rl_metrics}")
+    
+    env.close()
+
+if __name__ == "__main__":
+    main()
