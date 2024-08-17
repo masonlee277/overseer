@@ -69,7 +69,7 @@ class LocalEnvironment:
             threading.Thread(target=self._capture_output, args=(job_id,), daemon=True).start()
             
             # Start resource monitoring thread
-            threading.Thread(target=self._monitor_resources, args=(job_id,), daemon=True).start()
+            #threading.Thread(target=self._monitor_resources, args=(job_id,), daemon=True).start()
             
             return job_id
 
@@ -315,6 +315,7 @@ class ComputeManager:
             return False
 
     def detect_simulation_error(self, output: str) -> Optional[str]:
+        self.logger.debug(f"Detecting simulation error in output: {output}")
         error_patterns = [
             r"ERROR",
             r"FAILURE",
