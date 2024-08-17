@@ -46,6 +46,7 @@ class GeoSpatialManager:
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.crs = self.config.get('coordinate_reference_system', 'EPSG:4326')
         self.resolution = self.config.get('spatial_resolution', 30)  # in meters
+        self.pixel_size = 30  # 30x30m grid size
 
     def load_tiff(self, filepath: str) -> Tuple[np.ndarray, Dict[str, Any]]:
         """Load a GeoTIFF file and return the data and metadata."""
@@ -87,85 +88,88 @@ class GeoSpatialManager:
         direction = np.arctan2(grad_y, grad_x)
         return direction
 
-    def calculate_terrain_effects(self, elevation: np.ndarray, fire_intensity: np.ndarray) -> np.ndarray:
-        """Calculate terrain effects on fire spread."""
-        slope, aspect = self.calculate_slope_aspect(elevation)
-        terrain_effect = np.sin(slope) * np.cos(aspect - self.compute_fire_spread_direction(fire_intensity))
-        return terrain_effect
 
-    def calculate_slope_aspect(self, elevation: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Calculate slope and aspect from elevation data."""
-        dy, dx = np.gradient(elevation, self.resolution, self.resolution)
-        slope = np.arctan(np.sqrt(dx*dx + dy*dy))
-        aspect = np.arctan2(-dx, dy)
-        return slope, aspect
+    def calculate_fire_perimeter(self, input_data: Union[str, np.ndarray]) -> float:
+        """
+        Calculate the fire perimeter based on the input data.
 
-    def compute_cumulative_burn_map(self, fire_intensities: List[np.ndarray]) -> np.ndarray:
-        """Compute a cumulative burn map from a list of fire intensity arrays."""
-        return np.maximum.reduce(fire_intensities)
+        This method calculates the fire perimeter by identifying the boundary cells
+        of the fire and summing their lengths. It assumes that diagonal connections
+        contribute sqrt(2) * resolution to the perimeter, while orthogonal connections
+        contribute 1 * resolution.
 
-    def calculate_fire_shape_complexity(self, fire_perimeter: np.ndarray) -> float:
-        """Calculate the complexity of the fire shape using fractal dimension."""
-        perimeter_length = np.sum(fire_perimeter)
-        area = np.sum(ndimage.binary_fill_holes(fire_perimeter))
-        fractal_dimension = 2 * np.log(perimeter_length / 4) / np.log(area)
-        return fractal_dimension
+        Args:
+            input_data (Union[str, np.ndarray]): Either a file path to a GeoTIFF or a numpy array
+                                                 representing the fire (e.g., time of arrival or fire intensity).
 
-    def identify_high_risk_areas(self, fire_intensity: np.ndarray, elevation: np.ndarray, fuel_type: np.ndarray) -> np.ndarray:
-        """Identify high-risk areas based on fire intensity, elevation, and fuel type."""
-        terrain_effect = self.calculate_terrain_effects(elevation, fire_intensity)
-        risk = fire_intensity * terrain_effect * fuel_type
-        return risk
+        Returns:
+            float: The calculated fire perimeter in meters.
 
-    def calculate_fire_containment(self, fire_perimeter: np.ndarray, containment_lines: np.ndarray) -> float:
-        """Calculate the percentage of fire perimeter that is contained."""
-        contained_perimeter = np.sum(fire_perimeter & containment_lines)
-        total_perimeter = np.sum(fire_perimeter)
-        containment_percentage = (contained_perimeter / total_perimeter) * 100 if total_perimeter > 0 else 0
-        return containment_percentage
+        Note:
+            - If a file path is provided, it will be opened using open_tiff method.
+            - The method assumes a 30x30m grid size for each pixel.
+            - Non-zero values in the input are considered as part of the fire.
+        """
+        self.logger.info("Calculating fire perimeter")
 
-    def interpolate_weather_data(self, weather_stations: gpd.GeoDataFrame, grid: np.ndarray) -> np.ndarray:
-        """Interpolate weather data from point observations to a grid."""
-        # This is a placeholder for a more complex interpolation method
-        # In a real implementation, you might use methods like Kriging or IDW
-        interpolated_data = np.zeros_like(grid)
-        # Implement interpolation logic here
-        return interpolated_data
+        if isinstance(input_data, str):
+            self.logger.debug(f"Opening file: {input_data}")
+            input_data = self.open_tiff(input_data)['data']
 
-    def calculate_fire_intensity_change_rate(self, fire_intensity_t1: np.ndarray, fire_intensity_t2: np.ndarray, time_step: float) -> np.ndarray:
-        """Calculate the rate of change of fire intensity."""
-        return (fire_intensity_t2 - fire_intensity_t1) / time_step
+        # Create a binary fire map
+        fire_map = (input_data > 0).astype(int)
 
-    def generate_fire_spread_probability_map(self, fire_intensity: np.ndarray, wind_speed: np.ndarray, wind_direction: np.ndarray, fuel_moisture: np.ndarray) -> np.ndarray:
-        """Generate a probability map for fire spread based on current conditions."""
-        # This is a simplified placeholder. In reality, this would involve a more complex fire spread model.
-        spread_probability = fire_intensity * wind_speed * (1 - fuel_moisture)
-        # Adjust for wind direction
-        # Implement wind direction adjustment logic here
-        return spread_probability
+        # Identify boundary cells
+        kernel = np.array([[1, 1, 1],
+                           [1, 0, 1],
+                           [1, 1, 1]])
+        boundary = fire_map - (fire_map & (convolve2d(fire_map, kernel, mode='same') == 8))
 
-    def calculate_resource_allocation_efficiency(self, fire_intensity: np.ndarray, resources_deployed: np.ndarray) -> float:
-        """Calculate the efficiency of resource allocation based on fire intensity and deployed resources."""
-        total_intensity = np.sum(fire_intensity)
-        total_resources = np.sum(resources_deployed)
-        if total_intensity == 0 or total_resources == 0:
-            return 0
-        return np.sum(fire_intensity * resources_deployed) / (total_intensity * total_resources)
+        # Calculate perimeter
+        perimeter = np.sum(boundary) * self.resolution  # Orthogonal connections
+        
+        # Add diagonal connections
+        diag_kernel = np.array([[1, 0, 1],
+                                [0, 0, 0],
+                                [1, 0, 1]])
+        diag_connections = convolve2d(boundary, diag_kernel, mode='same')
+        perimeter += np.sum(diag_connections) * (np.sqrt(2) - 1) * self.resolution
 
-    def identify_natural_barriers(self, elevation: np.ndarray, water_bodies: np.ndarray, threshold: float) -> np.ndarray:
-        """Identify natural barriers that could slow or stop fire spread."""
-        slope = self.calculate_slope_aspect(elevation)[0]
-        barriers = (slope > threshold) | water_bodies
-        return barriers
+        self.logger.info(f"Calculated fire perimeter: {perimeter:.2f} meters")
+        return perimeter
 
-    def calculate_evacuation_routes(self, road_network: gpd.GeoDataFrame, fire_intensity: np.ndarray, population_centers: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        """Calculate optimal evacuation routes based on road network, fire intensity, and population centers."""
-        # This is a placeholder for a more complex routing algorithm
-        # In a real implementation, you might use networkx or a specialized routing library
-        evacuation_routes = road_network.copy()
-        # Implement route calculation logic here
-        return evacuation_routes
 
+    def calculate_fire_size(self, input_data: Union[str, np.ndarray]) -> float:
+        """
+        Calculate the fire size (burned area) based on the input data.
+
+        This method calculates the total area of the fire by counting the number of
+        cells that are considered part of the fire and multiplying by the cell area.
+
+        Args:
+            input_data (Union[str, np.ndarray]): Either a file path to a GeoTIFF or a numpy array
+                                                 representing the fire (e.g., time of arrival or fire intensity).
+
+        Returns:
+            float: The calculated fire size in square meters.
+
+        Note:
+            - If a file path is provided, it will be opened using open_tiff method.
+            - The method assumes a 30x30m grid size for each pixel.
+            - Non-zero values in the input are considered as part of the fire.
+        """
+        self.logger.info("Calculating fire size")
+
+        if isinstance(input_data, str):
+            self.logger.debug(f"Opening file: {input_data}")
+            input_data = self.open_tiff(input_data)['data']
+
+        # Count non-zero cells and multiply by cell area
+        fire_size = np.sum(input_data > 0) * (self.resolution ** 2)
+
+        self.logger.info(f"Calculated fire size: {fire_size:.2f} square meters")
+        return fire_size
+    
     def raster_to_vector(self, raster_data: np.ndarray, metadata: Dict[str, Any]) -> gpd.GeoDataFrame:
         """Convert raster data to vector format."""
         shapes = features.shapes(raster_data, transform=metadata['transform'])
@@ -177,58 +181,8 @@ class GeoSpatialManager:
         rasterized = features.rasterize(vector_data.geometry, out_shape=like_raster.shape, transform=metadata['transform'])
         return rasterized
 
-    def calculate_wind_effect(self, wind_speed: np.ndarray, wind_direction: np.ndarray, terrain: np.ndarray) -> np.ndarray:
-        """Calculate the effect of wind on fire spread considering terrain."""
-        slope, aspect = self.calculate_slope_aspect(terrain)
-        wind_effect = wind_speed * np.cos(wind_direction - aspect) * np.exp(slope)
-        return wind_effect
 
-    def identify_spot_fire_probability(self, fire_intensity: np.ndarray, wind_speed: np.ndarray, wind_direction: np.ndarray) -> np.ndarray:
-        """Identify areas with high probability of spot fires."""
-        ember_production = fire_intensity * wind_speed
-        # This is a simplified model. A real implementation would consider more factors and use a more complex probability model.
-        spot_fire_prob = ndimage.gaussian_filter(ember_production, sigma=wind_speed)
-        return spot_fire_prob
 
-    def calculate_fire_age(self, fire_intensity_history: List[np.ndarray]) -> np.ndarray:
-        """Calculate the age of the fire at each pixel."""
-        fire_age = np.zeros_like(fire_intensity_history[0])
-        for intensity in fire_intensity_history:
-            fire_age[intensity > 0] += 1
-        return fire_age
-
-    def calculate_burn_severity(self, pre_fire_ndvi: np.ndarray, post_fire_ndvi: np.ndarray) -> np.ndarray:
-        """Calculate burn severity using pre and post-fire NDVI."""
-        return (pre_fire_ndvi - post_fire_ndvi) / (pre_fire_ndvi + post_fire_ndvi + 1e-6)  # Avoid division by zero
-
-    def generate_fire_progression_map(self, fire_intensity_history: List[np.ndarray]) -> np.ndarray:
-        """Generate a map showing the progression of the fire over time."""
-        progression_map = np.zeros_like(fire_intensity_history[0], dtype=int)
-        for i, intensity in enumerate(fire_intensity_history, 1):
-            progression_map[intensity > 0] = i
-        return progression_map
-
-    def calculate_fire_return_interval(self, historical_fires: List[np.ndarray]) -> np.ndarray:
-        """Calculate the fire return interval for each pixel based on historical fire data."""
-        fire_count = np.sum([fire > 0 for fire in historical_fires], axis=0)
-        return len(historical_fires) / (fire_count + 1e-6)  # Avoid division by zero
-
-    def identify_fire_breaks(self, land_cover: np.ndarray, roads: np.ndarray, water_bodies: np.ndarray) -> np.ndarray:
-        """Identify potential fire breaks in the landscape."""
-        return np.logical_or.reduce((land_cover == 0, roads > 0, water_bodies > 0))  # Assuming 0 is non-burnable in land_cover
-
-    def calculate_landscape_diversity(self, land_cover: np.ndarray) -> float:
-        """Calculate landscape diversity using Shannon's diversity index."""
-        unique, counts = np.unique(land_cover, return_counts=True)
-        proportions = counts / np.sum(counts)
-        return -np.sum(proportions * np.log(proportions))
-
-    def generate_viewshed(self, elevation: np.ndarray, observer_points: List[Tuple[int, int]]) -> np.ndarray:
-        """Generate a viewshed from given observer points."""
-        viewshed = np.zeros_like(elevation, dtype=bool)
-        for point in observer_points:
-            view
-    
     def calculate_distance_to_fire(self, fire_intensity: np.ndarray) -> np.ndarray:
         """Calculate the distance to the nearest fire for each cell."""
         from scipy.ndimage import distance_transform_edt
@@ -243,7 +197,18 @@ class GeoSpatialManager:
                 layers[layer_name] = self.load_tiff(path)[0]
         return layers
     
+    def calculate_fire_gradient(self, fire_intensity: np.ndarray) -> np.ndarray:
+        """
+        Calculate the gradient of the fire intensity.
 
+        Args:
+            fire_intensity (np.ndarray): Current fire intensity matrix.
+
+        Returns:
+            np.ndarray: Gradient of fire intensity.
+        """
+        return np.array(np.gradient(fire_intensity))
+    
     def calculate_fire_growth_rate(self, toa_path: str, time_interval: float) -> float:
         """
         Calculate the fire growth rate based on the time of arrival (TOA) data.
@@ -272,7 +237,6 @@ class GeoSpatialManager:
         except Exception as e:
             self.logger.error(f"Error calculating fire growth rate: {str(e)}")
             return 0.0
-
 
     def update_raster_with_fireline(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
         """
@@ -468,17 +432,9 @@ class GeoSpatialManager:
         self.logger.info(f"Final metrics: {metrics}")
         return metrics
 
-    def calculate_fire_perimeter(self, time_of_arrival: np.ndarray) -> float:
-        # Implement fire perimeter calculation
-        # This is a placeholder implementation
-        return 0.0 #TODO
 
-    def calculate_containment_percentage(self, time_of_arrival: np.ndarray) -> float:
-        # Implement containment percentage calculation
-        # This is a placeholder implementation
-        return 0.0 #TODO
+
     
-
     def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
                                         elevation_path: str = None, vegetation_path: str = None,
                                         min_distance: int = 1, max_distance: int = 10,
@@ -665,18 +621,7 @@ class GeoSpatialManager:
         plt.colorbar(label='Fire Intensity')
         plt.show()
 
-    def calculate_fire_gradient(self, fire_intensity: np.ndarray) -> np.ndarray:
-        """
-        Calculate the gradient of the fire intensity.
 
-        Args:
-            fire_intensity (np.ndarray): Current fire intensity matrix.
-
-        Returns:
-            np.ndarray: Gradient of fire intensity.
-        """
-        return np.array(np.gradient(fire_intensity))
-    
     def sample_firelines(self, action_mask: np.ndarray, fire_intensity: np.ndarray, num_samples: int = 10, min_length: int = 5, max_length: int = 10) -> List[Tuple[int, int, float, int]]:
         """
         Sample potential firelines based on the action mask, favoring tangential directions to the fire.
@@ -784,24 +729,43 @@ def main():
     config = OverseerConfig()
     gsm = GeoSpatialManager(config)
     
-    print("Creating fake data...")
-    data = create_fake_data()
+    # File paths
+    toa_path = "/teamspace/studios/this_studio/overseer/data/mock/ex/toa_ex.tif"
+    flin_path = "/teamspace/studios/this_studio/overseer/data/mock/ex/flin_ex.tif"
+
+    # Calculate fire perimeter and size using time of arrival data
+    toa_perimeter = gsm.calculate_fire_perimeter(toa_path)
+    toa_size = gsm.calculate_fire_size(toa_path)
+
+    print(f"Fire perimeter (based on time of arrival): {toa_perimeter:.2f} meters")
+    print(f"Fire size (based on time of arrival): {toa_size:.2f} square meters")
+
+    # Calculate fire perimeter and size using fire line intensity data
+    flin_perimeter = gsm.calculate_fire_perimeter(flin_path)
+    flin_size = gsm.calculate_fire_size(flin_path)
+
+    print(f"Fire perimeter (based on fire line intensity): {flin_perimeter:.2f} meters")
+    print(f"Fire size (based on fire line intensity): {flin_size:.2f} square meters")
+
+
+    # print("Creating fake data...")
+    # data = create_fake_data()
     
-    fire_intensity = data['fire']
-    action_mask = gsm.generate_action_mask(fire_intensity, np.zeros_like(fire_intensity), min_distance=1, max_distance=10)
-    fire_gradient = gsm.calculate_fire_gradient(fire_intensity)
-    sampled_firelines = gsm.sample_firelines(action_mask, fire_intensity, min_length=5, max_length=10)
+    # fire_intensity = data['fire']
+    # action_mask = gsm.generate_action_mask(fire_intensity, np.zeros_like(fire_intensity), min_distance=1, max_distance=10)
+    # fire_gradient = gsm.calculate_fire_gradient(fire_intensity)
+    # sampled_firelines = gsm.sample_firelines(action_mask, fire_intensity, min_length=5, max_length=10)
 
-    # Prepare matrices for visualization
-    matrices_to_visualize = {
-        "Initial Fire": fire_intensity,
-        "Action Mask": action_mask,
-        "Fire Gradient": fire_gradient,
-        "Sampled Firelines": sampled_firelines
-    }
+    # # Prepare matrices for visualization
+    # matrices_to_visualize = {
+    #     "Initial Fire": fire_intensity,
+    #     "Action Mask": action_mask,
+    #     "Fire Gradient": fire_gradient,
+    #     "Sampled Firelines": sampled_firelines
+    # }
 
-    # Visualize all matrices
-    visualize_multiple(matrices_to_visualize)
+    # # Visualize all matrices
+    # visualize_multiple(matrices_to_visualize)
 
 if __name__ == "__main__":
     main()
