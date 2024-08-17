@@ -318,8 +318,23 @@ class DataManager:
         if state is None: # use the current state
             state = self.get_current_state()
 
-        new_metrics = self.geospatial_manager.calculate_state_metrics(state)
-        
+        # Check if the required output files exist
+        toa_path = state.paths.output_paths.time_of_arrival
+        flin_path = state.paths.output_paths.fire_intensity
+
+        if not toa_path.exists() or not flin_path.exists():
+            self.logger.warning("[On Reset]: Required output files not found. Using default metrics.")
+            new_metrics = SimulationMetrics(
+                burned_area=0.0,
+                fire_perimeter_length=0.0,
+                containment_percentage=0.0,
+                execution_time=0.0,
+                performance_metrics={'cpu_usage': 0.0, 'memory_usage': 0.0},
+                fire_intensity=None
+            )
+        else:
+            new_metrics = self.geospatial_manager.calculate_state_metrics(state)
+                
         # Create a new SimulationState with updated metrics
         updated_state = SimulationState(
             timestamp=state.timestamp,

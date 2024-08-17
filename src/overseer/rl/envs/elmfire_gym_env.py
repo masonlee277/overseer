@@ -1,6 +1,7 @@
 import gymnasium as gym
 import numpy as np
 from typing import Dict, Any, Tuple, List
+import traceback
 
 from overseer.config.config import OverseerConfig
 from overseer.elmfire.simulation_manager import SimulationManager
@@ -174,37 +175,60 @@ class ElmfireGymEnv(gym.Env):
 
 
 def main():
+    logger = OverseerLogger().get_logger("ElmfireGymEnv_Main")
+
     config_path = "src\overseer\config\elmfire_config.yaml"
     env = ElmfireGymEnv(config_path)
-    
-    num_episodes = 5
-    max_steps_per_episode = 100
 
-    for episode in range(num_episodes):
-        print(f"Starting Episode {episode + 1}")
-        observation, _ = env.reset()
-        episode_reward = 0
+    try:
+        logger.info("Initializing ElmfireGymEnv")
+        env = ElmfireGymEnv(config_path)
         
-        for step in range(max_steps_per_episode):
-            action = env.action_space.sample()  # Random action
-            observation, reward, terminated, truncated, info = env.step(action)
-            episode_reward += reward
+        num_episodes = 5
+        max_steps_per_episode = 100
+
+        for episode in range(num_episodes):
+            logger.info(f"Starting Episode {episode + 1}")
+            try:
+                observation, _ = env.reset()
+                episode_reward = 0
+                
+                for step in range(max_steps_per_episode):
+                    action = env.action_space.sample()  # Random action
+                    logger.debug(f"Episode {episode + 1}, Step {step + 1}: Sampled action = {action}")
+                    
+                    try:
+                        observation, reward, terminated, truncated, info = env.step(action)
+                        episode_reward += reward
+                        
+                        logger.info(f"Episode {episode + 1}, Step {step + 1}: Reward = {reward}, Info = {info}")
+                        
+                        if terminated or truncated:
+                            logger.info(f"Episode {episode + 1} finished after {step + 1} steps")
+                            break
+                    except Exception as step_error:
+                        logger.error(f"Error during step {step + 1} of episode {episode + 1}")
+                        logger.error(traceback.format_exc())
+                        break
+                
+                logger.info(f"Episode {episode + 1} total reward: {episode_reward}")
+                
+                # Get and print episode data and RL metrics
+                episode_data = env.get_episode_data(episode)
+                rl_metrics = env.get_rl_metrics(episode)
+                logger.info(f"Episode {episode + 1} data: {episode_data}")
+                logger.info(f"Episode {episode + 1} RL metrics: {rl_metrics}")
             
-            print(f"Step {step + 1}: Reward = {reward}, Info = {info}")
-            
-            if terminated or truncated:
-                print(f"Episode {episode + 1} finished after {step + 1} steps")
-                break
+            except Exception as episode_error:
+                logger.error(f"Error during episode {episode + 1}")
+                logger.error(traceback.format_exc())
         
-        print(f"Episode {episode + 1} total reward: {episode_reward}")
-        
-        # Get and print episode data and RL metrics
-        episode_data = env.get_episode_data(episode)
-        rl_metrics = env.get_rl_metrics(episode)
-        print(f"Episode {episode + 1} data: {episode_data}")
-        print(f"Episode {episode + 1} RL metrics: {rl_metrics}")
-    
-    env.close()
+        logger.info("Closing environment")
+        env.close()
+
+    except Exception as e:
+        logger.error("Error in main execution")
+        logger.error(traceback.format_exc())
 
 if __name__ == "__main__":
     main()
