@@ -38,6 +38,10 @@ class SimulationOutput:
         self.is_complete = False
         self.full_output = []
 
+    def get_full_output(self) -> str:
+        """Get the full output of the simulation as a single string."""
+        return "".join(self.full_output)
+        
     def add_line(self, line: str):
         """Add a line of output to the simulation output."""
         self.output_queue.put(line)
