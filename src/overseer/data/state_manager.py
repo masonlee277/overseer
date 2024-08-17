@@ -58,7 +58,7 @@ class StateManager:
         self.state_history: List[SimulationState] = []
         self.episodes: Dict[int, Episode] = {}
         self.current_episode_id = self._determine_current_episode_id()
-        self.current_step: int = 0
+        self.current_step: int = 0 
         self.state_counter_lock = threading.Lock()
 
     def update_state(self, new_state: SimulationState) -> None:
