@@ -172,17 +172,18 @@ class DataManager:
 
         This method takes a SimulationState object and converts its fire intensity data
         into a flattened numpy array. If no state is provided, it uses the current state.
+        If the fire intensity file doesn't exist (e.g., on reset), it creates a zero array
+        based on the shape of the phi file.
 
         Args:
             state (Optional[SimulationState]): The state to convert. If None, use the current state.
 
         Returns:
-            np.ndarray: A 1D numpy array representation of the state's fire intensity data.
+            np.ndarray: A 1D numpy array representation of the state's fire intensity data or a zero array.
 
         Raises:
-            ValueError: If the fire intensity path does not exist or if the data cannot be read.
+            ValueError: If neither the fire intensity nor the phi file can be read.
         """
-        ##TODO:: USE INPUT AND OUTPUT DATA --> Encode 
         self.logger.info("Starting conversion of SimulationState to array")
 
         if state is None:
@@ -193,22 +194,31 @@ class DataManager:
         self.logger.debug(f"Fire intensity path: {flin_path}")
 
         if not flin_path.exists():
-            self.logger.error(f"Fire intensity file does not exist: {flin_path}")
-            raise ValueError(f"Fire intensity file does not exist: {flin_path}")
+            self.logger.warning(f"Fire intensity file does not exist: {flin_path}")
+            self.logger.info("Using phi file to create zero array")
+            phi_path = Path(state.paths.input_paths.phi_filename)
+            
+            try:
+                phi_data = self.geospatial_manager.open_tiff(str(phi_path))
+                phi_shape = phi_data['data'].shape
+                self.logger.debug(f"Phi file shape: {phi_shape}")
+                state_array = np.zeros(phi_shape).flatten()
+                self.logger.info(f"Created zero array with shape: {state_array.shape}")
+                return state_array
+            except Exception as e:
+                self.logger.error(f"Failed to read phi file: {str(e)}")
+                raise ValueError(f"Failed to read phi file: {str(e)}")
 
         try:
             flin_data = self.geospatial_manager.open_tiff(str(flin_path))
             flin_raster = flin_data['data']
             self.logger.debug(f"Fire intensity raster shape: {flin_raster.shape}")
+            state_array = flin_raster.flatten()
+            self.logger.info(f"State array created with shape: {state_array.shape}")
+            return state_array
         except Exception as e:
             self.logger.error(f"Failed to read fire intensity data: {str(e)}")
             raise ValueError(f"Failed to read fire intensity data: {str(e)}")
-
-        # Flatten the raster to a 1D array
-        state_array = flin_raster.flatten()
-
-        self.logger.info(f"State array created with shape: {state_array.shape}")
-        return state_array
 
     def get_state_history(self) -> List[SimulationState]:
         """Get the state history from the StateManager."""
