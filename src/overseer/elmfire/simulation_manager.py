@@ -179,6 +179,7 @@ class SimulationManager:
             self.logger.error(traceback.format_exc())
             raise
 
+
     def update_phi_file(self, state: SimulationState) -> None:
         """
         Update the PHI file based on the current simulation state.
@@ -188,9 +189,15 @@ class SimulationManager:
         """
         self.logger.info("Updating PHI file for next simulation")
         try:
-            phi_path = state.paths.input_paths.phi_filename
+            # Construct the full PHI file path
+            phi_filename = "phi.tif"
+            phi_path = state.paths.input_paths.fuels_and_topography_directory / phi_filename
             toa_path = state.paths.output_paths.time_of_arrival
             flin_path = state.paths.output_paths.fire_intensity
+
+            self.logger.debug(f"PHI file path: {phi_path}")
+            self.logger.debug(f"TOA file path: {toa_path}")
+            self.logger.debug(f"FLIN file path: {flin_path}")
 
             self.data_manager.geospatial_manager.update_phi_file(
                 phi_path=str(phi_path),
