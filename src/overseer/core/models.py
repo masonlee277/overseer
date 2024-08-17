@@ -27,26 +27,29 @@ class InputPaths:
     m100_filename: Path
 
     @classmethod
-    def get_absolute_path(cls, instance: 'InputPaths', filename: Union[str, Path]) -> Path:
+    def get_absolute_path(cls, instance: 'InputPaths', filename_attr: Union[str, Path]) -> Path:
         """
-        Get the absolute path for a given filename, ensuring it has a .tif extension.
+        Get the absolute path for a given filename attribute, ensuring it has a .tif extension.
 
         Args:
             instance (InputPaths): An instance of the InputPaths class.
-            filename (Union[str, Path]): The filename to get the absolute path for.
+            filename_attr (Union[str, Path]): The filename attribute to get the absolute path for.
 
         Returns:
             Path: The absolute path for the given filename with .tif extension.
 
         Raises:
-            ValueError: If the filename is not a valid attribute of InputPaths.
+            ValueError: If the filename attribute is not a valid attribute of InputPaths.
         """
-        filename = Path(filename)
-        if filename.name not in instance.__dict__:
-            raise ValueError(f"{filename.name} is not a valid attribute of InputPaths")
+        if isinstance(filename_attr, Path):
+            filename = filename_attr
+        else:
+            if filename_attr not in instance.__dict__:
+                raise ValueError(f"{filename_attr} is not a valid attribute of InputPaths")
+            filename = getattr(instance, filename_attr)
 
         # Determine the correct directory
-        if filename in [instance.ws_filename, instance.wd_filename, instance.m1_filename, instance.m10_filename, instance.m100_filename]:
+        if filename_attr in ['ws_filename', 'wd_filename', 'm1_filename', 'm10_filename', 'm100_filename']:
             base_dir = instance.weather_directory
         else:
             base_dir = instance.fuels_and_topography_directory
