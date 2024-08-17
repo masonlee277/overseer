@@ -491,13 +491,11 @@ class GeoSpatialManager:
             burned_area=0.0,
             fire_perimeter_length=0.0,
             containment_percentage=0.0,
-            execution_time=state.metrics.execution_time,
-            performance_metrics=state.metrics.performance_metrics,
+            execution_time=0,
+            performance_metrics=None,
             fire_intensity={},
-            spread_rate=0.0,
-            fire_acceleration=0.0
         )
-
+        self.logger.info(f"Initialized SimulationMetrics with {metrics}")
         try:
             # Prepare file paths
             toa_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
