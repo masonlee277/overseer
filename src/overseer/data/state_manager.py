@@ -47,12 +47,17 @@ class StateManager:
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
+
         self.copy_outputs = self.config.get('data_management', '{}').get('copy_outputs_to_steps', '')
         self.logger.info(f"Are we saving raw fireperims?: {self.copy_outputs}")
+
+        self.episode_start_behavior = self.config.get('data_management', '{}').get('episode_start_behavior', 'continue')
+        self.logger.info(f"Episode start behavior: {self.episode_start_behavior}")
+
         self.current_state: Optional[SimulationState] = None
         self.state_history: List[SimulationState] = []
         self.episodes: Dict[int, Episode] = {}
-        self.current_episode_id: int = 0
+        self.current_episode_id = self._determine_current_episode_id()
         self.current_step: int = 0
         self.state_counter_lock = threading.Lock()
 
@@ -133,11 +138,13 @@ class StateManager:
             return self.current_step
 
     def ensure_episode_exists(self, episode_id: int) -> None:
-        """
-        Ensure that an episode with the given ID exists. If not, create it.
-        """
+        """Ensure that an episode with the given ID exists. If not, create it."""
         if episode_id not in self.episodes:
             self.logger.info(f"Creating new episode with ID {episode_id}")
+            self.episodes[episode_id] = Episode(episode_id=episode_id, steps=[], total_reward=0.0, total_steps=0)
+            self._create_episode_directory(episode_id)
+        elif self.episode_start_behavior == 'overwrite':
+            self.clear_episode_data(episode_id)
             self.episodes[episode_id] = Episode(episode_id=episode_id, steps=[], total_reward=0.0, total_steps=0)
             self._create_episode_directory(episode_id)
 
@@ -150,14 +157,20 @@ class StateManager:
 
 
     def start_new_episode(self) -> None:
+        """Start a new episode, managing data according to configuration."""
         self.reset_state_counter()
-        self.current_episode_id += 1
-        self.current_state = None
-        self.current_step = 0  
-        self.state_history.clear()
-
+        
+        if self.current_episode_id >= self.max_episodes:
+            oldest_episode = min(self.episodes.keys())
+            self.clear_episode_data(oldest_episode)
+        
+        if self.episode_start_behavior == 'overwrite' and self.current_episode_id in self.episodes:
+            self.clear_episode_data(self.current_episode_id)
+        
         self.ensure_episode_exists(self.current_episode_id)
-        self.logger.debug(f"New episode started: {self.current_episode_id}")
+        self.current_state = None
+        self.state_history.clear()
+        self.logger.info(f"New episode started: {self.current_episode_id}")
 
     def add_step_to_current_episode(self, state: SimulationState, action: Action, reward: float, next_state: SimulationState, done: bool) -> None:
         """
@@ -245,6 +258,36 @@ class StateManager:
             weather=state_data.get('weather', {})
         )
 
+
+    def _determine_current_episode_id(self) -> int:
+        """Determine the current episode ID based on existing data."""
+        episodes_dir = self.data_dir / "episodes"
+        if not episodes_dir.exists():
+            return 0
+        
+        existing_episodes = [int(d.name.split('_')[1]) for d in episodes_dir.glob('episode_*') if d.is_dir()]
+        if not existing_episodes:
+            return 0
+        
+        last_episode = max(existing_episodes)
+        if self.episode_start_behavior == 'continue':
+            return last_episode + 1
+        elif self.episode_start_behavior == 'overwrite':
+            print(f"Warning: Overwriting existing episode data starting from episode 0")
+            return 0
+        else:
+            raise ValueError(f"Invalid episode_start_behavior: {self.episode_start_behavior}")
+
+    def clear_episode_data(self, episode_id: int) -> None:
+        """Clear all data for a specific episode."""
+        episode_dir = self._get_episode_directory(episode_id)
+        if episode_dir.exists():
+            self.logger.warning(f"Clearing data for episode {episode_id}")
+            shutil.rmtree(episode_dir)
+            episode_dir.mkdir(parents=True, exist_ok=True)
+        
+        if episode_id in self.episodes:
+            del self.episodes[episode_id]
 
     def _parse_timestamp(self, timestamp: Union[str, datetime]) -> str:
         """
@@ -708,21 +751,15 @@ class StateManager:
             done=step_data['done']
         )
 
-    def cleanup_old_episodes(self, max_episodes: int) -> None:
-        """
-        Remove old episode data to free up storage space.
 
-        Args:
-            max_episodes (int): Maximum number of recent episodes to keep
-        """
-        self.logger.info(f"Cleaning up old episodes, keeping the most recent {max_episodes}")
+    def cleanup_old_episodes(self) -> None:
+        """Remove old episode data to free up storage space."""
+        self.logger.info(f"Cleaning up old episodes, keeping the most recent {self.max_episodes}")
         episode_dirs = sorted(self.data_dir.glob('episode_*'), key=lambda x: int(x.name.split('_')[1]), reverse=True)
-        for old_dir in episode_dirs[max_episodes:]:
+        for old_dir in episode_dirs[self.max_episodes:]:
             self.logger.info(f"Removing old episode data: {old_dir}")
-            for file in old_dir.glob('*'):
-                file.unlink()
-            old_dir.rmdir()
-        self.logger.debug(f"Cleaned up {len(episode_dirs) - max_episodes} old episodes")
+            shutil.rmtree(old_dir)
+        self.logger.debug(f"Cleaned up {len(episode_dirs) - self.max_episodes} old episodes")
 
     def get_episode_summary(self, episode_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -894,8 +931,8 @@ class StateManager:
         self.logger.info("Resetting StateManager")
         self.current_state = None
         self.state_history.clear()
-        self.current_episode_id += 1
         self.current_step = 0
+        self.current_episode_id = self._determine_current_episode_id()
         self.ensure_episode_exists(self.current_episode_id)
         self.logger.debug("StateManager reset complete")
 

@@ -16,6 +16,7 @@ data_management:
   state_history_limit: 1000
   storage_type: file
   copy_outputs_to_steps: true  # Add this line
+  episode_start_behavior: "continue"  # Options: "continue" or "overwrite"  
 
 directories:
   elmfire_sim_dir: /teamspace/studios/this_studio/elmfire/tutorials/00-test
