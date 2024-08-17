@@ -191,9 +191,9 @@ class SimulationManager:
         try:
             # Construct the full PHI file path
             phi_filename = "phi.tif"
-            phi_path = state.paths.input_paths.fuels_and_topography_directory / phi_filename
-            toa_path = state.paths.output_paths.time_of_arrival
-            flin_path = state.paths.output_paths.fire_intensity
+            phi_path = Path(state.paths.input_paths.fuels_and_topography_directory) / phi_filename
+            toa_path = Path(state.paths.output_paths.time_of_arrival)
+            flin_path = Path(state.paths.output_paths.fire_intensity)
 
             self.logger.debug(f"PHI file path: {phi_path}")
             self.logger.debug(f"TOA file path: {toa_path}")
