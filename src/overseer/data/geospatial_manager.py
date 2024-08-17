@@ -9,6 +9,8 @@ import rasterio
 import numpy as np
 import geopandas as gpd
 from rasterio import features
+from rasterio.transform import Affine
+
 from shapely.geometry import shape, Polygon, Point, LineString 
 
 from scipy import ndimage
@@ -624,6 +626,29 @@ class GeoSpatialManager:
             # Update PHI based on FLIN
             phi_raster = np.where(flin_raster > burn_threshold, burn_value, unburn_value)
 
+            # Update the metadata to use Affine transform
+            transform = phi_meta['transform']
+            if isinstance(transform, Affine):
+                # If it's already an Affine object, use it directly
+                new_transform = transform
+            elif len(transform) == 6:
+                # If it's a tuple of 6 elements, create Affine from it
+                new_transform = Affine.from_gdal(*transform)
+            elif len(transform) == 9:
+                # If it's a tuple of 9 elements (3x3 matrix), create Affine from the first 6
+                new_transform = Affine.from_gdal(*transform[:6])
+            else:
+                # If it's something else, log an error and raise an exception
+                self.logger.error(f"Unexpected transform format: {transform}")
+                raise ValueError(f"Unexpected transform format: {transform}")
+
+            phi_meta.update({
+                'driver': 'GTiff',
+                'height': phi_raster.shape[0],
+                'width': phi_raster.shape[1],
+                'transform': new_transform,
+            })
+
             # Write the updated PHI data
             with rasterio.open(phi_path, 'w', **phi_meta) as dst:
                 dst.write(phi_raster, 1)
@@ -632,14 +657,10 @@ class GeoSpatialManager:
             self.logger.info(f"Total burned area: {np.sum(phi_raster == burn_value)} pixels")
             self.logger.info(f"Total unburned area: {np.sum(phi_raster == unburn_value)} pixels")
 
-        except rasterio.errors.RasterioIOError as e:
-            self.logger.error(f"Error reading raster file: {str(e)}")
-            raise
-        except ValueError as e:
-            self.logger.error(f"Error processing raster data: {str(e)}")
-            raise
         except Exception as e:
-            self.logger.error(f"Unexpected error updating PHI file: {str(e)}")
+            self.logger.error(f"Error updating PHI file {phi_path}: {str(e)}")
+            self.logger.error("Full traceback:")
+            self.logger.error(traceback.format_exc())
             raise
 
 
@@ -786,15 +807,16 @@ class GeoSpatialManager:
                     'count': src.count,
                     'dtype': src.dtypes[0],
                     'crs': src.crs.to_string(),
-                    'transform': src.transform.to_gdal(),
+                    'transform': src.transform,
                 }
                 self.logger.info(f"Opened GeoTIFF: {filepath}")
                 self.logger.info(f"Metadata: {metadata}")
                 return {'data': data, 'metadata': metadata}
         except rasterio.errors.RasterioIOError as e:
             self.logger.error(f"Error opening GeoTIFF file {filepath}: {str(e)}")
+            self.logger.error("Full traceback:")
+            self.logger.error(traceback.format_exc())
             raise
-
 
     def update_fuel_file(self, filepath: str, fireline_coords: List[Tuple[int, int]]) -> None:
         self.logger.info(f"Updating fuel file: {filepath}")
