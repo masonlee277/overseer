@@ -404,7 +404,55 @@ class ComputeManager:
             print(f"Error during ELMFIRE build: {str(e)}")
             return False
 
+
+    def submit_parallel_sims(self, num_sims: int = 2) -> List[SimulationResult]:
+        self.logger.info(f"Preparing to submit {num_sims} parallel simulations")
         
+        # Create copies of the ELMFIRE base directory
+        sim_dirs = []
+        for i in range(num_sims):
+            new_sim_dir = self.sim_dir.parent / f"{self.sim_dir.name}_copy_{i}"
+            shutil.copytree(self.sim_dir, new_sim_dir, dirs_exist_ok=True)
+            sim_dirs.append(new_sim_dir)
+            self.logger.info(f"Created copy of ELMFIRE base directory: {new_sim_dir}")
+
+        # Submit simulations in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_sims) as executor:
+            future_to_sim = {executor.submit(self._run_single_sim, sim_dir): sim_dir for sim_dir in sim_dirs}
+            results = []
+
+            for future in concurrent.futures.as_completed(future_to_sim):
+                sim_dir = future_to_sim[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                    self.logger.info(f"Simulation completed for {sim_dir}")
+                except Exception as e:
+                    self.logger.error(f"Simulation failed for {sim_dir}: {str(e)}")
+                    results.append(SimulationResult(job_id="", status=JobStatus.FAILED, error_message=str(e)))
+
+        # Clean up temporary directories
+        for sim_dir in sim_dirs:
+            shutil.rmtree(sim_dir)
+            self.logger.info(f"Removed temporary directory: {sim_dir}")
+
+        return results
+
+    def _run_single_sim(self, sim_dir: Path) -> SimulationResult:
+        # Temporarily change the sim_dir and start_script
+        original_sim_dir = self.sim_dir
+        original_start_script = self.start_script
+        self.sim_dir = sim_dir
+        self.start_script = sim_dir / self.config.get('directories', {}).get('start_script', '01-run.sh')
+
+        try:
+            result = self.submit_simulation()
+            return result
+        finally:
+            # Restore original sim_dir and start_script
+            self.sim_dir = original_sim_dir
+            self.start_script = original_start_script
+
 def main():
     logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
     
@@ -422,6 +470,19 @@ def main():
             logger.error(f"Error initializing ComputeManager: {e}")
             sys.exit(1)
 
+        parallel_results = compute_manager.submit_parallel_sims(num_sims=2)
+        for i, result in enumerate(parallel_results):
+            logger.info(f"Parallel simulation {i+1} completed with status: {result.status}")
+            if result.status == JobStatus.COMPLETED:
+                logger.info(f"Duration: {result.duration} seconds")
+                logger.info(f"CPU Usage: {result.cpu_usage}%")
+                logger.info(f"Memory Usage: {result.memory_usage}%")
+                logger.info(f"Exit Code: {result.exit_code}")
+            else:
+                logger.warning(f"Simulation did not complete successfully. Status: {result.status}")
+                if result.error_message:
+                    logger.error(f"Error message: {result.error_message}")
+                    
         # Submit a simulation
         submit_result = compute_manager.submit_simulation()
         if submit_result.status == JobStatus.FAILED:

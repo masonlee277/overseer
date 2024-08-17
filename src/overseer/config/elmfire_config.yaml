@@ -11,6 +11,7 @@ center_lat: 37.44
 center_lon: -120.281
 
 
+
 data_management:
   data_directory: data/
   state_history_limit: 1000
@@ -42,37 +43,7 @@ logging:
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   level: DEBUG
 
-fuel:
-  moisture_100hr: 8
-  moisture_10hr: 7
-  moisture_1hr: 6
-  moisture_live_herb: 60
-  moisture_live_woody: 90
-fuel_source: landfire
-fuel_version: 2.2.0
 
-
-
-geospatial:
-  fire_intensity_threshold: 100
-  high_risk_threshold: 0.7
-  spot_fire_probability_threshold: 0.5
-
-
-
-output_control:
-  metrics_to_track:
-    - burned_area
-    - fire_intensity
-    - resources_deployed
-    - wind_speed
-    - wind_direction
-  save_intermediate_state_interval: 10
-performance_metrics:
-  - total_burned_area
-  - average_containment_time
-  - resource_efficiency
-  - cost_effectiveness
 project_name: ELMFIRE Simulation
 reinforcement_learning:
   action_space:
