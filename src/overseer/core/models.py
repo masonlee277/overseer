@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Union
 import numpy as np
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +25,37 @@ class InputPaths:
     m1_filename: Path
     m10_filename: Path
     m100_filename: Path
+
+    @classmethod
+    def get_absolute_path(cls, instance: 'InputPaths', filename: Union[str, Path]) -> Path:
+        """
+        Get the absolute path for a given filename, ensuring it has a .tif extension.
+
+        Args:
+            instance (InputPaths): An instance of the InputPaths class.
+            filename (Union[str, Path]): The filename to get the absolute path for.
+
+        Returns:
+            Path: The absolute path for the given filename with .tif extension.
+
+        Raises:
+            ValueError: If the filename is not a valid attribute of InputPaths.
+        """
+        filename = Path(filename)
+        if filename.name not in instance.__dict__:
+            raise ValueError(f"{filename.name} is not a valid attribute of InputPaths")
+
+        # Determine the correct directory
+        if filename in [instance.ws_filename, instance.wd_filename, instance.m1_filename, instance.m10_filename, instance.m100_filename]:
+            base_dir = instance.weather_directory
+        else:
+            base_dir = instance.fuels_and_topography_directory
+
+        # Ensure the filename has .tif extension
+        if filename.suffix.lower() != '.tif':
+            filename = filename.with_suffix('.tif')
+
+        return base_dir / filename
 
 
 @dataclass

@@ -87,7 +87,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from pprint import pformat
 import copy
-from pprint import pformat
+import shutil
 
 from overseer.config import OverseerConfig
 from overseer.data.data_manager import DataManager
@@ -138,8 +138,6 @@ class ElmfireConfigManager:
         self.prepare_simulation_inputs()
         self.logger.info("ElmfireConfigManager initialization complete")
 
-
-
     def prepare_simulation_inputs(self) -> None:
         """
         Prepare simulation inputs by validating files, loading simulation inputs,
@@ -174,8 +172,6 @@ class ElmfireConfigManager:
 
         self.logger.info("Stored current simulation configuration and paths")
         self.logger.info("Simulation inputs preparation completed successfully")
-
-
 
 
     def _load_elmfire_config(self) -> Dict[str, Dict[str, Any]]:
@@ -315,8 +311,6 @@ class ElmfireConfigManager:
         self._update_fuel_files(fireline_coords)
         self.logger.info("Updated fuel files with new fireline")
         # Update elmfire.data.in if necessary
-
-
 
 
     def _update_fuel_files(self, fireline_coords: List[Tuple[int, int]]):
@@ -504,40 +498,6 @@ class ElmfireConfigManager:
         elmfire_path = (overseer_dir / elmfire_relative_path).resolve()
         return elmfire_path
 
-    def calculate_fire_growth_rate(self, toa_path: str, time_interval: float) -> float:
-        """
-        Calculate the fire growth rate based on the time of arrival (TOA) data.
-
-        Args:
-            toa_path (str): Path to the time of arrival raster file.
-            time_interval (float): Time interval in seconds to calculate the growth rate.
-
-        Returns:
-            float: Fire growth rate in square meters per second.
-        """
-        toa_path = fix_path(toa_path, add_tif=True)
-        if not toa_path:
-            self.logger.error("Invalid or non-existent time of arrival path")
-            return 0.0
-
-        try:
-            with rasterio.open(toa_path) as src:
-                toa_data = src.read(1)
-                pixel_area = abs(src.transform.a * src.transform.e)  # Calculate pixel area
-
-            # Calculate the area burned at the start and end of the interval
-            start_area = np.sum(toa_data > 0) * pixel_area
-            end_area = np.sum(toa_data <= time_interval) * pixel_area
-
-            # Calculate the growth rate
-            growth_rate = (end_area - start_area) / time_interval
-
-            return growth_rate
-
-        except Exception as e:
-            self.logger.error(f"Error calculating fire growth rate: {str(e)}")
-            return 0.0
-
 
     def prepare_simulation(self):
         """
@@ -594,6 +554,96 @@ class ElmfireConfigManager:
                 formatted_output.append(f"  {key}: {value}")
 
         return "\n".join(formatted_output)
+    
+
+
+
+    def create_and_manage_input_backup(self) -> None:
+        """
+        Create a backup of input files and manage resets.
+
+        This method performs the following steps:
+        1. Validates input files.
+        2. Creates a copy of the inputs folder named 'inputs_copy' in the same simulation directory.
+        3. Provides a way to reset input files to their initial state using the backup.
+
+        The backup is created after input validation to ensure all required files are present.
+        This method should be called at the start of a simulation and can be used to reset
+        inputs to their initial state when needed.
+
+        Raises:
+            FileNotFoundError: If the input directory doesn't exist.
+            IOError: If there's an error copying files or creating directories.
+        """
+        self.logger.info("Creating and managing input backup")
+
+        # Validate input files
+        if not self.validate_input_files():
+            self.logger.error("Input validation failed. Cannot create backup.")
+            raise ValueError("Invalid input files")
+
+        # Get the path to the inputs directory
+        input_paths = self.get_simulation_paths().input_paths
+        input_dir = input_paths.fuels_and_topography_directory
+
+        # Create the backup directory path
+        backup_dir = input_dir.parent / "inputs_copy"
+
+        try:
+            # Remove existing backup if it exists
+            if backup_dir.exists():
+                shutil.rmtree(backup_dir)
+
+            # Create a new backup
+            shutil.copytree(input_dir, backup_dir)
+            self.logger.info(f"Created input backup at: {backup_dir}")
+
+        except IOError as e:
+            self.logger.error(f"Error creating input backup: {str(e)}")
+            raise
+
+    def reset_inputs_from_backup(self) -> None:
+        """
+        Reset input files to their initial state using the backup.
+
+        This method copies files from the 'inputs_copy' directory back to the 'inputs' directory,
+        effectively resetting all input files to their initial state.
+
+        Raises:
+            FileNotFoundError: If the backup directory doesn't exist.
+            IOError: If there's an error copying files.
+        """
+        self.logger.info("Resetting inputs from backup")
+
+        input_paths = self.get_simulation_paths().input_paths
+        input_dir = input_paths.fuels_and_topography_directory
+        backup_dir = input_dir.parent / "inputs_copy"
+
+        if not backup_dir.exists():
+            self.logger.error("Backup directory not found. Cannot reset inputs.")
+            raise FileNotFoundError("Backup directory not found")
+
+        try:
+            # Remove current input files
+            for item in input_dir.iterdir():
+                if item.is_file():
+                    item.unlink()
+                elif item.is_dir():
+                    shutil.rmtree(item)
+
+            # Copy files from backup to input directory
+            for item in backup_dir.iterdir():
+                if item.is_file():
+                    shutil.copy2(item, input_dir)
+                elif item.is_dir():
+                    shutil.copytree(item, input_dir / item.name)
+
+            self.logger.info("Successfully reset inputs from backup")
+
+        except IOError as e:
+            self.logger.error(f"Error resetting inputs from backup: {str(e)}")
+            raise
+
 def main():
     """
     Main function to demonstrate the usage of ElmfireConfigManager.

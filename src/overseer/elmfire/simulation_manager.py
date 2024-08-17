@@ -63,9 +63,13 @@ class SimulationManager:
         self.config_manager.prepare_simulation_inputs()
         sim_config = self.config_manager.get_config_for_simulation()
         self.logger.info(f"Simulation configuration: {sim_config}")
-
         self.sim_paths = self.config_manager.get_simulation_paths()
         self.logger.info(f"Simulation paths: {self.sim_paths}")
+
+        # Create backup of input files
+        self.config_manager.create_and_manage_input_backup()
+        self.logger.info("Simulation backup complete")
+
         return sim_config
     
 
@@ -178,7 +182,7 @@ class SimulationManager:
             self.logger.error("Full traceback:")
             self.logger.error(traceback.format_exc())
             raise
-
+        
 
     def update_phi_file(self, state: SimulationState) -> None:
         """
@@ -266,7 +270,7 @@ class SimulationManager:
                 containment_percentage=0.0,
                 execution_time=0.0,
                 performance_metrics={},
-                fire_intensity=np.zeros((100, 100))  # Placeholder size
+                fire_intensity=None  # Placeholder size
             ),
             save_path=None,
             resources=None,
@@ -399,9 +403,13 @@ class SimulationManager:
         Returns:
             SimulationState: The initial simulation state after reset.
         """
+        self.logger.info("Resetting simulation")
+        
+        # Reset input files to their initial state
+        self.config_manager.reset_inputs_from_backup()
+        
         self.config_manager.reset_config()
-        #TODO: fix this
-        initial_state = self._create_mock_simulation_state(self.config_manager.get_config_for_simulation())
+        initial_state = self.create_initial_state()
         self.data_manager.reset()
         self.data_manager.update_state(initial_state)
         return initial_state

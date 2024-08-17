@@ -605,32 +605,32 @@ class GeoSpatialManager:
 
         try:
             # Read the existing PHI file
-            with rasterio.open(phi_path) as src:
-                phi_data = src.read(1)
-                phi_meta = src.meta.copy()
+            phi_data = self.open_tiff(phi_path)
+            phi_raster = phi_data['data']
+            phi_meta = phi_data['metadata']
 
             # Read the TOA file
-            with rasterio.open(toa_path) as src:
-                toa_data = src.read(1)
+            toa_data = self.open_tiff(toa_path)
+            toa_raster = toa_data['data']
 
             # Read the FLIN file
-            with rasterio.open(flin_path) as src:
-                flin_data = src.read(1)
+            flin_data = self.open_tiff(flin_path)
+            flin_raster = flin_data['data']
 
             # Check if all rasters have the same dimensions
-            if not (phi_data.shape == toa_data.shape == flin_data.shape):
+            if not (phi_raster.shape == toa_raster.shape == flin_raster.shape):
                 raise ValueError("Mismatch in raster dimensions")
 
             # Update PHI based on FLIN
-            phi_data = np.where(flin_data > burn_threshold, burn_value, unburn_value)
+            phi_raster = np.where(flin_raster > burn_threshold, burn_value, unburn_value)
 
             # Write the updated PHI data
             with rasterio.open(phi_path, 'w', **phi_meta) as dst:
-                dst.write(phi_data, 1)
+                dst.write(phi_raster, 1)
 
             self.logger.info(f"Successfully updated PHI file: {phi_path}")
-            self.logger.info(f"Total burned area: {np.sum(phi_data == burn_value)} pixels")
-            self.logger.info(f"Total unburned area: {np.sum(phi_data == unburn_value)} pixels")
+            self.logger.info(f"Total burned area: {np.sum(phi_raster == burn_value)} pixels")
+            self.logger.info(f"Total unburned area: {np.sum(phi_raster == unburn_value)} pixels")
 
         except rasterio.errors.RasterioIOError as e:
             self.logger.error(f"Error reading raster file: {str(e)}")
@@ -642,8 +642,40 @@ class GeoSpatialManager:
             self.logger.error(f"Unexpected error updating PHI file: {str(e)}")
             raise
 
+
+    def reset_to_value(self, filepath: str, reset_value: float) -> None:
+        """
+        Reset all values in a GeoTIFF file to a specified value.
+
+        Args:
+            filepath (str): Absolute path to the GeoTIFF file.
+            reset_value (float): Value to set for all pixels in the raster.
+
+        Raises:
+            Exception: If there's an error opening, modifying, or saving the file.
+        """
+        self.logger.info(f"Resetting file {filepath} to value {reset_value}")
+
+        try:
+            # Open the TIFF file
+            tiff_data = self.open_tiff(filepath)
+            data = tiff_data['data']
+            metadata = tiff_data['metadata']
+
+            # Reset all values
+            data[:] = reset_value
+
+            # Save the modified data
+            with rasterio.open(filepath, 'w', **metadata) as dst:
+                dst.write(data, 1)
+
+            self.logger.info(f"Successfully reset file {filepath} to value {reset_value}")
+
+        except Exception as e:
+            self.logger.error(f"Error resetting file {filepath} to value {reset_value}: {str(e)}")
+            raise
     ###############################################################################################################################
-    
+
     def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
                                         elevation_path: str = None, vegetation_path: str = None,
                                         min_distance: int = 1, max_distance: int = 10,
