@@ -115,7 +115,7 @@ Overseer employs a modular, component-based architecture, leveraging key design 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repo/overseer.git
+   git clone https://github.com/masonlee277/overseer.git
    cd overseer
    ```
 
