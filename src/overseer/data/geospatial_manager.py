@@ -12,7 +12,7 @@ from rasterio import features
 from shapely.geometry import shape, Polygon, Point, LineString 
 
 from scipy import ndimage
-from scipy.ndimage import convolve2d
+from scipy.signal import convolve2d
 
 from typing import Dict, Any, Tuple, List, Optional, Union
 import matplotlib.pyplot as plt
@@ -90,6 +90,11 @@ class GeoSpatialManager:
         direction = np.arctan2(grad_y, grad_x)
         return direction
 
+
+    ###############################################################################################################################
+    ##  fire stats methods
+    ###############################################################################################################################
+   
 
     def calculate_fire_perimeter(self, input_data: Union[str, np.ndarray]) -> float:
         """
@@ -178,6 +183,109 @@ class GeoSpatialManager:
         self.logger.info(f"Calculated fire size: {fire_size_acres:.2f} square acres")
         return fire_size_acres
     
+    def calculate_spread_rate(self, toa: np.ndarray) -> float:
+        """
+        Calculate the average fire spread rate.
+
+        Args:
+            toa (np.ndarray): Time of arrival array in seconds.
+
+        Returns:
+            float: Average spread rate in meters per minute.
+        """
+        non_zero_toa = toa[toa > 0]
+        if len(non_zero_toa) < 2:
+            return 0.0
+        time_diff = np.max(non_zero_toa) - np.min(non_zero_toa)
+        distance = np.sqrt(len(non_zero_toa)) * self.resolution  # Assuming square spread
+        spread_rate = (distance / time_diff) * 60  # Convert to m/min
+        self.logger.info(f"Average spread rate: {spread_rate:.2f} m/min")
+        return spread_rate
+
+    def calculate_fire_intensity_stats(self, flin: np.ndarray) -> Tuple[float, float, float]:
+        """
+        Calculate statistics of fire intensity.
+
+        Args:
+            flin (np.ndarray): Fireline intensity array in kW/m.
+
+        Returns:
+            Tuple[float, float, float]: Mean, median, and max fire intensity in kW/m.
+        """
+        non_zero_flin = flin[flin > 0]
+        mean_intensity = np.mean(non_zero_flin)
+        median_intensity = np.median(non_zero_flin)
+        max_intensity = np.max(non_zero_flin)
+        self.logger.info(f"Fire intensity stats - Mean: {mean_intensity:.2f}, Median: {median_intensity:.2f}, Max: {max_intensity:.2f} kW/m")
+        return mean_intensity, median_intensity, max_intensity
+
+
+    def calculate_fire_acceleration(self, toa: np.ndarray) -> float:
+        """
+        Calculate the fire acceleration.
+
+        Args:
+            toa (np.ndarray): Time of arrival array in seconds.
+
+        Returns:
+            float: Fire acceleration in m/min^2.
+        """
+        grad_y, grad_x = np.gradient(toa)
+        acceleration = np.mean(np.sqrt(grad_x**2 + grad_y**2)) * (self.resolution / 60**2)  # Convert to m/min^2
+        self.logger.info(f"Fire acceleration: {acceleration:.2f} m/min^2")
+        return acceleration
+    
+    def calculate_containment_percentage(self, toa: np.ndarray, flin: np.ndarray, 
+                                         spread_rate_threshold: float = 0.5, 
+                                         intensity_threshold: float = 50) -> float:
+        """
+        Calculate the containment percentage of the fire.
+
+        This method calculates the containment percentage based on the spread rate
+        and fire intensity along the perimeter. A section of the perimeter is 
+        considered contained if its spread rate is below the spread_rate_threshold
+        and its intensity is below the intensity_threshold.
+
+        Args:
+            toa (np.ndarray): Time of arrival array in seconds.
+            flin (np.ndarray): Fireline intensity array in kW/m.
+            spread_rate_threshold (float): Threshold for spread rate in m/min. Default is 0.5 m/min.
+            intensity_threshold (float): Threshold for fire intensity in kW/m. Default is 50 kW/m.
+
+        Returns:
+            float: Containment percentage (0-100).
+        """
+        self.logger.info("Calculating containment percentage")
+
+        # Calculate fire perimeter
+        fire_mask = toa > 0
+        perimeter = ndimage.binary_dilation(fire_mask) ^ fire_mask
+
+        # Calculate spread rate along the perimeter
+        grad_y, grad_x = np.gradient(toa)
+        spread_rate = np.sqrt(grad_x**2 + grad_y**2) * (self.resolution / 60)  # Convert to m/min
+
+        # Count contained perimeter cells
+        contained_cells = np.sum((perimeter) & 
+                                 (spread_rate <= spread_rate_threshold) & 
+                                 (flin <= intensity_threshold))
+
+        total_perimeter_cells = np.sum(perimeter)
+
+        if total_perimeter_cells == 0:
+            containment_percentage = 100.0  # If there's no perimeter, consider it fully contained
+        else:
+            containment_percentage = (contained_cells / total_perimeter_cells) * 100
+
+        self.logger.info(f"Calculated containment percentage: {containment_percentage:.2f}%")
+        return containment_percentage
+
+
+    
+    
+    ###############################################################################################################################
+    ## End fire stats methods
+    ###############################################################################################################################
     def raster_to_vector(self, raster_data: np.ndarray, metadata: Dict[str, Any]) -> gpd.GeoDataFrame:
         """Convert raster data to vector format."""
         shapes = features.shapes(raster_data, transform=metadata['transform'])
@@ -362,85 +470,107 @@ class GeoSpatialManager:
 
     def calculate_state_metrics(self, state: SimulationState) -> SimulationMetrics:
         """
-        Calculate simulation metrics based on the current simulation state.
+        Calculate comprehensive simulation metrics based on the current simulation state.
+
+        This method loads the necessary geospatial data (time of arrival and fire intensity),
+        and calculates various fire statistics including burned area, fire perimeter length,
+        containment percentage, spread rate, and fire intensity statistics.
 
         Args:
-            state (SimulationState): The current simulation state.
+            state (SimulationState): The current simulation state containing paths to output files.
 
         Returns:
-            SimulationMetrics: Updated simulation metrics.
+            SimulationMetrics: Updated simulation metrics with calculated values.
+
+        Raises:
+            Exception: If there are critical errors in loading data.
         """
+        self.logger.info("Starting calculation of state metrics")
+        
         metrics = SimulationMetrics(
             burned_area=0.0,
             fire_perimeter_length=0.0,
             containment_percentage=0.0,
             execution_time=state.metrics.execution_time,
             performance_metrics=state.metrics.performance_metrics,
-            fire_intensity=np.zeros((1, 1))
+            fire_intensity={},
+            spread_rate=0.0,
+            fire_acceleration=0.0
         )
 
         try:
-            time_of_arrival_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
-            fire_intensity_path = fix_path(str(state.paths.output_paths.fire_intensity), add_tif=True)
-            # flame_length_path = fix_path(str(state.paths.output_paths.flame_length), add_tif=True)
-            # spread_rate_path = fix_path(str(state.paths.output_paths.spread_rate), add_tif=True)
+            # Prepare file paths
+            toa_path = fix_path(str(state.paths.output_paths.time_of_arrival), add_tif=True)
+            flin_path = fix_path(str(state.paths.output_paths.fire_intensity), add_tif=True)
 
-            self.logger.info(f"[calculate_state_metrics] Paths:")
-            self.logger.info(f"Time of arrival: {time_of_arrival_path}")
-            self.logger.info(f"Fire intensity: {fire_intensity_path}")
-            # self.logger.info(f"Flame length: {flame_length_path}")
-            # self.logger.info(f"Spread rate: {spread_rate_path}")
+            self.logger.info(f"Time of arrival path: {toa_path}")
+            self.logger.info(f"Fire intensity path: {flin_path}")
 
             # Load necessary data
-            for path, name in [
-                (time_of_arrival_path, "Time of arrival"),
-                (fire_intensity_path, "Fire intensity"),
-                # (flame_length_path, "Flame length"),
-                # (spread_rate_path, "Spread rate")
-            ]:
-                try:
-                    data, _ = self.load_tiff(str(path))
-                    if name == "Time of arrival":
-                        time_of_arrival = data
-                    elif name == "Fire intensity":
-                        fire_intensity = data
-                        metrics.fire_intensity = fire_intensity
-                except Exception as e:
-                    self.logger.warning(f"Error loading {name} data: {str(e)}")
-                    self.logger.debug(f"Stack trace: {traceback.format_exc()}")
-                    self.logger.info(f"Continuing with other calculations...")
-                    continue
+            toa_data, toa_metadata = self.load_tiff(toa_path)
+            flin_data, flin_metadata = self.load_tiff(flin_path)
+
+            self.logger.info("Successfully loaded time of arrival and fire intensity data")
 
             # Calculate metrics
             try:
-                metrics.burned_area = np.sum(time_of_arrival > 0) * (self.resolution ** 2)  # in square meters
-                self.logger.info(f"Calculated burned area: {metrics.burned_area}")
+                metrics.burned_area = self.calculate_fire_size(toa_data)
+                self.logger.info(f"Calculated burned area: {metrics.burned_area:.2f} square acres")
             except Exception as e:
-                self.logger.warning(f"Error calculating burned area: {str(e)}")
-                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+                self.logger.warning(f"Failed to calculate burned area: {str(e)}")
 
             try:
-                metrics.fire_perimeter_length = self.calculate_fire_perimeter(time_of_arrival)
-                self.logger.info(f"Calculated fire perimeter length: {metrics.fire_perimeter_length}")
+                metrics.fire_perimeter_length = self.calculate_fire_perimeter(toa_data)
+                self.logger.info(f"Calculated fire perimeter length: {metrics.fire_perimeter_length:.2f} kilometers")
             except Exception as e:
-                self.logger.warning(f"Error calculating fire perimeter length: {str(e)}")
-                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+                self.logger.warning(f"Failed to calculate fire perimeter length: {str(e)}")
 
             try:
-                metrics.containment_percentage = self.calculate_containment_percentage(time_of_arrival)
-                self.logger.info(f"Calculated containment percentage: {metrics.containment_percentage}")
+                metrics.containment_percentage = self.calculate_containment_percentage(toa_data, flin_data)
+                self.logger.info(f"Calculated containment percentage: {metrics.containment_percentage:.2f}%")
             except Exception as e:
-                self.logger.warning(f"Error calculating containment percentage: {str(e)}")
-                self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+                self.logger.warning(f"Failed to calculate containment percentage: {str(e)}")
+
+            try:
+                metrics.spread_rate = self.calculate_spread_rate(toa_data)
+                self.logger.info(f"Calculated spread rate: {metrics.spread_rate:.2f} m/min")
+            except Exception as e:
+                self.logger.warning(f"Failed to calculate spread rate: {str(e)}")
+
+            try:
+                metrics.fire_acceleration = self.calculate_fire_acceleration(toa_data)
+                self.logger.info(f"Calculated fire acceleration: {metrics.fire_acceleration:.2f} m/min^2")
+            except Exception as e:
+                self.logger.warning(f"Failed to calculate fire acceleration: {str(e)}")
+
+            try:
+                mean_intensity, median_intensity, max_intensity = self.calculate_fire_intensity_stats(flin_data)
+                metrics.fire_intensity = {
+                    'mean': mean_intensity,
+                    'median': median_intensity,
+                    'max': max_intensity
+                }
+                self.logger.info(f"Calculated fire intensity stats - Mean: {mean_intensity:.2f}, "
+                                f"Median: {median_intensity:.2f}, Max: {max_intensity:.2f} kW/m")
+            except Exception as e:
+                self.logger.warning(f"Failed to calculate fire intensity stats: {str(e)}")
+
+        except FileNotFoundError as e:
+            self.logger.error(f"File not found error: {str(e)}")
+            raise
+
+        except rasterio.errors.RasterioIOError as e:
+            self.logger.error(f"Error reading raster file: {str(e)}")
+            raise
 
         except Exception as e:
             self.logger.error(f"Unexpected error in calculate_state_metrics: {str(e)}")
             self.logger.debug(f"Stack trace: {traceback.format_exc()}")
+            raise
 
-        self.logger.info(f"Final metrics: {metrics}")
+        self.logger.info("Completed calculation of state metrics")
+        self.logger.debug(f"Final metrics: {metrics}")
         return metrics
-
-
 
     
     def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
