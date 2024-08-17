@@ -196,7 +196,10 @@ class DataManager:
         if not flin_path.exists():
             self.logger.warning(f"Fire intensity file does not exist: {flin_path}")
             self.logger.info("Using phi file to create zero array")
-            phi_path = Path(state.paths.input_paths.phi_filename)
+            
+            # Get the absolute path of the phi file
+            phi_path = InputPaths.get_absolute_path(state.paths.input_paths, state.paths.input_paths.phi_filename)
+            self.logger.debug(f"Phi file absolute path: {phi_path}")
             
             try:
                 phi_data = self.geospatial_manager.open_tiff(str(phi_path))
