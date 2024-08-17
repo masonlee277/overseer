@@ -404,22 +404,37 @@ def main():
     print("Simulation Parameters Summary:")
     sim_manager.print_simulation_params()
 
-    # Print simulation summary
-    print("\nSimulation Summary:")
+    # Print initial simulation summary
+    print("\nInitial Simulation Summary:")
     sim_manager.print_simulation_summary()
 
-    # Generate a random action
-    random_action = action_space.sample_action()
-    print(f"\nRandom Action Generated: {random_action}")
+    # Perform 10 actions
+    for i in range(10):
+        print(f"\n--- Action {i+1} ---")
+        
+        # Generate a random action
+        random_action = action_space.sample_action()
+        print(f"Random Action Generated: {random_action}")
 
-    # Run simulation with the random action
-    try:
-        new_state, done = sim_manager.run_simulation(random_action)
-        print(f"\nSimulation Results:")
-        print(f"New State: {new_state}")
-        print(f"Done: {done}")
-    except Exception as e:
-        print(f"Error during simulation: {str(e)}")
+        # Run simulation with the random action
+        try:
+            new_state, done = sim_manager.run_simulation(random_action)
+            print(f"Simulation Results:")
+            print(f"New State: {new_state}")
+            print(f"Done: {done}")
+
+            # Print updated simulation summary
+            print("\nUpdated Simulation Summary:")
+            sim_manager.print_simulation_summary()
+
+            if done:
+                print("Simulation completed. Resetting...")
+                sim_manager.reset_simulation()
+        except Exception as e:
+            print(f"Error during simulation: {str(e)}")
+            break
+
+    print("\nSimulation sequence completed.")
 
 if __name__ == "__main__":
     main()
