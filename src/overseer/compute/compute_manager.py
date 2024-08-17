@@ -1,50 +1,55 @@
-import json
-import subprocess
 import uuid
-from typing import Dict, Any, List, Optional
-from pathlib import Path
+import subprocess
+import threading
 import time
-import os
-import sys
-import io
-import traceback 
-
-from abc import ABC, abstractmethod
-from enum import Enum
-from dataclasses import dataclass, asdict
-from concurrent.futures import ThreadPoolExecutor
 import psutil
-import threading 
-import re
+from queue import Queue, Empty
+from typing import Dict, Any, Optional
+from enum import Enum
 
-from overseer.utils.logging import OverseerLogger
-from overseer.config.config import OverseerConfig
-from overseer.core.models import JobStatus, SimulationResult
+class JobStatus(Enum):
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
 
+class SimulationOutput:
+    def __init__(self):
+        self.output_queue = Queue()
+        self.is_complete = False
+        self.full_output = []
 
+    def add_line(self, line: str):
+        """Add a line of output to the simulation output."""
+        self.output_queue.put(line)
+        self.full_output.append(line)
 
+    def get_next_line(self, block: bool = False, timeout: Optional[float] = None) -> Optional[str]:
+        """Get the next line of output from the simulation."""
+        try:
+            return self.output_queue.get(block=block, timeout=timeout)
+        except Empty:
+            return None
+
+    def mark_as_complete(self):
+        """Mark the simulation output as complete."""
+        self.is_complete = True
+
+    def get_all_output(self) -> str:
+        """Get the full output of the simulation as a single string."""
+        return "".join(self.full_output)
 
 class LocalEnvironment:
-    def __init__(self, logger, log_simulation_output: bool = False):
+    def __init__(self, logger):
         self.jobs: Dict[str, Dict[str, Any]] = {}
-        self.log_simulation_output = log_simulation_output
+        self.logger = logger
 
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = OverseerLogger.getLogger(__name__)
-            self.logger.setLevel(OverseerLogger.DEBUG)
-            handler = OverseerLogger.StreamHandler()
-            formatter = OverseerLogger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            
     def submit_job(self, command: str) -> str:
+        """Submit a new job to the local environment."""
         job_id = str(uuid.uuid4())
         self.logger.info(f"Submitting job {job_id} with command: {command}")
         
         try:
-            job_id = str(uuid.uuid4())
             process = subprocess.Popen(
                 command,
                 shell=True,
@@ -55,26 +60,30 @@ class LocalEnvironment:
                 universal_newlines=True
             )
             
+            simulation_output = SimulationOutput()
+            
             self.jobs[job_id] = {
                 "process": process,
                 "status": JobStatus.RUNNING,
                 "start_time": time.time(),
                 "end_time": None,
-                "output": io.StringIO(),
                 "cpu_usage": [],
-                "memory_usage": []
+                "memory_usage": [],
+                "output": simulation_output
             }
             
             # Start output capture thread
             threading.Thread(target=self._capture_output, args=(job_id,), daemon=True).start()
             
             # Start resource monitoring thread
-            #threading.Thread(target=self._monitor_resources, args=(job_id,), daemon=True).start()
+            threading.Thread(target=self._monitor_job, args=(job_id,), daemon=True).start()
             
             return job_id
-
         except Exception as e:
             self.logger.error(f"Error submitting job {job_id}: {str(e)}")
+            simulation_output = SimulationOutput()
+            simulation_output.add_line(f"Failed to start: {str(e)}")
+            simulation_output.mark_as_complete()
             self.jobs[job_id] = {
                 "process": None,
                 "status": JobStatus.FAILED,
@@ -82,31 +91,32 @@ class LocalEnvironment:
                 "end_time": time.time(),
                 "cpu_usage": [],
                 "memory_usage": [],
-                "output": io.StringIO(f"Failed to start: {str(e)}")
+                "output": simulation_output
             }
-        
-
+            return job_id
 
     def _capture_output(self, job_id: str) -> None:
+        """Capture the output of a job and add it to the SimulationOutput."""
         job = self.jobs[job_id]
         process = job["process"]
-        output_buffer = job["output"]
+        simulation_output = job["output"]
 
         for line in iter(process.stdout.readline, ''):
-            if self.log_simulation_output:
-                self.logger.info(f"Job {job_id} output: {line.strip()}")
-            output_buffer.write(line)
+            self.logger.info(f"Job {job_id} output: {line.strip()}")
+            simulation_output.add_line(line)
 
         process.stdout.close()
+        simulation_output.mark_as_complete()
 
-    def get_job_output(self, job_id: str) -> str:
+    def get_job_output(self, job_id: str) -> Optional[SimulationOutput]:
+        """Get the SimulationOutput object for a specific job."""
         if job_id in self.jobs:
-            self.logger.debug(f"Getting output for job {job_id}")
-            return self.jobs[job_id]["output"].getvalue()
+            return self.jobs[job_id]["output"]
         self.logger.error(f"Job {job_id} not found")
-        return ""
+        return None
 
     def retrieve_results(self, job_id: str) -> Dict[str, Any]:
+        """Retrieve the final results of a job."""
         self.logger.debug(f"Retrieving results for job {job_id}")
         job = self.jobs[job_id]
         duration = round((job["end_time"] - job["start_time"]), 1) if job["end_time"] else None
@@ -118,8 +128,8 @@ class LocalEnvironment:
             "exit_code": job["process"].returncode if job["process"] else None
         }
 
-
     def _monitor_job(self, job_id: str) -> None:
+        """Monitor the resource usage of a job."""
         job = self.jobs[job_id]
         process = job["process"]
         
@@ -144,6 +154,7 @@ class LocalEnvironment:
         self._finalize_job(job_id)
 
     def _finalize_job(self, job_id: str) -> None:
+        """Finalize a job after it has completed or failed."""
         job = self.jobs[job_id]
         process = job["process"]
         
@@ -154,10 +165,12 @@ class LocalEnvironment:
         self.logger.debug(f"Job {job_id} exit code: {process.returncode}")
 
     def check_job_status(self, job_id: str) -> JobStatus:
+        """Check the current status of a job."""
         self.logger.debug(f"Checking status for job {job_id}")
         return self.jobs[job_id]["status"]
 
     def cancel_job(self, job_id: str) -> bool:
+        """Attempt to cancel a running job."""
         self.logger.info(f"Attempting to cancel job {job_id}")
         job = self.jobs[job_id]
         if job["process"] and job["status"] == JobStatus.RUNNING:
@@ -167,8 +180,7 @@ class LocalEnvironment:
             return True
         return False
     
-
-
+    
 class ComputeManager:
     def __init__(self, config: OverseerConfig):
         self.config = config
@@ -209,18 +221,31 @@ class ComputeManager:
             self.logger.error(f"Error submitting simulation: {str(e)}")
             return SimulationResult(job_id="", status=JobStatus.FAILED, error_message=str(e))
 
+
     def wait_for_simulation(self, job_id: str, check_interval: int = 2) -> SimulationResult:
         last_print_time = time.time()
+        simulation_output = self.environment.get_job_output(job_id)
+        
         while True:
             status = self.check_simulation_status(job_id)
+            
+            # Process any new output
+            while True:
+                line = simulation_output.get_output(block=False)
+                if line is None:
+                    break
+                error = self.detect_simulation_error(line)
+                if error:
+                    self.logger.error(f"Error detected in job {job_id}: {error}")
+                    return SimulationResult(job_id=job_id, status=JobStatus.FAILED, error_message=error)
+
             if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
                 self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
                 results = self.retrieve_simulation_results(job_id)
                 
-                # Check for errors in the simulation output
+                # Final check for errors in the complete output
                 if isinstance(self.environment, LocalEnvironment):
-                    output = self.environment.get_job_output(job_id)
-                    error = self.detect_simulation_error(output)
+                    error = self.detect_simulation_error(simulation_output.get_full_output())
                     if error:
                         results.status = JobStatus.FAILED
                         results.error_message = error
@@ -233,14 +258,30 @@ class ComputeManager:
                 last_print_time = current_time
             
             time.sleep(check_interval)
-            
-            current_time = time.time()
-            if current_time - last_print_time >= 8:
-                self.logger.info(f"Simulation {job_id} is still running...")
-                last_print_time = current_time
-            
-            time.sleep(check_interval)
-            
+
+    def detect_simulation_error(self, output: str) -> Optional[str]:
+        self.logger.debug(f"Detecting simulation error in output: {output}")
+        error_patterns = [
+            r"ERROR",
+            r"FAILURE",
+            r"Exception",
+            r"Traceback",
+            r"No such file or directory",
+            r"RuntimeError"
+        ]
+        
+        for pattern in error_patterns:
+            match = re.search(pattern, output, re.IGNORECASE)
+            if match:
+                # Extract the line containing the error and some context
+                lines = output.splitlines()
+                error_line_index = next(i for i, line in enumerate(lines) if pattern.lower() in line.lower())
+                context_start = max(0, error_line_index - 2)
+                context_end = min(len(lines), error_line_index + 3)
+                error_context = "\n".join(lines[context_start:context_end])
+                return f"Error detected: {error_context}"
+        
+        return None        
     def retrieve_simulation_results(self, job_id: str) -> SimulationResult:
         results = self.environment.retrieve_results(job_id)
         self.logger.info(f"Retrieved results for job {job_id}: {json.dumps(results, indent=2)}")
@@ -314,29 +355,6 @@ class ComputeManager:
             print(f"Error during ELMFIRE build: {str(e)}")
             return False
 
-    def detect_simulation_error(self, output: str) -> Optional[str]:
-        self.logger.debug(f"Detecting simulation error in output: {output}")
-        error_patterns = [
-            r"ERROR",
-            r"FAILURE",
-            r"Exception",
-            r"Traceback",
-            r"No such file or directory",
-            r"RuntimeError"
-        ]
-        
-        for pattern in error_patterns:
-            match = re.search(pattern, output, re.IGNORECASE)
-            if match:
-                # Extract the line containing the error and some context
-                lines = output.splitlines()
-                error_line_index = next(i for i, line in enumerate(lines) if pattern.lower() in line.lower())
-                context_start = max(0, error_line_index - 2)
-                context_end = min(len(lines), error_line_index + 3)
-                error_context = "\n".join(lines[context_start:context_end])
-                return f"Error detected: {error_context}"
-        
-        return None
         
 def main():
     logger = OverseerLogger().get_logger('ElmfireComputeManagerTest')
