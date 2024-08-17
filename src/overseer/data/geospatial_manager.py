@@ -570,6 +570,79 @@ class GeoSpatialManager:
         self.logger.debug(f"Final metrics: {metrics}")
         return metrics
 
+    ## Update PHI file
+    ###############################################################################################################################
+    def update_phi_file(self, phi_path: str, toa_path: str, flin_path: str, 
+                        burn_threshold: float = 0.0, unburn_value: float = 1.0, burn_value: float = -1.0) -> None:
+        """
+        Update the PHI_FILENAME file with the current fire state based on Time of Arrival (TOA) and Fire Line Intensity (FLIN) data.
+
+        This method reads the existing PHI file, TOA, and FLIN rasters, and updates the PHI raster to reflect the current fire state.
+        It burns the active fire perimeter into the existing PHI file, setting burned areas to a negative value and unburned areas to a positive value.
+
+        Args:
+            phi_path (str): Path to the existing PHI raster file.
+            toa_path (str): Path to the Time of Arrival raster file.
+            flin_path (str): Path to the Fire Line Intensity raster file.
+            burn_threshold (float, optional): Threshold value for FLIN to consider an area as burned. Defaults to 0.0.
+            unburn_value (float, optional): Value to set for unburned areas in the PHI raster. Defaults to 1.0.
+            burn_value (float, optional): Value to set for burned areas in the PHI raster. Defaults to -1.0.
+
+        Raises:
+            ValueError: If there's a mismatch in raster dimensions or if any of the input files cannot be read.
+
+        Note:
+            - Areas with FLIN > burn_threshold are considered burned and set to burn_value in the PHI raster.
+            - Other areas are set to unburn_value in the PHI raster.
+            - The updated PHI raster is saved back to the original phi_path.
+        """
+        self.logger.info(f"Updating PHI file: {phi_path}")
+        self.logger.info(f"Using TOA file: {toa_path}")
+        self.logger.info(f"Using FLIN file: {flin_path}")
+        self.logger.info(f"Burn threshold: {burn_threshold}")
+        self.logger.info(f"Unburn value: {unburn_value}")
+        self.logger.info(f"Burn value: {burn_value}")
+
+        try:
+            # Read the existing PHI file
+            with rasterio.open(phi_path) as src:
+                phi_data = src.read(1)
+                phi_meta = src.meta.copy()
+
+            # Read the TOA file
+            with rasterio.open(toa_path) as src:
+                toa_data = src.read(1)
+
+            # Read the FLIN file
+            with rasterio.open(flin_path) as src:
+                flin_data = src.read(1)
+
+            # Check if all rasters have the same dimensions
+            if not (phi_data.shape == toa_data.shape == flin_data.shape):
+                raise ValueError("Mismatch in raster dimensions")
+
+            # Update PHI based on FLIN
+            phi_data = np.where(flin_data > burn_threshold, burn_value, unburn_value)
+
+            # Write the updated PHI data
+            with rasterio.open(phi_path, 'w', **phi_meta) as dst:
+                dst.write(phi_data, 1)
+
+            self.logger.info(f"Successfully updated PHI file: {phi_path}")
+            self.logger.info(f"Total burned area: {np.sum(phi_data == burn_value)} pixels")
+            self.logger.info(f"Total unburned area: {np.sum(phi_data == unburn_value)} pixels")
+
+        except rasterio.errors.RasterioIOError as e:
+            self.logger.error(f"Error reading raster file: {str(e)}")
+            raise
+        except ValueError as e:
+            self.logger.error(f"Error processing raster data: {str(e)}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error updating PHI file: {str(e)}")
+            raise
+
+    ###############################################################################################################################
     
     def generate_action_from_files(self, fire_intensity_path: str, existing_firelines_path: str, 
                                         elevation_path: str = None, vegetation_path: str = None,

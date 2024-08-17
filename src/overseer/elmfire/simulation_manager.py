@@ -164,6 +164,9 @@ class SimulationManager:
             self.logger.info("Updating state in DataManager")
             self.data_manager.update_state(new_state)
 
+            # Update PHI file for the next simulation
+            self.update_phi_file(new_state)
+
             # Check if simulation is complete
             done = self.check_simulation_complete(new_state)
             self.logger.info(f"Simulation complete: {done}")
@@ -176,13 +179,30 @@ class SimulationManager:
             self.logger.error(traceback.format_exc())
             raise
 
+    def update_phi_file(self, state: SimulationState) -> None:
+        """
+        Update the PHI file based on the current simulation state.
 
+        Args:
+            state (SimulationState): The current simulation state.
+        """
+        self.logger.info("Updating PHI file for next simulation")
+        try:
+            phi_path = state.paths.input_paths.phi_filename
+            toa_path = state.paths.output_paths.time_of_arrival
+            flin_path = state.paths.output_paths.fire_intensity
+
+            self.data_manager.geospatial_manager.update_phi_file(
+                phi_path=str(phi_path),
+                toa_path=str(toa_path),
+                flin_path=str(flin_path)
+            )
+            self.logger.info("PHI file updated successfully")
         except Exception as e:
-            self.logger.error(f"Error during simulation run: {str(e)}")
+            self.logger.error(f"Error updating PHI file: {str(e)}")
             self.logger.error("Full traceback:")
             self.logger.error(traceback.format_exc())
             raise
-
 
 
     def _create_simulation_state_from_result(self, result: SimulationResult, sim_config: SimulationConfig) -> SimulationState:

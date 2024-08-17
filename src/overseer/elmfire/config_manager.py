@@ -601,10 +601,10 @@ def main():
     # Initialize necessary components
     config = OverseerConfig()
     geospatial_manager = GeoSpatialManager(config)
-    data_in_handler = ElmfireDataInHandler(config, OverseerLogger().get_logger('DataInHandler'))
+    data_manager = DataManager(config)
 
     # Create ElmfireConfigManager instance
-    config_manager = ElmfireConfigManager(config, geospatial_manager, data_in_handler)
+    config_manager = ElmfireConfigManager(config, data_manager)
     logger = config_manager.logger
 
     logger.info("Starting ElmfireConfigManager demonstration")
