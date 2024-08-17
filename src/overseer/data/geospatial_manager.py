@@ -12,7 +12,9 @@ from rasterio import features
 from shapely.geometry import shape, Polygon, Point, LineString 
 
 from scipy import ndimage
-from typing import Dict, Any, Tuple, List, Optional
+from scipy.ndimage import convolve2d
+
+from typing import Dict, Any, Tuple, List, Optional, Union
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from rasterio.transform import Affine
