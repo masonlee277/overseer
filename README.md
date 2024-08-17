@@ -177,3 +177,43 @@ This Quick Start guide demonstrates the core workflow of the Overseer framework:
    - Performance metrics are calculated to evaluate the effectiveness of the fire suppression strategies.
 
 This Quick Start guide showcases the integration of various components in the Overseer framework, demonstrating how they work together to create a comprehensive system for ELMFIRE simulation with reinforcement learning capabilities.
+
+## 🤖 Reinforcement Learning Environment
+
+### 🌿 ELMFIRE Gym Environment
+
+Overseer implements a custom OpenAI Gym-compatible environment (`ElmfireGymEnv`) that interfaces with the ELMFIRE simulator. This environment allows reinforcement learning agents to interact with wildfire simulations in a standardized way.
+
+Key features of `ElmfireGymEnv`:
+
+- **Observation Space**: Represents the current state of the wildfire, including fire intensity, spread patterns, and relevant environmental factors.
+- **Action Space**: Defines possible firefighting actions, such as creating firebreaks or deploying resources.
+- **Step Function**: Executes actions in the ELMFIRE simulator, advances the simulation, and returns the new state, reward, and other information.
+- **Reset Function**: Initializes the environment to a new starting state for each episode.
+- **Reward Function**: Calculates the reward based on fire suppression effectiveness and resource utilization.
+
+### 📚 Offline Reinforcement Learning
+
+Overseer supports offline reinforcement learning, allowing agents to learn from pre-collected datasets of wildfire simulations. This approach is crucial for several reasons:
+
+1. **Safety**: Avoids potentially dangerous exploration in real-world wildfire scenarios.
+2. **Data Efficiency**: Leverages existing historical data and expert knowledge.
+3. **Scalability**: Enables learning from a wide range of scenarios without running new simulations.
+
+### 🧠 DecisionDiffuser and CleanDiffuser Library
+
+To implement offline RL, Overseer utilizes the DecisionDiffuser algorithm implemented with the CleanDiffuser library. This choice is justified by several factors:
+
+1. **Handling Complex Action Spaces**: DecisionDiffuser can effectively model the complex, multi-dimensional action space required for wildfire suppression strategies.
+
+2. **Conditional Generation**: The diffusion model allows for generating actions conditioned on the current wildfire state, capturing nuanced relationships between observations and optimal actions.
+
+3. **Distribution Matching**: DecisionDiffuser can closely match the distribution of expert actions in the offline dataset, reducing the risk of extrapolation errors common in offline RL.
+
+4. **Uncertainty Quantification**: Diffusion models provide a natural way to represent uncertainty in action selection, which is crucial in high-stakes wildfire management decisions.
+
+5. **Sample Efficiency**: The CleanDiffuser library implements efficient training and sampling procedures, allowing for effective learning from limited offline data.
+
+6. **Flexibility**: The modular nature of CleanDiffuser allows for easy experimentation with different neural network architectures and diffusion processes tailored to the ELMFIRE domain.
+
+By integrating DecisionDiffuser and CleanDiffuser, Overseer provides a powerful framework for learning sophisticated wildfire suppression policies from offline data, combining the benefits of deep reinforcement learning with the safety and efficiency of offline learning approaches.
