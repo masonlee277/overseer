@@ -318,7 +318,7 @@ class StateManager:
         output_dir = step_dir / "outputs"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        for output_type in self.outputs_to_copy:
+        for output_type in self.copy_outputs_to_steps:
             source_path = getattr(state.paths.output_paths, output_type, None)
             if source_path:
                 dest_path = output_dir / source_path.name
