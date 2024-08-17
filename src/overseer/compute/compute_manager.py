@@ -6,12 +6,31 @@ import psutil
 from queue import Queue, Empty
 from typing import Dict, Any, Optional
 from enum import Enum
+import json
+import subprocess
+import uuid
+from typing import Dict, Any, List, Optional
+from pathlib import Path
+import time
+import os
+import sys
+import io
+import traceback 
 
-class JobStatus(Enum):
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
+from abc import ABC, abstractmethod
+from enum import Enum
+from dataclasses import dataclass, asdict
+from concurrent.futures import ThreadPoolExecutor
+import psutil
+import threading 
+import re
+
+from overseer.utils.logging import OverseerLogger
+from overseer.config.config import OverseerConfig
+from overseer.core.models import JobStatus, SimulationResult
+import threading
+from queue import Queue, Empty
+
 
 class SimulationOutput:
     def __init__(self):
@@ -31,6 +50,12 @@ class SimulationOutput:
         except Empty:
             return None
 
+    def get_output(self, block: bool = False, timeout: Optional[float] = None) -> Optional[str]:
+        """Get the next line of output from the simulation."""
+        try:
+            return self.output_queue.get(block=block, timeout=timeout)
+        except Empty:
+            return None
     def mark_as_complete(self):
         """Mark the simulation output as complete."""
         self.is_complete = True
@@ -201,7 +226,7 @@ class ComputeManager:
         env_type = self.config.get('compute_environment', 'local')
         if env_type == 'local':
             self.logger.info("Using local environment")
-            return LocalEnvironment(self.logger, self.log_simulation_output)
+            return LocalEnvironment(self.logger)
         else:
             raise ValueError(f"Unsupported compute environment: {env_type}")
 
@@ -237,7 +262,17 @@ class ComputeManager:
                 error = self.detect_simulation_error(line)
                 if error:
                     self.logger.error(f"Error detected in job {job_id}: {error}")
-                    return SimulationResult(job_id=job_id, status=JobStatus.FAILED, error_message=error)
+                    print(f"Error detected in job {job_id}: {error}.. Returning failed simulationResult.")  # Print the error
+                    
+                    return SimulationResult(
+                        job_id=job_id,
+                        status=JobStatus.FAILED,
+                        error_message=error,
+                        duration=None,
+                        cpu_usage=None,
+                        memory_usage=None,
+                        exit_code=None
+                    )
 
             if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
                 self.logger.info(f"Simulation {job_id} finished with status: {status.value}")
@@ -247,8 +282,17 @@ class ComputeManager:
                 if isinstance(self.environment, LocalEnvironment):
                     error = self.detect_simulation_error(simulation_output.get_full_output())
                     if error:
-                        results.status = JobStatus.FAILED
-                        results.error_message = error
+                        self.logger.error(f"Error detected in job {job_id}: {error}")
+                        print(f"Error detected in job {job_id}: {error}")  # Print the error
+                        return SimulationResult(
+                            job_id=job_id,
+                            status=JobStatus.FAILED,
+                            error_message=error,
+                            duration=results.duration,
+                            cpu_usage=results.cpu_usage,
+                            memory_usage=results.memory_usage,
+                            exit_code=results.exit_code
+                        )
                 
                 return results
             
@@ -258,6 +302,7 @@ class ComputeManager:
                 last_print_time = current_time
             
             time.sleep(check_interval)
+
 
     def detect_simulation_error(self, output: str) -> Optional[str]:
         self.logger.debug(f"Detecting simulation error in output: {output}")
@@ -377,6 +422,8 @@ def main():
         submit_result = compute_manager.submit_simulation()
         if submit_result.status == JobStatus.FAILED:
             logger.error(f"Failed to submit simulation: {submit_result.error_message}")
+            logger.error(f"Full traceback:")
+            logger.error(traceback.format_exc())
             sys.exit(1)
         logger.info(f"Submitted simulation job with ID: {submit_result.job_id}")
 
