@@ -47,7 +47,7 @@ class StateManager:
         self.config = config
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
-        self.copy_outputs_to_steps = self.config.get('data_management', '{}').get('copy_outputs_to_steps', '')
+        self.copy_outputs = self.config.get('data_management', '{}').get('copy_outputs_to_steps', '')
         self.logger.info(f"Are we saving raw fireperims?: {self.copy_outputs_to_steps}")
         self.current_state: Optional[SimulationState] = None
         self.state_history: List[SimulationState] = []
@@ -302,7 +302,7 @@ class StateManager:
             self.logger.debug(f"State saved to {state_file}")
 
             # Copy output files if configured
-            if self.copy_outputs_to_steps:
+            if self.copy_outputs:
                 self.logger.info("Copying outputs to steps")
                 self._copy_output_files(state, step_dir)
             else:
@@ -314,20 +314,30 @@ class StateManager:
             raise
 
     def _copy_output_files(self, state: SimulationState, step_dir: Path):
-        """Copy specified output files to the step folder."""
+        """Copy all .tif files from the output directory to the step folder."""
         output_dir = step_dir / "outputs"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        for output_type in self.copy_outputs_to_steps:
-            source_path = getattr(state.paths.output_paths, output_type, None)
-            if source_path:
-                dest_path = output_dir / source_path.name
+        source_dir = Path(state.paths.output_paths.time_of_arrival).parent
+        if not source_dir.is_dir():
+            self.logger.error(f"Invalid source directory: {source_dir}")
+            return
+
+        for filename in os.listdir(source_dir):
+            if filename.endswith('.tif'):
+                source_path = source_dir / filename
+                dest_path = output_dir / filename
                 try:
                     shutil.copy2(source_path, dest_path)
-                    self.logger.info(f"Copied {output_type} file to {dest_path}")
+                    self.logger.info(f"Copied {filename} to {dest_path}")
                 except Exception as e:
-                    self.logger.error(f"Failed to copy {output_type} file: {str(e)}")
+                    self.logger.error(f"Failed to copy {filename}: {str(e)}")
 
+        # Specifically log the copying of time_of_arrival and fire_intensity files
+        toa_file = state.paths.output_paths.time_of_arrival
+        flin_file = state.paths.output_paths.fire_intensity
+        self.logger.info(f"Time of Arrival file: {toa_file}")
+        self.logger.info(f"Fire Intensity file: {flin_file}")
                     
 
     def _get_episode_directory(self, episode_id: int) -> Path:
