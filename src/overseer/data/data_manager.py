@@ -319,8 +319,8 @@ class DataManager:
             state = self.get_current_state()
 
         # Check if the required output files exist
-        toa_path = state.paths.output_paths.time_of_arrival
-        flin_path = state.paths.output_paths.fire_intensity
+        toa_path = Path(state.paths.output_paths.time_of_arrival)
+        flin_path = Path(state.paths.output_paths.fire_intensity)
 
         if not toa_path.exists() or not flin_path.exists():
             self.logger.warning("[On Reset]: Required output files not found. Using default metrics.")
