@@ -506,13 +506,28 @@ class StateManager:
         return {k: str(v) for k, v in output_paths.__dict__.items()}
 
     def _serialize_metrics(self, metrics: SimulationMetrics) -> Dict:
-        serialized = metrics.__dict__.copy()
-        if serialized['fire_intensity'] is not None:
-            serialized['fire_intensity'] = serialized['fire_intensity'].tolist()
+        """
+        Serialize the SimulationMetrics object to a dictionary.
 
-        #if its none throw a warning
-        if serialized['fire_intensity'] is None:
-            self.logger.warning("[StateManager] Fire intensity is None")
+        Args:
+            metrics (SimulationMetrics): The metrics to serialize.
+
+        Returns:
+            Dict: The serialized metrics.
+        """
+        serialized = {}
+        for key, value in metrics.__dict__.items():
+            if value is None:
+                self.logger.warning(f"[StateManager] Metric '{key}' is None")
+                serialized[key] = None
+            elif key == 'fire_intensity' and isinstance(value, dict):
+                # Handle the fire_intensity dictionary
+                serialized[key] = {k: v for k, v in value.items() if v is not None}
+            elif isinstance(value, np.ndarray):
+                serialized[key] = value.tolist()
+            else:
+                serialized[key] = value
+
         return serialized
     
     def clean_states(self):
