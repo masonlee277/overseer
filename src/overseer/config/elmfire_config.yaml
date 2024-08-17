@@ -32,6 +32,12 @@ environment:
   elmfire_scratch_base: C:/Users/mason/Desktop/misc/overseer/elmfire/scratch
 
 
+log_simulation_output: false
+logging:
+  file: logs/elmfire.log
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  level: DEBUG
+
 fuel:
   moisture_100hr: 8
   moisture_10hr: 7
@@ -49,11 +55,7 @@ ignition:
     - - 5000
       - 5000
   type: point
-log_simulation_output: false
-logging:
-  file: logs/elmfire.log
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  level: INFO
+
 output_control:
   metrics_to_track:
     - burned_area

@@ -245,7 +245,7 @@ class DataManager:
             output_dir = Path(sim_paths.output_paths.time_of_arrival).parent
             flin_file = list(output_dir.glob("flin_*.tif"))
             toa_file = list(output_dir.glob("time_of_arrival_*.tif"))
-
+            
             self.logger.debug(f"Found {len(flin_file)} fire intensity files and {len(toa_file)} time of arrival files")
 
             if not flin_file or not toa_file:
