@@ -168,17 +168,46 @@ class DataManager:
 
     def state_to_array(self, state: Optional[SimulationState] = None) -> np.ndarray:
         """
-        Convert a SimulationState to a numpy array.
+        Convert a SimulationState to a numpy array representation.
+
+        This method takes a SimulationState object and converts its fire intensity data
+        into a flattened numpy array. If no state is provided, it uses the current state.
 
         Args:
             state (Optional[SimulationState]): The state to convert. If None, use the current state.
 
         Returns:
-            np.ndarray: A numpy array representation of the state.
+            np.ndarray: A 1D numpy array representation of the state's fire intensity data.
+
+        Raises:
+            ValueError: If the fire intensity path does not exist or if the data cannot be read.
         """
-        self.logger.info("Converting state to array")
-        state_array = self.state_manager.state_to_array(state)
-        self.logger.info(f"State array: {np.shape(state_array)}")
+        ##TODO:: USE INPUT AND OUTPUT DATA --> Encode 
+        self.logger.info("Starting conversion of SimulationState to array")
+
+        if state is None:
+            self.logger.info("No state provided, using current state")
+            state = self.get_current_state()
+
+        flin_path = Path(state.paths.output_paths.fire_intensity)
+        self.logger.debug(f"Fire intensity path: {flin_path}")
+
+        if not flin_path.exists():
+            self.logger.error(f"Fire intensity file does not exist: {flin_path}")
+            raise ValueError(f"Fire intensity file does not exist: {flin_path}")
+
+        try:
+            flin_data = self.geospatial_manager.open_tiff(str(flin_path))
+            flin_raster = flin_data['data']
+            self.logger.debug(f"Fire intensity raster shape: {flin_raster.shape}")
+        except Exception as e:
+            self.logger.error(f"Failed to read fire intensity data: {str(e)}")
+            raise ValueError(f"Failed to read fire intensity data: {str(e)}")
+
+        # Flatten the raster to a 1D array
+        state_array = flin_raster.flatten()
+
+        self.logger.info(f"State array created with shape: {state_array.shape}")
         return state_array
 
     def get_state_history(self) -> List[SimulationState]:
