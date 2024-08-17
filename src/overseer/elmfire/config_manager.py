@@ -557,7 +557,6 @@ class ElmfireConfigManager:
     
 
 
-
     def create_and_manage_input_backup(self) -> None:
         """
         Create a backup of input files and manage resets.
@@ -584,7 +583,7 @@ class ElmfireConfigManager:
 
         # Get the path to the inputs directory
         input_paths = self.get_simulation_paths().input_paths
-        input_dir = input_paths.fuels_and_topography_directory
+        input_dir = Path(input_paths.fuels_and_topography_directory)
 
         # Create the backup directory path
         backup_dir = input_dir.parent / "inputs_copy"
@@ -616,7 +615,7 @@ class ElmfireConfigManager:
         self.logger.info("Resetting inputs from backup")
 
         input_paths = self.get_simulation_paths().input_paths
-        input_dir = input_paths.fuels_and_topography_directory
+        input_dir = Path(input_paths.fuels_and_topography_directory)
         backup_dir = input_dir.parent / "inputs_copy"
 
         if not backup_dir.exists():
