@@ -15,7 +15,7 @@ from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
 import psutil
 import threading 
-
+import re
 
 from overseer.utils.logging import OverseerLogger
 from overseer.config.config import OverseerConfig
@@ -44,6 +44,7 @@ class LocalEnvironment:
         self.logger.info(f"Submitting job {job_id} with command: {command}")
         
         try:
+            job_id = str(uuid.uuid4())
             process = subprocess.Popen(
                 command,
                 shell=True,
@@ -59,17 +60,19 @@ class LocalEnvironment:
                 "status": JobStatus.RUNNING,
                 "start_time": time.time(),
                 "end_time": None,
+                "output": io.StringIO(),
                 "cpu_usage": [],
-                "memory_usage": [],
-                "output": io.StringIO()
+                "memory_usage": []
             }
             
-            self.logger.debug(f"Job {job_id} started with PID {process.pid}")
-            
-            # Start monitoring the process
-            threading.Thread(target=self._monitor_job, args=(job_id,), daemon=True).start()
-            # Start capturing the output
+            # Start output capture thread
             threading.Thread(target=self._capture_output, args=(job_id,), daemon=True).start()
+            
+            # Start resource monitoring thread
+            threading.Thread(target=self._monitor_resources, args=(job_id,), daemon=True).start()
+            
+            return job_id
+
         except Exception as e:
             self.logger.error(f"Error submitting job {job_id}: {str(e)}")
             self.jobs[job_id] = {
@@ -82,7 +85,6 @@ class LocalEnvironment:
                 "output": io.StringIO(f"Failed to start: {str(e)}")
             }
         
-        return job_id
 
 
     def _capture_output(self, job_id: str) -> None:
@@ -96,6 +98,13 @@ class LocalEnvironment:
             output_buffer.write(line)
 
         process.stdout.close()
+
+    def get_job_output(self, job_id: str) -> str:
+        if job_id in self.jobs:
+            self.logger.debug(f"Getting output for job {job_id}")
+            return self.jobs[job_id]["output"].getvalue()
+        self.logger.error(f"Job {job_id} not found")
+        return ""
 
     def retrieve_results(self, job_id: str) -> Dict[str, Any]:
         self.logger.debug(f"Retrieving results for job {job_id}")
@@ -158,11 +167,6 @@ class LocalEnvironment:
             return True
         return False
     
-    def get_job_output(self, job_id: str) -> str:
-        if job_id in self.job_outputs:
-            return self.job_outputs[job_id]
-        return ""
-
 
 
 class ComputeManager:
@@ -215,12 +219,20 @@ class ComputeManager:
                 
                 # Check for errors in the simulation output
                 if isinstance(self.environment, LocalEnvironment):
-                    error = self.detect_simulation_error(self.environment.get_job_output(job_id))
+                    output = self.environment.get_job_output(job_id)
+                    error = self.detect_simulation_error(output)
                     if error:
                         results.status = JobStatus.FAILED
                         results.error_message = error
                 
                 return results
+            
+            current_time = time.time()
+            if current_time - last_print_time >= 8:
+                self.logger.info(f"Simulation {job_id} is still running...")
+                last_print_time = current_time
+            
+            time.sleep(check_interval)
             
             current_time = time.time()
             if current_time - last_print_time >= 8:
@@ -303,31 +315,26 @@ class ComputeManager:
             return False
 
     def detect_simulation_error(self, output: str) -> Optional[str]:
-        """
-        Detect if an error occurred in the simulation based on the output.
-        
-        Args:
-            output (str): The simulation output text.
-        
-        Returns:
-            Optional[str]: Error message if an error is detected, None otherwise.
-        """
         error_patterns = [
-            r"ERROR.*?:",
-            r"FAILURE:",
-            r"Traceback \(most recent call last\):",
-            r"RuntimeError:",
+            r"ERROR",
+            r"FAILURE",
+            r"Exception",
+            r"Traceback",
             r"No such file or directory",
-            r"Problem opening.*?",
+            r"RuntimeError"
         ]
-
+        
         for pattern in error_patterns:
-            match = re.search(pattern, output, re.IGNORECASE | re.MULTILINE)
+            match = re.search(pattern, output, re.IGNORECASE)
             if match:
-                error_line = match.group(0)
-                context = output[max(0, match.start() - 100):min(len(output), match.end() + 100)]
-                return f"Error detected: {error_line}\nContext:\n{context}"
-
+                # Extract the line containing the error and some context
+                lines = output.splitlines()
+                error_line_index = next(i for i, line in enumerate(lines) if pattern.lower() in line.lower())
+                context_start = max(0, error_line_index - 2)
+                context_end = min(len(lines), error_line_index + 3)
+                error_context = "\n".join(lines[context_start:context_end])
+                return f"Error detected: {error_context}"
+        
         return None
         
 def main():
