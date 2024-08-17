@@ -48,6 +48,10 @@ class InputPaths:
                 raise ValueError(f"{filename_attr} is not a valid attribute of InputPaths")
             filename = getattr(instance, filename_attr)
 
+        # Convert filename to Path object if it's a string
+        if isinstance(filename, str):
+            filename = Path(filename)
+
         # Determine the correct directory
         if filename_attr in ['ws_filename', 'wd_filename', 'm1_filename', 'm10_filename', 'm100_filename']:
             base_dir = instance.weather_directory
