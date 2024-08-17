@@ -103,7 +103,7 @@ class GeoSpatialManager:
                                                  representing the fire (e.g., time of arrival or fire intensity).
 
         Returns:
-            float: The calculated fire perimeter in meters.
+            float: The calculated fire perimeter in kilometers.
 
         Note:
             - If a file path is provided, it will be opened using open_tiff method.
@@ -135,9 +135,11 @@ class GeoSpatialManager:
         diag_connections = convolve2d(boundary, diag_kernel, mode='same')
         perimeter += np.sum(diag_connections) * (np.sqrt(2) - 1) * self.resolution
 
-        self.logger.info(f"Calculated fire perimeter: {perimeter:.2f} meters")
-        return perimeter
+        # Convert perimeter from meters to kilometers
+        perimeter_km = perimeter / 1000
 
+        self.logger.info(f"Calculated fire perimeter: {perimeter_km:.2f} kilometers")
+        return perimeter_km
 
     def calculate_fire_size(self, input_data: Union[str, np.ndarray]) -> float:
         """
@@ -151,7 +153,7 @@ class GeoSpatialManager:
                                                  representing the fire (e.g., time of arrival or fire intensity).
 
         Returns:
-            float: The calculated fire size in square meters.
+            float: The calculated fire size in square acres.
 
         Note:
             - If a file path is provided, it will be opened using open_tiff method.
@@ -165,10 +167,14 @@ class GeoSpatialManager:
             input_data = self.open_tiff(input_data)['data']
 
         # Count non-zero cells and multiply by cell area
-        fire_size = np.sum(input_data > 0) * (self.resolution ** 2)
+        fire_size_sq_meters = np.sum(input_data > 0) * (self.resolution ** 2)
 
-        self.logger.info(f"Calculated fire size: {fire_size:.2f} square meters")
-        return fire_size
+        # Convert fire size from square meters to square acres
+        # 1 square meter = 0.000247105 acres
+        fire_size_acres = fire_size_sq_meters * 0.000247105
+
+        self.logger.info(f"Calculated fire size: {fire_size_acres:.2f} square acres")
+        return fire_size_acres
     
     def raster_to_vector(self, raster_data: np.ndarray, metadata: Dict[str, Any]) -> gpd.GeoDataFrame:
         """Convert raster data to vector format."""
@@ -737,15 +743,16 @@ def main():
     toa_perimeter = gsm.calculate_fire_perimeter(toa_path)
     toa_size = gsm.calculate_fire_size(toa_path)
 
-    print(f"Fire perimeter (based on time of arrival): {toa_perimeter:.2f} meters")
-    print(f"Fire size (based on time of arrival): {toa_size:.2f} square meters")
+    print(f"Fire perimeter (based on time of arrival): {toa_perimeter:.2f} kilometers")
+    print(f"Fire size (based on time of arrival): {toa_size:.2f} square acres")
 
     # Calculate fire perimeter and size using fire line intensity data
     flin_perimeter = gsm.calculate_fire_perimeter(flin_path)
     flin_size = gsm.calculate_fire_size(flin_path)
 
-    print(f"Fire perimeter (based on fire line intensity): {flin_perimeter:.2f} meters")
-    print(f"Fire size (based on fire line intensity): {flin_size:.2f} square meters")
+    print(f"Fire perimeter (based on fire line intensity): {flin_perimeter:.2f} kilometers")
+    print(f"Fire size (based on fire line intensity): {flin_size:.2f} square acres")
+
 
 
     # print("Creating fake data...")
