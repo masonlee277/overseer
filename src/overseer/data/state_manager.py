@@ -48,7 +48,7 @@ class StateManager:
         self.logger = OverseerLogger().get_logger(self.__class__.__name__)
         self.data_dir = Path(self.config.get('data_dir', 'data'))
         self.copy_outputs_to_steps = config.get('data_management.copy_outputs_to_steps', [])
-
+        self.logger.info(f"Are we saving raw fireperims?: {self.copy_outputs_to_steps}")
         self.current_state: Optional[SimulationState] = None
         self.state_history: List[SimulationState] = []
         self.episodes: Dict[int, Episode] = {}
@@ -303,7 +303,10 @@ class StateManager:
 
             # Copy output files if configured
             if self.copy_outputs_to_steps:
+                self.logger.info("Copying outputs to steps")
                 self._copy_output_files(state, step_dir)
+            else:
+                self.logger.info("Not copying outputs to steps")
 
             return state_file
         except OSError as e:
